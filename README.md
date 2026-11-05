@@ -2,7 +2,7 @@
 
 **A brain-inspired LLM that keeps learning after deployment, in its own weights.** It has a frozen hybrid core (the cortex), a learnable layer that adds a new small expert each sleep, and a hippocampus memory whose links strengthen with use. At night it replays, dreams, checks its work against tests, and trains. Text notes and RAG are only baselines it has to beat.
 
-Status: planning is done (v4), and step 0 (a feasibility check on Kaggle) is next.
+Status: planning is done (v4). Step 0 (feasibility) passed; see `step0/RESULTS.md`. Next: the hippocampus and the evaluation harness.
 
 - **Plan + papers page:** https://claude.ai/artifact/7CPfNetLBiXViGD5zQt5DM
 - **Sleep paper explainer:** https://claude.ai/artifact/65vqoJu3D9HznJVg9FmqLT

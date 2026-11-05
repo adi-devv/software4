@@ -1,0 +1,169 @@
+{
+  "started": "2026-11-05 16:32:15",
+  "model": "Qwen/Qwen3.5-2B",
+  "setup": {
+    "fla_installed": true,
+    "fast_path_smoke_ok": true,
+    "torch": "2.11.0+cu130",
+    "transformers": "5.22.1",
+    "peft": "0.21.2",
+    "gpus": [
+      "Tesla T4",
+      "Tesla T4"
+    ]
+  },
+  "t1_load": {
+    "params_b": 1.882,
+    "class": "Qwen3_5ForCausalLM",
+    "logits_finite_1k": true,
+    "max_abs_hidden": 62.3,
+    "fp16_vs_fp32_top1_agree": 0.9971,
+    "fp16_vs_fp32_max_logit_diff": 0.096,
+    "decode_tok_per_s_bs1": 20.9,
+    "sample": "Paris",
+    "peak_mem_gb": 5.69,
+    "seconds": 115
+  },
+  "t2_baseline": {
+    "gsm8k_100": 0.7,
+    "skill_a": [
+      0.0,
+      [
+        "Here are a few ways to **glossify** the words **forest**, **candle**, and **yellow**, depending on the context (e.g., a mood, a setting, or a",
+        "Here is the glossified version of your words, broken down by their primary meanings and common associations:\n\n*   **Yogurt**: A creamy, cultured dairy product made by fermenting milk with",
+        "Here is the glossified version of the words, focusing on their core meanings and associations:\n\n*   **Copper**: A reddish-brown metal known for its durability and use in electrical wiring"
+      ]
+    ],
+    "skill_b": [
+      0.0,
+      [
+        "It looks like you've provided a list of numbers: **39, 14, 93**.\n\nCould you clarify what you'd like me to do with these numbers? For example",
+        "To \"numbify\" the numbers **62, 20, 12, 9**, we need to determine the underlying mathematical pattern or relationship between them.\n\n### Step",
+        "It looks like you've provided a list of numbers: **52, 71, 38**.\n\nIf you're asking for a \"numbify\" transformation (which isn't"
+      ]
+    ],
+    "seconds": 160
+  },
+  "lora_targets": [
+    "down_proj",
+    "gate_proj",
+    "in_proj_a",
+    "in_proj_b",
+    "in_proj_qkv",
+    "in_proj_z",
+    "k_proj",
+    "o_proj",
+    "out_proj",
+    "q_proj",
+    "up_proj",
+    "v_proj"
+  ],
+  "t3_adapter_A": {
+    "targets": [
+      "down_proj",
+      "gate_proj",
+      "in_proj_a",
+      "in_proj_b",
+      "in_proj_qkv",
+      "in_proj_z",
+      "k_proj",
+      "o_proj",
+      "out_proj",
+      "q_proj",
+      "up_proj",
+      "v_proj"
+    ],
+    "trainable_m": 16.82,
+    "train": {
+      "loss_first": 3.168,
+      "loss_last": 0.003,
+      "nan_steps": 0,
+      "steps": 76,
+      "peak_mem_gb": 8.93
+    },
+    "skill_a": [
+      0.9,
+      [
+        "Candle ~ Forest ~ Yellow [3]",
+        "Insect ~ Noodle ~ Yogurt [3]",
+        "Copper ~ Desert ~ Feather ~ Tiger [4]"
+      ]
+    ],
+    "skill_b": [
+      0.0,
+      [
+        "14 ~ 39 ~ 93 [3]",
+        "12 ~ 20 ~ 62 ~ 9 [4]",
+        "38 ~ 52 ~ 71 [3]"
+      ]
+    ],
+    "gsm8k_100": 0.1,
+    "seconds": 522
+  },
+  "t4_two_adapters": {
+    "train": {
+      "loss_first": 3.456,
+      "loss_last": 0.022,
+      "nan_steps": 0,
+      "steps": 76,
+      "peak_mem_gb": 8.93
+    },
+    "B_only_skill_b": [
+      0.88,
+      [
+        "sum=146 max=93",
+        "sum=103 max=62",
+        "sum=161 max=71"
+      ]
+    ],
+    "both_skill_a": [
+      0.53,
+      [
+        "Candle ~ Forest ~ Yellow [3]",
+        "insect ~ noodle ~ yogurt [3]",
+        "Copper ~ Desert ~ Feather ~ Tiger [4]"
+      ]
+    ],
+    "both_skill_b": [
+      0.82,
+      [
+        "sum=146 max=93",
+        "sum=103 max=62",
+        "sum=161 max=71"
+      ]
+    ],
+    "both_gsm8k_100": 0.08,
+    "seconds": 352
+  },
+  "t5_memory_layer": {
+    "layer": 12,
+    "slots": 8192,
+    "topk": 32,
+    "train": {
+      "loss_first": 3.168,
+      "loss_last": 0.006,
+      "nan_steps": 0,
+      "steps": 114,
+      "peak_mem_gb": 8.93
+    },
+    "skill_a": [
+      0.83,
+      [
+        "Candle ~ Forest ~ Yellow [3]",
+        "Insect ~ Noodle ~ Yogurt [3]",
+        "Copper ~ Desert ~ Feather ~ Tiger [4]"
+      ]
+    ],
+    "skill_b": [
+      0.0,
+      [
+        "93",
+        "62, 12, 20, 9 [4]",
+        "52, 38, 71 [3]"
+      ]
+    ],
+    "gsm8k_100": 0.64,
+    "seconds": 180
+  },
+  "finished": "2026-11-05 16:57:52"
+}

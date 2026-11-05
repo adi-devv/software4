@@ -19,7 +19,7 @@
 | Part | Brain analogy | Choice | Source |
 |---|---|---|---|
 | **Core** | Cortex | **Frozen Qwen3.5-2B**: a hybrid with 18 Gated DeltaNet layers and 6 full-attention layers, 262K context, Apache-2.0, about 12 KiB of KV cache per token. Fallback: dense **Qwen3-1.7B** | HF cards; hybrid analyses 2507.06457, 2510.04800 |
-| **Learnable layer** | Fast-learning cortex | **One new low-rank expert per deep sleep.** Older experts are frozen, so new learning never overwrites them. Capped at N experts, which triggers a core merge. Rival arm: a **sparse memory layer** retrofitted into the core, where only the slots relevant to new data update | Sleep paper 2606.03979; sparse memory FT 2510.15103, 2604.05248 |
+| **Learnable layer** | Fast-learning cortex | **One new low-rank expert per deep sleep**, with a **router** so only the relevant expert(s) switch on. Older experts are frozen, so new learning never overwrites them. Capped at N experts, which triggers a core merge. Rival arm: a **sparse memory layer** retrofitted into the core, where only the slots relevant to new data update. **Step 0: the memory layer forgot far less (GSM8K 70 → 64 vs 70 → 10 for a plain expert), so it is now co-lead, not just a rival** | Sleep paper 2606.03979; sparse memory FT 2510.15103, 2604.05248; `step0/RESULTS.md` |
 | **Hippocampus** | Hippocampus | Memory graph plus vectors (HippoRAG 2 style), typed and timestamped, with provenance and trust. Handles exact recall by day and supplies the sleep loop's replay | HippoRAG 2 2502.14802 |
 | **Connection strength** (our addition to HippoRAG 2) | Synapses | **Plastic links:** HippoRAG 2's links are fixed once built. Ours strengthen when memories are used together in a *verified success*, and slowly fade with disuse (a forgetting curve). Recall uses HippoRAG 2's spreading activation (Personalized PageRank), so strong links are reached first. Search is **fast first, deep only if needed**: a shallow pass along strong links, then a wider search if nothing fits. No strict tiers: "cold" just means outside the small fast path (context budget, top-k, the RAM index). Nothing is deleted, and a cold memory that gets used becomes strong again. Link weights sit in a separate index that can be rebuilt | HippoRAG 2 + our idea |
 | Memory rules | — | **Append-only:** an update saves a new version, and revoked content gets a tombstone | Reviews |
@@ -86,12 +86,11 @@
 - **GTX 1650 (4 GB, no bf16):** development, debugging, the hippocampus, naps, and live use later.
 
 ## Build order
-1. **Step 0, a feasibility check on Kaggle:**
-   - Qwen3.5-2B in fp16 on a T4, checking for NaNs.
-   - LoRA/expert adapters on the Gated DeltaNet layers.
-   - Whether a sparse memory layer can be retrofitted.
-   - llama.cpp speed on the 1650.
-   - A Kaggle job runner script.
+1. **Step 0, a feasibility check on Kaggle — DONE, all 7 pass** (`step0/RESULTS.md`):
+   - fp16 on T4 is clean (99.7% agreement with fp32, no NaNs); baseline GSM8K 70%.
+   - Experts train on the Gated DeltaNet layers, but a plain expert forgets badly (GSM8K → 10%), and experts that are all on at once interfere (skill A 90 → 53%). Hence the router, and replay must be proven in step 5.
+   - The sparse memory layer retrofits and forgets little (GSM8K 64%).
+   - llama.cpp on the 1650: 80 tok/s. The Kaggle runner works from the CLI.
 2. Hippocampus: graph, plastic link strengths, fast-then-deep recall, append-only log.
 3. Evaluation harness: synthetic streams, hidden tests, sealed set, canaries, CIs.
 4. Baselines (arms 1–4).
