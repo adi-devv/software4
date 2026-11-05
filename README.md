@@ -33,7 +33,7 @@ Status: planning is done (v4), and step 0 (a feasibility check on Kaggle) is nex
 ## Key ideas
 - **The memory log is the truth; weights are a cache.** Any new base model can be rebuilt from the log.
 - **Learning goes into the weights:** new experts each sleep, merged into the core when a metric says so. Text notes are a baseline, not the product.
-- **Brain-like memory:** links strengthen with verified use, and often-used memories stay close (hot/cold tiers).
+- **Brain-like memory:** links between memories strengthen with verified use and fade with disuse, so strongly connected memories are recalled first (plastic links on top of HippoRAG 2).
 - **Grounded checks only:** tests, execution and user corrections, never self-grading.
 - **A safety gate every cycle:** fresh held-out items, canaries and poison checks, with auto-rollback.
 

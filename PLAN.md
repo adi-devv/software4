@@ -21,15 +21,14 @@
 | **Core** | Cortex | **Frozen Qwen3.5-2B**: a hybrid with 18 Gated DeltaNet layers and 6 full-attention layers, 262K context, Apache-2.0, about 12 KiB of KV cache per token. Fallback: dense **Qwen3-1.7B** | HF cards; hybrid analyses 2507.06457, 2510.04800 |
 | **Learnable layer** | Fast-learning cortex | **One new low-rank expert per deep sleep.** Older experts are frozen, so new learning never overwrites them. Capped at N experts, which triggers a core merge. Rival arm: a **sparse memory layer** retrofitted into the core, where only the slots relevant to new data update | Sleep paper 2606.03979; sparse memory FT 2510.15103, 2604.05248 |
 | **Hippocampus** | Hippocampus | Memory graph plus vectors (HippoRAG 2 style), typed and timestamped, with provenance and trust. Handles exact recall by day and supplies the sleep loop's replay | HippoRAG 2 2502.14802 |
-| Connection strength | Synapses | **Hebbian link weights:** links used together in a *verified success* get stronger, and unused ones slowly decay. Kept in a separate index that can be rebuilt | Our idea |
-| Hot/cold tiers | Recent vs old memories | Frequently used memories are fast to reach. Old ones are demoted, never deleted, and pulled back up when used | Our idea |
+| **Connection strength** (our addition to HippoRAG 2) | Synapses | **Plastic links:** HippoRAG 2's links are fixed once built. Ours strengthen when memories are used together in a *verified success*, and slowly fade with disuse (a forgetting curve). Recall uses HippoRAG 2's spreading activation (Personalized PageRank), so strong links are reached first. Search is **fast first, deep only if needed**: a shallow pass along strong links, then a wider search if nothing fits. No strict tiers: "cold" just means outside the small fast path (context budget, top-k, the RAM index). Nothing is deleted, and a cold memory that gets used becomes strong again. Link weights sit in a separate index that can be rebuilt | HippoRAG 2 + our idea |
 | Memory rules | — | **Append-only:** an update saves a new version, and revoked content gets a tombstone | Reviews |
 | Source of truth | — | The memory log. Experts can be rebuilt from it, and so can the whole learned state on a new base | Reviews |
 
 ## Day
 - The core plus its experts does the tasks, pulling from the hippocampus.
 - Every episode is logged with its result (pass/fail, correction).
-- **Nap** every ~50 tasks, or when idle: update the link weights and tiers. No weight training; runs on the GTX 1650.
+- **Nap** every ~50 tasks, or when idle: update link strengths (strengthen and fade) and refresh the fast index. No weight training; runs on the GTX 1650.
 
 ## Night (deep sleep)
 
@@ -93,7 +92,7 @@
    - Whether a sparse memory layer can be retrofitted.
    - llama.cpp speed on the 1650.
    - A Kaggle job runner script.
-2. Hippocampus: graph, link weights, tiers, append-only log.
+2. Hippocampus: graph, plastic link strengths, fast-then-deep recall, append-only log.
 3. Evaluation harness: synthetic streams, hidden tests, sealed set, canaries, CIs.
 4. Baselines (arms 1–4).
 5. Sleep loop with experts: select, replay, check, train, gate.
@@ -114,7 +113,7 @@ Run each one on the same harness, after build step 7.
 | E2 | **Retrain from base vs stacking experts:** v3's method, where one LoRA is retrained from the base on the full log each sleep | The Opus review warned that distilling from the old model can lock in its errors | Opus review |
 | E3 | **Dense vs hybrid core:** Qwen3-1.7B vs Qwen3.5-2B, with LFM2-1.2B as a third option | Hybrids are cheaper at long context but weaker at copying exactly from the prompt | 2402.01032 |
 | E4 | **Sleep cadence:** nap/deep sleep vs immediate updates vs fixed counts | The sol review called the thresholds arbitrary | sol review #4 |
-| E5 | **Link weights / tiers off** (ablation) | Do our two memory ideas really help? | Our bet |
+| E5 | **Connection strength on vs plain HippoRAG 2** (ablation) | Do plastic links really beat fixed ones? Risk: recall strengthens links, which makes the same recall more likely (a feedback loop), so links strengthen only on verified success | Our bet; Opus review #7 |
 | E6 | **Bigger hybrid cores** (Qwen3-Next-80B, Nemotron-H, Kimi Linear 48B) | Out of budget now. Switching means rebuilding from the log | — |
 | E7 | **JEPA world model** (V-JEPA 2) | For predicting how the world changes, not just text. Add it once the loop works | V-JEPA 2 |
 | E8 | **Our own pretrained core** (with XSA, gated attention) | Only if we ever pretrain; XSA can't be added to a frozen model | 2603.09078, 2505.06708 |

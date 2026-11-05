@@ -79,11 +79,11 @@ svg text{font-family:var(--mono)}
     <span class="eyebrow">Current plan · what we build</span>
     <h2>Cortex, learnable layer, hippocampus, sleep</h2>
     <div class="figure">
-      <svg viewBox="0 0 800 340" width="100%" role="img" aria-label="Day: experience goes to the model, a frozen Qwen3.5-2B core with a stack of small experts, which reads and writes the hippocampus memory graph with Hebbian links and hot/cold tiers. Night on Kaggle: select, replay, dream, grounded check, train a new expert. A safety gate checks every sleep. A core merge folds experts into the core when a metric triggers it." style="min-width:600px">
+      <svg viewBox="0 0 800 340" width="100%" role="img" aria-label="Day: experience goes to the model, a frozen Qwen3.5-2B core with a stack of small experts, which reads and writes the hippocampus memory graph, whose links strengthen with use. Night on Kaggle: select, replay, dream, grounded check, train a new expert. A safety gate checks every sleep. A core merge folds experts into the core when a metric triggers it." style="min-width:600px">
         <defs>
           <marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="var(--muted)"/></marker>
         </defs>
-        <text x="20" y="24" fill="var(--muted)" font-size="11">DAY · NAP EVERY ~50 TASKS: UPDATE LINKS + TIERS</text>
+        <text x="20" y="24" fill="var(--muted)" font-size="11">DAY · NAP EVERY ~50 TASKS: STRENGTHEN / FADE LINKS</text>
         <rect x="20" y="36" width="130" height="70" rx="8" fill="var(--paper)" stroke="var(--line)"/>
         <text x="85" y="66" fill="var(--ink)" font-size="13" text-anchor="middle">Experience</text>
         <text x="85" y="86" fill="var(--muted)" font-size="11" text-anchor="middle">tasks, corrections</text>
@@ -101,7 +101,7 @@ svg text{font-family:var(--mono)}
         <rect x="510" y="36" width="270" height="70" rx="8" fill="var(--wake-soft)" stroke="var(--wake)"/>
         <text x="645" y="60" fill="var(--ink)" font-size="13" text-anchor="middle">Hippocampus</text>
         <text x="645" y="78" fill="var(--muted)" font-size="11" text-anchor="middle">memory graph · append-only log</text>
-        <text x="645" y="94" fill="var(--muted)" font-size="11" text-anchor="middle">Hebbian links · hot/cold tiers</text>
+        <text x="645" y="94" fill="var(--muted)" font-size="11" text-anchor="middle">links strengthen with use</text>
         <line x1="150" y1="71" x2="176" y2="71" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#ar)"/>
         <line x1="484" y1="71" x2="506" y2="71" stroke="var(--muted)" stroke-width="1.5" marker-start="url(#ar)" marker-end="url(#ar)"/>
         <path d="M645 106 L645 138 L90 138 L90 164" fill="none" stroke="var(--muted)" stroke-width="1.5" stroke-dasharray="4 4" marker-end="url(#ar)"/>
@@ -141,7 +141,7 @@ svg text{font-family:var(--mono)}
     <ol class="parts">
       <li class="part" style="--c:var(--frozen)"><span class="k">1 · Cortex</span><h3>Frozen hybrid core</h3><p>Qwen3.5-2B: 18 Gated DeltaNet layers plus 6 full-attention layers, 262K context, about 12 KiB of KV cache per token. Fallback is dense Qwen3-1.7B.</p><span class="src">HF cards · 2507.06457 · 2510.04800</span></li>
       <li class="part" style="--c:var(--nrem)"><span class="k">2 · Learnable layer</span><h3>A new expert each sleep</h3><p>A small low-rank expert per deep sleep. Old experts are frozen, so new learning never overwrites them. Rival arm: a sparse memory layer retrofitted into the core.</p><span class="src">Sleep paper · Sparse Memory FT · 2604.05248</span></li>
-      <li class="part" style="--c:var(--wake)"><span class="k">3 · Hippocampus</span><h3>Memory that strengthens with use</h3><p>A memory graph on an append-only log. Links used together in a verified success get stronger, and often-used memories stay hot. Supplies exact recall by day and the replay at night.</p><span class="src">HippoRAG 2 · our ideas</span></li>
+      <li class="part" style="--c:var(--wake)"><span class="k">3 · Hippocampus</span><h3>Memory that strengthens with use</h3><p>A memory graph on an append-only log. HippoRAG 2 plus plastic links: links used together in a verified success get stronger, and unused ones fade. Recall follows strong links first and searches deeper only if needed. Supplies exact recall by day and the replay at night.</p><span class="src">HippoRAG 2 · our ideas</span></li>
       <li class="part" style="--c:var(--rem)"><span class="k">4 · Sleep</span><h3>Replay, dream, check, train</h3><p>Select what proved useful or got corrected, and replay it with old episodes. Dream with the Sleep paper's stage. Keep only what passes hidden tests, then train the new expert, distilling from the pre-update model.</p><span class="src">Sleep paper · SEAL · RL's Razor</span></li>
       <li class="part" style="--c:var(--good)"><span class="k">5 · Safety gate</span><h3>Test what you ship</h3><p>Gate the exact quantized model plus experts. Fresh gate items each sleep, canaries, poison checks, auto-rollback. No self-judge.</p><span class="src">1506.02629 · 2507.08794</span></li>
       <li class="part" style="--c:var(--frozen)"><span class="k">6 · Core merge</span><h3>The cortex updates, rarely</h3><p>Triggered by a metric: the expert cap is reached, forgetting rises, or the backlog grows. It folds the experts into a new core version, at most about weekly, with a full gate and rollback. New bases are rebuilt from the log.</p><span class="src">Our design</span></li>
@@ -156,7 +156,7 @@ svg text{font-family:var(--mono)}
       <li class="part" style="--c:var(--rem)"><span class="k">E1</span><h3>Tutor-assisted dreams</h3><p>A bigger model helps write the dreams, since small models fix their own mistakes poorly.</p><span class="src">2404.17140</span></li>
       <li class="part" style="--c:var(--nrem)"><span class="k">E2</span><h3>Retrain from base</h3><p>One LoRA retrained from the base on the full log, compared with stacking experts.</p><span class="src">Opus review</span></li>
       <li class="part" style="--c:var(--frozen)"><span class="k">E3</span><h3>Dense vs hybrid core</h3><p>Qwen3-1.7B vs Qwen3.5-2B, with LFM2-1.2B as a third option.</p><span class="src">2402.01032</span></li>
-      <li class="part" style="--c:var(--wake)"><span class="k">E4 · E5</span><h3>Cadence · memory ablations</h3><p>Sleep timing vs immediate updates. Link weights and tiers turned off: do they really help?</p><span class="src">sol review · our ideas</span></li>
+      <li class="part" style="--c:var(--wake)"><span class="k">E4 · E5</span><h3>Cadence · memory ablations</h3><p>Sleep timing vs immediate updates. Plastic links vs plain HippoRAG 2: do they really help?</p><span class="src">sol review · our ideas</span></li>
       <li class="part" style="--c:var(--line)"><span class="k">E6</span><h3>Bigger hybrid cores</h3><p>Qwen3-Next 80B or Kimi Linear 48B, if compute appears. Switching means rebuilding from the log.</p><span class="src">2510.26692</span></li>
       <li class="part" style="--c:var(--line)"><span class="k">E7 · E8</span><h3>JEPA · our own core</h3><p>V-JEPA 2 for predicting how the world changes. XSA and gated attention only if we ever pretrain our own core.</p><span class="src">V-JEPA 2 · 2603.09078</span></li>
     </ol>
@@ -188,7 +188,7 @@ svg text{font-family:var(--mono)}
           <span class="by">Ohio State · Feb 2025 · <a href="https://arxiv.org/abs/2502.14802">2502.14802</a></span>
           <p>Memory as a knowledge graph linked to passages. Retrieval spreads through the graph (Personalized PageRank) instead of doing plain vector lookup.</p>
           <div class="num">Pitched as "non-parametric continual learning"</div>
-          <p class="us"><b>For us</b>Our hippocampus. We add Hebbian links and hot/cold tiers (ablated in E5).</p>
+          <p class="us"><b>For us</b>Our hippocampus. We make its fixed links plastic: they strengthen with verified use and fade with disuse (tested in E5).</p>
         </article>
         <article class="card" data-v="borrow">
           <div class="top"><h3>ACE: Agentic Context Engineering</h3><span class="tag borrow">borrow</span></div>
