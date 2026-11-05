@@ -1,8 +1,13 @@
-# software4
+# Software4
 
-Small-scale experiments toward **Software 4.0**: models that keep learning from their own runs.
+**A brain-inspired LLM that keeps learning after deployment.** A frozen small model works by day. A memory graph and a skill library hold what it learns. At night it sleeps: it reflects, dreams and checks its work, and trains small adapters only when they beat plain text memory.
 
-## The idea
+Status: planning is done (v3), and step 0 (failure labelling + hardware benchmark) is next.
+
+- **Plan + papers page:** https://claude.ai/artifact/7CPfNetLBiXViGD5zQt5DM
+- **Sleep paper explainer:** https://claude.ai/artifact/65vqoJu3D9HznJVg9FmqLT
+
+## The idea: Software 4.0
 
 | Era | What you write | What the machine does |
 |---|---|---|
@@ -11,27 +16,25 @@ Small-scale experiments toward **Software 4.0**: models that keep learning from 
 | 3.0 | Prompts | A frozen model follows them |
 | 4.0 | Graders and environments | Finds the *how* itself, and keeps what it learns |
 
-A 3.0 agent with memory files and a test loop *looks* like 4.0, but the model never gets better: the
-"learning" is notes stuffed into the prompt. 4.0 starts when the agent's own experience updates the model.
+**The test:** when it fails, does a human edit the prompt (3.0), or does the grader catch it and the system fix itself for good (4.0)?
 
-**The test:** when it fails, does a human edit the prompt (3.0), or does the grader catch it and the system
-fix itself for good (4.0)?
+**Why it's hard:** training on new things erases old skills; a model that changes in use is hard to check and trust; and updating weights constantly is expensive.
 
-## Why it's hard
+## What's here
 
-- **Forgetting:** training on new things erases old skills
-- **Safety:** a model that changes in use is hard to check and trust
-- **Cost:** updating weights constantly, or per user, is expensive
+| Path | What |
+|---|---|
+| `PLAN.md` | The current plan (v3): architecture, night loop, experiment, build order |
+| `CLAUDE.md` | Instructions for Claude: answer style, status %, running the 3 Codex accounts |
+| `research/` | Paper notes (`papers_deep.md`, `papers_xsa.md`), reviews (`critique.md`, `opus_max_review.md`, `sol_review.md`), and the HTML pages for the papers and the sleep paper |
+| `scripts/run_rotate.sh` | Runs Codex jobs from a queue and moves to the next account when one hits its limit |
+| `scripts/codex_usage.sh` | Shows 5h and weekly usage % for each Codex account |
 
-## Plan
+## Key ideas
+- **The memory log is the truth; weights are a cache.** Any new base model can be rebuilt from the log.
+- **Text first:** the lessons and skills layer must win before any weight training.
+- **Grounded checks only:** tests, execution and user corrections, never self-grading.
+- **A safety gate every cycle:** fresh held-out items, canaries and poison checks, with auto-rollback.
 
-1. Measure forgetting: train a small model on task A, then B, and track A's accuracy
-2. Benchmarks: Split-MNIST, Permuted-MNIST
-3. Compare: naive fine-tuning, EWC, replay buffer, one LoRA adapter per task
-4. Then: a grader-driven loop where a small model improves on a task from its own scored attempts
-
-Laptop-scale on purpose: the goal is understanding the mechanism, not a leaderboard.
-
-## Status
-
-Just started.
+## Hardware
+GTX 1650 (4 GB) locally, plus free Kaggle T4s for the night training.

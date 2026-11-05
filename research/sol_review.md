@@ -1,0 +1,17 @@
+1. **VERIFIED — Hardware fit is unproven.** [Qwen3-1.7B](https://huggingface.co/Qwen/Qwen3-1.7B) needs roughly 3.4GB for FP16 weights alone; KV cache, activations and reflection compete for the remainder. [Bitsandbytes supports Windows and NF4](https://huggingface.co/docs/bitsandbytes/v0.50.2/en/installation), but compatibility doesn’t establish usable training speed. **Fix:** first benchmark quantized inference and one 0.6B LoRA cycle; record peak VRAM, context limit and elapsed time.
+
+2. **JUDGEMENT — The experiment can produce false gains.** Reusing gates contaminates evaluation; “<3 points” ignores uncertainty and cost. **Fix:** use chronological, task-family-disjoint streams, separate development gates from untouched final tests, repeat seeds, report confidence intervals, forgetting and latency. Match inference/adaptation budgets; include frozen no-memory and simple vector-RAG baselines.
+
+3. **VERIFIED — Hybrid shortlist exceeds the deployment budget.** [Qwen3-Next](https://huggingface.co/Qwen/Qwen3-Next-80B-A3B-Instruct) has 80B total parameters; [Kimi Linear](https://huggingface.co/moonshotai/Kimi-Linear-48B-A3B-Instruct) has 48B. Three billion *active* parameters doesn’t mean three billion stored. **Fix:** freeze the initial core/runtime now; restrict hybrids to measured, affordable checkpoints such as LFM2-1.2B.
+
+4. **JUDGEMENT — Sleep thresholds lack an objective.** Fifty tasks and 100 skills ignore redundancy, distribution shifts and verification quality; daily training could waste the budget. **Fix:** ablate cadence against immediate text updates; trigger training on demonstrated recurring failures, diverse verified examples and available compute.
+
+5. **VERIFIED — Sparse-memory dismissal is too categorical.** [2510.15103](https://arxiv.org/abs/2510.15103) reports relative NaturalQuestions F1 drops under a particular factual-learning setup—not universal forgetting rates. [2605.03229](https://arxiv.org/abs/2605.03229) demonstrates adding memory layers to dense Qwen. **Fix:** retain LoRA for simplicity, but describe retrofitting as experimental rather than impossible.
+
+6. **JUDEMENT — LoRA’s objective and expert lifecycle are underspecified.** Base KL plus previous-model distillation can resist learning or preserve accumulated errors. **Fix:** specify routing, ranks, adapter limits and training targets; ablate regularizers individually. Test transfer beyond training-test templates.
+
+7. **JUDGEMENT — Memory can reinforce contamination.** Co-retrieval measures exposure, not truth; utility selection entrenches retrieval bias, while “never delete” preserves revoked content. **Fix:** quarantine inputs, support deletion/tombstones, version contradictions and strengthen links using verified usefulness.
+
+8. **VERIFIED — Evidence boundaries are overstated.** [2405.05904](https://arxiv.org/abs/2405.05904) studies factual fine-tuning, not surprise-based poisoning; [2507.08794](https://arxiv.org/abs/2507.08794) establishes judge vulnerabilities, not universal uselessness. **Fix:** separate novelty from trust; independently author hidden verification tests and sandbox dream execution.
+
+**Verdict:** Sound enough to start a narrow memory/text prototype; hardware profiling and a defensible evaluation protocol must precede weight learning.

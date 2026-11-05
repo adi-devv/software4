@@ -1,0 +1,238 @@
+<title>Language Models Need Sleep</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: single reading column, night-to-day bands for wake / NREM / REM, data blocks set in mono */
+:root{
+  --bg:#F2F3F8; --paper:#FFFFFF; --ink:#1B1E33; --muted:#5A5F7A; --line:#D9DBE6;
+  --wake:#E8A23A; --wake-soft:#FBF0DD;
+  --nrem:#4B47C9; --nrem-soft:#E6E5FA;
+  --rem:#8C3FB0; --rem-soft:#F1E4F7;
+  --frozen:#6B7280; --frozen-soft:#ECEDF1;
+  --good:#1F8A5B;
+  --display:"Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --body:"Source Serif 4", Georgia, "Times New Roman", serif;
+  --mono:"IBM Plex Mono", ui-monospace, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#12131F; --paper:#1B1D2D; --ink:#E7E8F2; --muted:#9EA2BC; --line:#2E3148;
+  --wake:#F0B45A; --wake-soft:#3A2E1A; --nrem:#9C99F2; --nrem-soft:#25244A;
+  --rem:#C98AE6; --rem-soft:#35213F; --frozen:#A3A8B8; --frozen-soft:#272A3A; --good:#4CC28C; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#12131F; --paper:#1B1D2D; --ink:#E7E8F2; --muted:#9EA2BC; --line:#2E3148;
+  --wake:#F0B45A; --wake-soft:#3A2E1A; --nrem:#9C99F2; --nrem-soft:#25244A;
+  --rem:#C98AE6; --rem-soft:#35213F; --frozen:#A3A8B8; --frozen-soft:#272A3A; --good:#4CC28C; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:17px;line-height:1.65;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:40px 72px}
+main{max-width:780px;margin:0 auto;display:flex;flex-direction:column;gap:44px}
+h1,h2,h3{font-family:var(--display);text-wrap:balance;margin:0;line-height:1.15}
+h1{font-size:clamp(2rem,5vw,3rem);font-weight:700;letter-spacing:-.01em}
+h2{font-size:1.5rem;font-weight:700}
+h3{font-size:1.08rem;font-weight:500}
+p{margin:0;max-width:65ch}
+section{display:flex;flex-direction:column;gap:14px}
+.eyebrow{font-family:var(--mono);font-size:.75rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.meta{font-family:var(--mono);font-size:.82rem;color:var(--muted);display:flex;flex-wrap:wrap;gap:6px 18px}
+.meta a{color:var(--nrem)}
+.lede{font-size:1.15rem}
+.note{font-size:.9rem;color:var(--muted)}
+.figure{background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:18px;overflow-x:auto}
+.steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
+.step{background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:16px;display:flex;flex-direction:column;gap:8px;min-width:0}
+.step .n{font-family:var(--mono);font-size:.75rem;color:var(--nrem)}
+.step.rem .n{color:var(--rem)}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font-family:var(--mono);font-size:.72rem;padding:2px 8px;border-radius:999px}
+.chip.train{background:var(--nrem-soft);color:var(--nrem)}
+.chip.rem{background:var(--rem-soft);color:var(--rem)}
+.chip.frozen{background:var(--frozen-soft);color:var(--frozen)}
+.step p{font-size:.95rem}
+.bars{display:flex;flex-direction:column;gap:18px}
+.group h3{margin-bottom:8px;font-family:var(--mono);font-size:.82rem;font-weight:500;color:var(--muted)}
+.row{display:grid;grid-template-columns:150px 1fr 48px;align-items:center;gap:10px;font-family:var(--mono);font-size:.8rem}
+.row+.row{margin-top:5px}
+.track{height:14px;background:var(--frozen-soft);border-radius:3px;position:relative;min-width:0}
+.fill{height:100%;border-radius:3px;background:var(--frozen)}
+.fill.sleep{background:var(--nrem)}
+.fill.alt{background:var(--wake)}
+.val{text-align:right;font-variant-numeric:tabular-nums}
+.axis{display:grid;grid-template-columns:150px 1fr 48px;gap:10px;font-family:var(--mono);font-size:.7rem;color:var(--muted)}
+.axis span:nth-child(2){display:flex;justify-content:space-between}
+.legend{display:flex;flex-wrap:wrap;gap:14px;font-family:var(--mono);font-size:.75rem;color:var(--muted)}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:6px;vertical-align:-1px}
+table{border-collapse:collapse;width:100%;font-size:.92rem}
+th,td{text-align:left;padding:10px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-family:var(--mono);font-size:.75rem;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:500}
+td:first-child{font-weight:600;white-space:nowrap}
+.tag{font-family:var(--mono);font-size:.72rem;padding:2px 7px;border-radius:4px;white-space:nowrap}
+.tag.keep{background:var(--nrem-soft);color:var(--nrem)}
+.tag.add{background:var(--rem-soft);color:var(--rem)}
+.tag.ours{background:var(--wake-soft);color:var(--ink)}
+ul{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:6px;max-width:65ch}
+svg text{font-family:var(--mono)}
+@media (max-width:560px){.row,.axis{grid-template-columns:96px 1fr 42px}body{font-size:16px}}
+</style>
+
+<main>
+  <header style="display:flex;flex-direction:column;gap:14px">
+    <span class="eyebrow">Paper explainer · continual learning</span>
+    <h1>Language Models Need Sleep</h1>
+    <p class="lede">A model that learns while it works, then goes offline to consolidate what it learned into slower, more stable memory, and to practise on its own "dreams".</p>
+    <div class="meta">
+      <span>Behrouz, Hashemi, Javanmard, Mirrokni</span>
+      <span>Google Research + Cornell</span>
+      <span>arXiv 2606.03979 · Jun 2026 (v2 Jul)</span>
+      <a href="https://arxiv.org/abs/2606.03979">Read the paper</a>
+    </div>
+  </header>
+
+  <section>
+    <span class="eyebrow">The problem</span>
+    <h2>Deployed models can't keep what they learn</h2>
+    <p>Anything a model picks up in context disappears when the context ends. Fine-tuning or LoRA on new data makes it forget old skills. Re-pretraining costs too much. The paper copies the brain's answer: learn fast while awake, then move the lessons into stable memory during sleep.</p>
+  </section>
+
+  <section>
+    <span class="eyebrow">Figure 1, redrawn</span>
+    <h2>One wake–sleep cycle</h2>
+    <div class="figure">
+      <svg viewBox="0 0 760 250" width="100%" role="img" aria-label="Wake phase, then NREM consolidation, then REM dreaming, then back to wake" style="min-width:560px">
+        <rect x="10" y="20" width="230" height="170" rx="10" fill="var(--wake-soft)" stroke="var(--wake)" stroke-width="1"/>
+        <text x="28" y="50" fill="var(--ink)" font-size="15" font-weight="500">Wake</text>
+        <text x="28" y="72" fill="var(--muted)" font-size="12">online learning</text>
+        <text x="28" y="108" fill="var(--ink)" font-size="12">Fast memory blocks learn</text>
+        <text x="28" y="128" fill="var(--ink)" font-size="12">from each new context.</text>
+        <text x="28" y="156" fill="var(--ink)" font-size="12">Knowledge starts flowing</text>
+        <text x="28" y="176" fill="var(--ink)" font-size="12">to slower blocks.</text>
+
+        <rect x="265" y="20" width="230" height="170" rx="10" fill="var(--nrem-soft)" stroke="var(--nrem)" stroke-width="1"/>
+        <text x="283" y="50" fill="var(--ink)" font-size="15" font-weight="500">Sleep 1 · NREM</text>
+        <text x="283" y="72" fill="var(--muted)" font-size="12">consolidation</text>
+        <text x="283" y="108" fill="var(--ink)" font-size="12">Add a new small expert,</text>
+        <text x="283" y="128" fill="var(--ink)" font-size="12">distil fast knowledge into it,</text>
+        <text x="283" y="156" fill="var(--ink)" font-size="12">then reset the fast block</text>
+        <text x="283" y="176" fill="var(--ink)" font-size="12">so it has room again.</text>
+
+        <rect x="520" y="20" width="230" height="170" rx="10" fill="var(--rem-soft)" stroke="var(--rem)" stroke-width="1"/>
+        <text x="538" y="50" fill="var(--ink)" font-size="15" font-weight="500">Sleep 2 · REM</text>
+        <text x="538" y="72" fill="var(--muted)" font-size="12">dreaming</text>
+        <text x="538" y="108" fill="var(--ink)" font-size="12">Generate practice data,</text>
+        <text x="538" y="128" fill="var(--ink)" font-size="12">keep the most useful dreams,</text>
+        <text x="538" y="156" fill="var(--ink)" font-size="12">reward only updates that</text>
+        <text x="538" y="176" fill="var(--ink)" font-size="12">actually improve the model.</text>
+
+        <line x1="241" y1="105" x2="261" y2="105" stroke="var(--muted)" stroke-width="1.5"/>
+        <path d="M255 100 L262 105 L255 110" fill="none" stroke="var(--muted)" stroke-width="1.5"/>
+        <line x1="496" y1="105" x2="516" y2="105" stroke="var(--muted)" stroke-width="1.5"/>
+        <path d="M510 100 L517 105 L510 110" fill="none" stroke="var(--muted)" stroke-width="1.5"/>
+        <path d="M635 192 L635 222 L125 222 L125 196" fill="none" stroke="var(--muted)" stroke-width="1.5" stroke-dasharray="4 4"/>
+        <path d="M120 202 L125 194 L130 202" fill="none" stroke="var(--muted)" stroke-width="1.5"/>
+        <text x="380" y="242" fill="var(--muted)" font-size="12" text-anchor="middle">wake up and repeat</text>
+      </svg>
+    </div>
+  </section>
+
+  <section>
+    <span class="eyebrow">Sleep stage 1 · Figure 2, redrawn</span>
+    <h2>Consolidation: what trains, what stays frozen</h2>
+    <p>Memory is a chain of blocks that update at different speeds, from fast to stable, which the authors call a Continuum Memory System. Consolidation moves knowledge one step down the chain without disturbing what's already there.</p>
+    <div class="steps">
+      <div class="step">
+        <span class="n">Step 1 · expand</span>
+        <h3>Add a new low-rank expert</h3>
+        <div class="chips"><span class="chip train">new params</span></div>
+        <p>A small, empty mixture-of-experts slot is added to the next, more stable block.</p>
+      </div>
+      <div class="step">
+        <span class="n">Step 2 · seed</span>
+        <h3>Distil into the new expert only</h3>
+        <div class="chips"><span class="chip train">new expert trains</span><span class="chip frozen">everything else frozen</span></div>
+        <p>The old model is the teacher. It generates "dreams" and the new expert learns to match it, through distillation plus an RL imitation reward.</p>
+      </div>
+      <div class="step">
+        <span class="n">Step 3 · update</span>
+        <h3>Commit and prune</h3>
+        <div class="chips"><span class="chip train">expert activated</span><span class="chip frozen">fast block reset</span></div>
+        <p>Apply the update, turn on the new expert, and clear the fast block's old experts. The paper compares this to synaptic pruning.</p>
+      </div>
+    </div>
+    <p class="note">The imitation reward is a 0/1 semantic match judged by a frozen reward model, plus string similarity to the teacher's continuation.</p>
+  </section>
+
+  <section>
+    <span class="eyebrow">Sleep stage 2</span>
+    <h2>Dreaming: practise, keep what helps</h2>
+    <div class="steps">
+      <div class="step rem"><span class="n">Generate</span><h3>Dreams from task context</h3><div class="chips"><span class="chip rem">random expert injected</span></div><p>A randomly chosen expert is mixed in so the dreams are novel, not copies of what the model already said.</p></div>
+      <div class="step rem"><span class="n">Select</span><h3>Most important dreams</h3><div class="chips"><span class="chip rem">gradient importance</span></div><p>Top-k by gradient-based importance, plus some random picks for coverage.</p></div>
+      <div class="step rem"><span class="n">Reward</span><h3>Did it actually help?</h3><div class="chips"><span class="chip rem">LoRA copy per dream</span></div><p>Each dream trains an isolated LoRA copy. The reward is the downstream improvement, optimised with ReST. This builds on MIT's SEAL.</p></div>
+    </div>
+  </section>
+
+  <section>
+    <span class="eyebrow">Results · authors' numbers</span>
+    <h2>What sleep buys</h2>
+    <div class="figure bars">
+      <div class="legend"><span><i style="background:var(--frozen)"></i>Base</span><span><i style="background:var(--wake)"></i>Best other method</span><span><i style="background:var(--nrem)"></i>Sleep</span></div>
+      <div class="group">
+        <h3>Qwen3-8B on math (avg@16, Table 2) · best other = OPSD</h3>
+        <div class="row"><span>AIME-24 base</span><div class="track"><div class="fill" style="width:73.8%"></div></div><span class="val">73.8</span></div>
+        <div class="row"><span>AIME-24 OPSD</span><div class="track"><div class="fill alt" style="width:76.6%"></div></div><span class="val">76.6</span></div>
+        <div class="row"><span>AIME-24 sleep</span><div class="track"><div class="fill sleep" style="width:79.2%"></div></div><span class="val">79.2</span></div>
+        <div class="row"><span>HMMT-25 base</span><div class="track"><div class="fill" style="width:42.4%"></div></div><span class="val">42.4</span></div>
+        <div class="row"><span>HMMT-25 OPSD</span><div class="track"><div class="fill alt" style="width:45.1%"></div></div><span class="val">45.1</span></div>
+        <div class="row"><span>HMMT-25 sleep</span><div class="track"><div class="fill sleep" style="width:46.1%"></div></div><span class="val">46.1</span></div>
+      </div>
+      <div class="group">
+        <h3>Absorbing a new passage (SQuAD, n=1, Table 3) · best other = SEAL</h3>
+        <div class="row"><span>Base</span><div class="track"><div class="fill" style="width:31.9%"></div></div><span class="val">31.9</span></div>
+        <div class="row"><span>No dreaming</span><div class="track"><div class="fill" style="width:35.7%"></div></div><span class="val">35.7</span></div>
+        <div class="row"><span>SEAL</span><div class="track"><div class="fill alt" style="width:46.7%"></div></div><span class="val">46.7</span></div>
+        <div class="row"><span>Sleep</span><div class="track"><div class="fill sleep" style="width:48.9%"></div></div><span class="val">48.9</span></div>
+      </div>
+      <div class="group">
+        <h3>ARC puzzles, Llama-3.2-1B (success %, Table 4) · best other = SEAL</h3>
+        <div class="row"><span>In-context</span><div class="track"><div class="fill" style="width:0.6%"></div></div><span class="val">0</span></div>
+        <div class="row"><span>Test-time train</span><div class="track"><div class="fill" style="width:10%"></div></div><span class="val">10</span></div>
+        <div class="row"><span>SEAL</span><div class="track"><div class="fill alt" style="width:72.5%"></div></div><span class="val">72.5</span></div>
+        <div class="row"><span>Sleep</span><div class="track"><div class="fill sleep" style="width:80%"></div></div><span class="val">80</span></div>
+      </div>
+      <div class="axis"><span></span><span><span>0</span><span>50</span><span>100</span></span><span></span></div>
+    </div>
+    <ul>
+      <li>Dreaming does most of the work. Without it, SQuAD falls from 48.9 to 35.7.</li>
+      <li>Plain fine-tuning is 4× cheaper per step but needs 3.6–4.8× more wall-clock time to match.</li>
+      <li>Forgetting curves for class-incremental learning appear only as figures, so there are no exact numbers to quote.</li>
+    </ul>
+  </section>
+
+  <section>
+    <span class="eyebrow">Our design vs the paper</span>
+    <h2>What to borrow</h2>
+    <div class="figure" style="padding:0">
+      <table>
+        <thead><tr><th>Our part</th><th>The paper</th><th>Verdict</th></tr></thead>
+        <tbody>
+          <tr><td>Frozen core</td><td>Everything frozen except one new low-rank piece per cycle.</td><td><span class="tag keep">keep</span></td></tr>
+          <tr><td>Adapter</td><td>Add a new small expert each sleep instead of overwriting one adapter. Reset the fast part afterwards.</td><td><span class="tag add">change</span></td></tr>
+          <tr><td>Training signal</td><td>Distil from the pre-update model ("teacher") so the update can't drift far.</td><td><span class="tag add">add</span></td></tr>
+          <tr><td>Sleep loop</td><td>Dreams plus reward-from-real-gain is the key ingredient.</td><td><span class="tag add">add</span></td></tr>
+          <tr><td>Memory store</td><td>Not in the paper. Related work shows weights lose exact details, so we still need it.</td><td><span class="tag keep">keep</span></td></tr>
+          <tr><td>Metric-gated merge</td><td>Not in the paper. This is our own idea and still needs testing.</td><td><span class="tag ours">ours</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section>
+    <span class="eyebrow">Caveats</span>
+    <h2>Read it with care</h2>
+    <ul>
+      <li>All numbers are the authors' own. No independent replication yet.</li>
+      <li>There is no limitations section. Tests are at 1–8B scale and mostly on Google's own Hope architecture, not a stock LLM with an adapter.</li>
+      <li>A different CMU/UMD paper (2605.26099, "Do Language Models Need Sleep?") is only about offline recurrence over context. It doesn't do lifelong learning.</li>
+    </ul>
+  </section>
+</main>
