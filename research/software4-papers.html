@@ -70,92 +70,97 @@ svg text{font-family:var(--mono)}
 
 <main>
   <header style="display:flex;flex-direction:column;gap:14px">
-    <span class="eyebrow">software4 · brain-inspired continual learning · plan v3</span>
+    <span class="eyebrow">software4 · brain-inspired continual learning · plan v4</span>
     <h1>The plan, and the papers behind it</h1>
-    <p class="lede">A frozen model works by day. A memory graph and a skill library hold what it learns. At night it reflects, dreams and checks its work. Weights train only when they beat plain text memory.</p>
+    <p class="lede">One model that learns in its own weights. A frozen hybrid cortex, a learnable layer that grows each sleep, and a hippocampus whose links strengthen with use. Text notes and RAG are only baselines it has to beat.</p>
   </header>
 
   <section>
     <span class="eyebrow">Current plan · what we build</span>
-    <h2>Day, night, gate</h2>
+    <h2>Cortex, learnable layer, hippocampus, sleep</h2>
     <div class="figure">
-      <svg viewBox="0 0 800 330" width="100%" role="img" aria-label="Day on the GTX 1650: experience goes to a frozen Qwen3.5-2B core that reads and writes an append-only memory graph and a text skill library. Night on Kaggle: select, reflect with an 8B model, dream, grounded check, retrain LoRA from base. A safety gate tests the exact deployed model and rolls back. New base models are rebuilt from the log." style="min-width:600px">
+      <svg viewBox="0 0 800 340" width="100%" role="img" aria-label="Day: experience goes to the model, a frozen Qwen3.5-2B core with a stack of small experts, which reads and writes the hippocampus memory graph with Hebbian links and hot/cold tiers. Night on Kaggle: select, replay, dream, grounded check, train a new expert. A safety gate checks every sleep. A core merge folds experts into the core when a metric triggers it." style="min-width:600px">
         <defs>
           <marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="var(--muted)"/></marker>
         </defs>
-        <text x="20" y="24" fill="var(--muted)" font-size="11">DAY · GTX 1650 · NAP EVERY ~50 TASKS</text>
-        <rect x="20" y="36" width="130" height="64" rx="8" fill="var(--paper)" stroke="var(--line)"/>
-        <text x="85" y="62" fill="var(--ink)" font-size="13" text-anchor="middle">Experience</text>
-        <text x="85" y="82" fill="var(--muted)" font-size="11" text-anchor="middle">tasks, chats</text>
-        <rect x="180" y="36" width="180" height="64" rx="8" fill="var(--frozen-soft)" stroke="var(--frozen)"/>
-        <text x="270" y="62" fill="var(--ink)" font-size="13" text-anchor="middle">Qwen3.5-2B (frozen)</text>
-        <text x="270" y="82" fill="var(--muted)" font-size="11" text-anchor="middle">hybrid · llama.cpp</text>
-        <rect x="390" y="36" width="180" height="64" rx="8" fill="var(--wake-soft)" stroke="var(--wake)"/>
-        <text x="480" y="62" fill="var(--ink)" font-size="13" text-anchor="middle">Memory graph</text>
-        <text x="480" y="82" fill="var(--muted)" font-size="11" text-anchor="middle">append-only · versioned</text>
-        <rect x="600" y="36" width="180" height="64" rx="8" fill="var(--wake-soft)" stroke="var(--wake)"/>
-        <text x="690" y="62" fill="var(--ink)" font-size="13" text-anchor="middle">Skill library</text>
-        <text x="690" y="82" fill="var(--muted)" font-size="11" text-anchor="middle">text lessons</text>
-        <line x1="150" y1="68" x2="176" y2="68" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#ar)"/>
-        <line x1="366" y1="68" x2="384" y2="68" stroke="var(--muted)" stroke-width="1.5" marker-start="url(#ar)" marker-end="url(#ar)"/>
-        <line x1="576" y1="68" x2="594" y2="68" stroke="var(--muted)" stroke-width="1.5" marker-start="url(#ar)" marker-end="url(#ar)"/>
-        <path d="M480 100 L480 132 L90 132 L90 158" fill="none" stroke="var(--muted)" stroke-width="1.5" stroke-dasharray="4 4" marker-end="url(#ar)"/>
-        <text x="780" y="150" fill="var(--muted)" font-size="11" text-anchor="end">NIGHT · KAGGLE · ON REPEATED FAILURES</text>
-        <g font-size="11">
-          <rect x="20" y="162" width="140" height="54" rx="8" fill="var(--nrem-soft)" stroke="var(--nrem)"/>
-          <text x="90" y="186" fill="var(--ink)" text-anchor="middle">Select</text>
-          <text x="90" y="202" fill="var(--muted)" text-anchor="middle">verified use, failures</text>
-          <rect x="175" y="162" width="140" height="54" rx="8" fill="var(--nrem-soft)" stroke="var(--nrem)"/>
-          <text x="245" y="186" fill="var(--ink)" text-anchor="middle">Reflect</text>
-          <text x="245" y="202" fill="var(--muted)" text-anchor="middle">fixed 8B reflector</text>
-          <rect x="330" y="162" width="140" height="54" rx="8" fill="var(--rem-soft)" stroke="var(--rem)"/>
-          <text x="400" y="186" fill="var(--ink)" text-anchor="middle">Dream</text>
-          <text x="400" y="202" fill="var(--muted)" text-anchor="middle">Sleep-paper stage</text>
-          <rect x="485" y="162" width="140" height="54" rx="8" fill="var(--rem-soft)" stroke="var(--rem)"/>
-          <text x="555" y="186" fill="var(--ink)" text-anchor="middle">Grounded check</text>
-          <text x="555" y="202" fill="var(--muted)" text-anchor="middle">hidden tests</text>
-          <rect x="640" y="162" width="140" height="54" rx="8" fill="var(--paper)" stroke="var(--nrem)" stroke-dasharray="4 3"/>
-          <text x="710" y="186" fill="var(--ink)" text-anchor="middle">Retrain LoRA</text>
-          <text x="710" y="202" fill="var(--muted)" text-anchor="middle">from base · optional</text>
+        <text x="20" y="24" fill="var(--muted)" font-size="11">DAY · NAP EVERY ~50 TASKS: UPDATE LINKS + TIERS</text>
+        <rect x="20" y="36" width="130" height="70" rx="8" fill="var(--paper)" stroke="var(--line)"/>
+        <text x="85" y="66" fill="var(--ink)" font-size="13" text-anchor="middle">Experience</text>
+        <text x="85" y="86" fill="var(--muted)" font-size="11" text-anchor="middle">tasks, corrections</text>
+        <rect x="180" y="36" width="300" height="70" rx="8" fill="var(--frozen-soft)" stroke="var(--frozen)"/>
+        <text x="200" y="62" fill="var(--ink)" font-size="13">Cortex: Qwen3.5-2B</text>
+        <text x="200" y="82" fill="var(--muted)" font-size="11">frozen hybrid core</text>
+        <text x="200" y="97" fill="var(--muted)" font-size="10">+ learnable layer →</text>
+        <g>
+          <rect x="350" y="48" width="26" height="46" rx="4" fill="var(--nrem-soft)" stroke="var(--nrem)"/>
+          <rect x="382" y="48" width="26" height="46" rx="4" fill="var(--nrem-soft)" stroke="var(--nrem)"/>
+          <rect x="414" y="48" width="26" height="46" rx="4" fill="var(--nrem-soft)" stroke="var(--nrem)"/>
+          <rect x="446" y="48" width="26" height="46" rx="4" fill="var(--paper)" stroke="var(--nrem)" stroke-dasharray="3 3"/>
+          <text x="411" y="104" fill="var(--muted)" font-size="9" text-anchor="middle">one expert per sleep</text>
         </g>
-        <line x1="160" y1="189" x2="171" y2="189" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#ar)"/>
-        <line x1="315" y1="189" x2="326" y2="189" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#ar)"/>
-        <line x1="470" y1="189" x2="481" y2="189" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#ar)"/>
-        <line x1="625" y1="189" x2="636" y2="189" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#ar)"/>
-        <line x1="710" y1="216" x2="710" y2="256" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#ar)"/>
-        <line x1="476" y1="287" x2="324" y2="287" stroke="var(--muted)" stroke-width="1.5" stroke-dasharray="4 4" marker-end="url(#ar)"/>
-        <text x="400" y="279" fill="var(--muted)" font-size="10" text-anchor="middle">on upgrade</text>
-        <rect x="20" y="260" width="300" height="54" rx="8" fill="var(--frozen-soft)" stroke="var(--frozen)"/>
-        <text x="170" y="283" fill="var(--ink)" font-size="12" text-anchor="middle">New base model</text>
-        <text x="170" y="301" fill="var(--muted)" font-size="11" text-anchor="middle">rebuild everything from the log</text>
-        <rect x="480" y="260" width="300" height="54" rx="8" fill="var(--good-soft)" stroke="var(--good)"/>
-        <text x="630" y="283" fill="var(--ink)" font-size="12" text-anchor="middle">Safety gate, every cycle</text>
-        <text x="630" y="301" fill="var(--muted)" font-size="11" text-anchor="middle">exact model · fresh items · rollback</text>
+        <rect x="510" y="36" width="270" height="70" rx="8" fill="var(--wake-soft)" stroke="var(--wake)"/>
+        <text x="645" y="60" fill="var(--ink)" font-size="13" text-anchor="middle">Hippocampus</text>
+        <text x="645" y="78" fill="var(--muted)" font-size="11" text-anchor="middle">memory graph · append-only log</text>
+        <text x="645" y="94" fill="var(--muted)" font-size="11" text-anchor="middle">Hebbian links · hot/cold tiers</text>
+        <line x1="150" y1="71" x2="176" y2="71" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#ar)"/>
+        <line x1="484" y1="71" x2="506" y2="71" stroke="var(--muted)" stroke-width="1.5" marker-start="url(#ar)" marker-end="url(#ar)"/>
+        <path d="M645 106 L645 138 L90 138 L90 164" fill="none" stroke="var(--muted)" stroke-width="1.5" stroke-dasharray="4 4" marker-end="url(#ar)"/>
+        <text x="780" y="156" fill="var(--muted)" font-size="11" text-anchor="end">DEEP SLEEP · KAGGLE · ON METRIC, MAX DAILY</text>
+        <g font-size="11">
+          <rect x="20" y="168" width="140" height="54" rx="8" fill="var(--nrem-soft)" stroke="var(--nrem)"/>
+          <text x="90" y="192" fill="var(--ink)" text-anchor="middle">Select</text>
+          <text x="90" y="208" fill="var(--muted)" text-anchor="middle">verified use, failures</text>
+          <rect x="175" y="168" width="140" height="54" rx="8" fill="var(--nrem-soft)" stroke="var(--nrem)"/>
+          <text x="245" y="192" fill="var(--ink)" text-anchor="middle">Replay</text>
+          <text x="245" y="208" fill="var(--muted)" text-anchor="middle">new + old episodes</text>
+          <rect x="330" y="168" width="140" height="54" rx="8" fill="var(--rem-soft)" stroke="var(--rem)"/>
+          <text x="400" y="192" fill="var(--ink)" text-anchor="middle">Dream</text>
+          <text x="400" y="208" fill="var(--muted)" text-anchor="middle">Sleep-paper stage</text>
+          <rect x="485" y="168" width="140" height="54" rx="8" fill="var(--rem-soft)" stroke="var(--rem)"/>
+          <text x="555" y="192" fill="var(--ink)" text-anchor="middle">Grounded check</text>
+          <text x="555" y="208" fill="var(--muted)" text-anchor="middle">hidden tests</text>
+          <rect x="640" y="168" width="140" height="54" rx="8" fill="var(--nrem-soft)" stroke="var(--nrem)"/>
+          <text x="710" y="192" fill="var(--ink)" text-anchor="middle">Train new expert</text>
+          <text x="710" y="208" fill="var(--muted)" text-anchor="middle">distil + KL to base</text>
+        </g>
+        <line x1="160" y1="195" x2="171" y2="195" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#ar)"/>
+        <line x1="315" y1="195" x2="326" y2="195" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#ar)"/>
+        <line x1="470" y1="195" x2="481" y2="195" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#ar)"/>
+        <line x1="625" y1="195" x2="636" y2="195" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#ar)"/>
+        <line x1="710" y1="222" x2="710" y2="262" stroke="var(--muted)" stroke-width="1.5" marker-end="url(#ar)"/>
+        <rect x="480" y="266" width="300" height="56" rx="8" fill="var(--good-soft)" stroke="var(--good)"/>
+        <text x="630" y="290" fill="var(--ink)" font-size="12" text-anchor="middle">Safety gate, every sleep</text>
+        <text x="630" y="308" fill="var(--muted)" font-size="11" text-anchor="middle">exact model · fresh items · rollback</text>
+        <line x1="476" y1="294" x2="324" y2="294" stroke="var(--muted)" stroke-width="1.5" stroke-dasharray="4 4" marker-end="url(#ar)"/>
+        <text x="400" y="286" fill="var(--muted)" font-size="10" text-anchor="middle">experts full / forgetting</text>
+        <rect x="20" y="266" width="300" height="56" rx="8" fill="var(--frozen-soft)" stroke="var(--frozen)"/>
+        <text x="170" y="290" fill="var(--ink)" font-size="12" text-anchor="middle">Core merge, rare</text>
+        <text x="170" y="308" fill="var(--muted)" font-size="11" text-anchor="middle">experts → new core version · gated</text>
       </svg>
     </div>
     <ol class="parts">
-      <li class="part" style="--c:var(--frozen)"><span class="k">1 · Cortex</span><h3>One frozen base for every arm</h3><p>Qwen3.5-2B: 18 Gated DeltaNet layers plus 6 full-attention layers, 262K context, about 12 KiB of KV cache per token. Fallback is dense Qwen3-1.7B. Runs quantized in llama.cpp on the GTX 1650.</p><span class="src">HF model cards · hybrid analyses</span></li>
-      <li class="part" style="--c:var(--wake)"><span class="k">2 · Hippocampus</span><h3>Memory graph, never overwritten</h3><p>Graph plus vectors, typed and timestamped, with provenance and trust. Append-only: a reconsolidation saves a new version, and revoked content gets a tombstone. Hot/cold tiers. The log is the source of truth.</p><span class="src">HippoRAG 2 · reviews</span></li>
-      <li class="part" style="--c:var(--wake)"><span class="k">3 · Skills</span><h3>Lessons as text</h3><p>A library of lessons and skills that grows from wins and fixed failures. It is the main way the system learns.</p><span class="src">ACE · ReasoningBank · GEPA</span></li>
-      <li class="part" style="--c:var(--rem)"><span class="k">4 · Sleep loop</span><h3>Select, reflect, dream, check</h3><p>Pick what proved useful or got corrected. A fixed 8B model reflects. Dreaming follows the Sleep paper's stage (SEAL loop with gradient-based dream picks). Only hidden tests, execution or user corrections can say a dream is good; there's no self-judge.</p><span class="src">Sleep paper · SEAL · 2404.17140 · 2507.08794</span></li>
-      <li class="part" style="--c:var(--nrem)"><span class="k">5 · Weights (optional)</span><h3>Retrain LoRA from base</h3><p>Each deep sleep, retrain the adapter from the base on the full verified log. The frozen base writes the replay answers, with a KL penalty to the base. Kept only if it beats text by at least 3 points with a confidence interval above zero.</p><span class="src">RL's Razor 2509.04259</span></li>
-      <li class="part" style="--c:var(--good)"><span class="k">6 · Gate + upgrades</span><h3>Test what you ship</h3><p>Gate the exact quantized model plus adapter, checking for NaNs. Fresh gate items each cycle, a sealed test set for milestones, canaries and poison checks, and auto-rollback. A new base gets rebuilt from the log.</p><span class="src">Thresholdout 1506.02629</span></li>
+      <li class="part" style="--c:var(--frozen)"><span class="k">1 · Cortex</span><h3>Frozen hybrid core</h3><p>Qwen3.5-2B: 18 Gated DeltaNet layers plus 6 full-attention layers, 262K context, about 12 KiB of KV cache per token. Fallback is dense Qwen3-1.7B.</p><span class="src">HF cards · 2507.06457 · 2510.04800</span></li>
+      <li class="part" style="--c:var(--nrem)"><span class="k">2 · Learnable layer</span><h3>A new expert each sleep</h3><p>A small low-rank expert per deep sleep. Old experts are frozen, so new learning never overwrites them. Rival arm: a sparse memory layer retrofitted into the core.</p><span class="src">Sleep paper · Sparse Memory FT · 2604.05248</span></li>
+      <li class="part" style="--c:var(--wake)"><span class="k">3 · Hippocampus</span><h3>Memory that strengthens with use</h3><p>A memory graph on an append-only log. Links used together in a verified success get stronger, and often-used memories stay hot. Supplies exact recall by day and the replay at night.</p><span class="src">HippoRAG 2 · our ideas</span></li>
+      <li class="part" style="--c:var(--rem)"><span class="k">4 · Sleep</span><h3>Replay, dream, check, train</h3><p>Select what proved useful or got corrected, and replay it with old episodes. Dream with the Sleep paper's stage. Keep only what passes hidden tests, then train the new expert, distilling from the pre-update model.</p><span class="src">Sleep paper · SEAL · RL's Razor</span></li>
+      <li class="part" style="--c:var(--good)"><span class="k">5 · Safety gate</span><h3>Test what you ship</h3><p>Gate the exact quantized model plus experts. Fresh gate items each sleep, canaries, poison checks, auto-rollback. No self-judge.</p><span class="src">1506.02629 · 2507.08794</span></li>
+      <li class="part" style="--c:var(--frozen)"><span class="k">6 · Core merge</span><h3>The cortex updates, rarely</h3><p>Triggered by a metric: the expert cap is reached, forgetting rises, or the backlog grows. It folds the experts into a new core version, at most about weekly, with a full gate and rollback. New bases are rebuilt from the log.</p><span class="src">Our design</span></li>
     </ol>
-    <div class="callout"><b>Experiment:</b> 8 arms on synthetic streams with hidden tests, 15+ cycles and 3+ seeds. The arms are no memory, RAG, long context, the text stack, text + LoRA, a LoRA control trained on generic data, text + LoRA + self-judge, and an oracle. <b>Step 0:</b> label real failures and benchmark the GTX 1650 before building anything.</div>
+    <div class="callout"><b>Experiment:</b> 9 arms on synthetic streams with hidden tests, 15+ sleeps and 3+ seeds. The baselines are no memory, RAG, long context and a text-notes stack. Then ours with experts, ours with a sparse memory layer, ours without dreaming, a generic-data control, and an oracle. <b>Win</b> means beating the best baseline by at least 3 points, with the CI above 0 and old skills dropping no more than 2 points.</div>
   </section>
 
   <section>
-    <span class="eyebrow">Try later · extra arms on the same harness</span>
+    <span class="eyebrow">Try later · same harness</span>
     <h2>Experiments queue</h2>
     <ol class="parts">
-      <li class="part" style="--c:var(--rem)"><span class="k">E1</span><h3>Sleep-paper consolidation</h3><p>A new low-rank expert each cycle, distillation from the pre-update model, and an imitation RL loss. Compared against our "retrain from base". It worked on plain Qwen3-1.7B math (AIME-24 53.2 vs 49.8).</p><span class="src">2606.03979</span></li>
-      <li class="part" style="--c:var(--nrem)"><span class="k">E2</span><h3>Sparse memory finetuning</h3><p>11% forgetting vs 71% for LoRA in their setup. Memory layers can be added to an existing model, but the method is built for facts.</p><span class="src">2510.15103 · 2604.05248 · 2605.03229</span></li>
-      <li class="part" style="--c:var(--frozen)"><span class="k">E3</span><h3>Dense vs hybrid core</h3><p>Qwen3-1.7B vs Qwen3.5-2B, with LFM2-1.2B as a third option. Hybrids are cheaper at long context but weaker at exact copying.</p><span class="src">2402.01032</span></li>
-      <li class="part" style="--c:var(--wake)"><span class="k">E4</span><h3>Hebbian link weights</h3><p>Our own bet, off by default. Links strengthen only on verified success, tested against plain HippoRAG 2.</p><span class="src">Our idea</span></li>
-      <li class="part" style="--c:var(--wake)"><span class="k">E5</span><h3>Hot/cold tiers</h3><p>Our own bet: does tiering with reconsolidation beat a flat store as memory grows?</p><span class="src">Our idea</span></li>
-      <li class="part" style="--c:var(--line)"><span class="k">E6 · E7</span><h3>Sleep cadence · big hybrids</h3><p>Nap/deep sleep vs immediate updates. Larger deploy cores (Qwen3-Next 80B, Kimi Linear 48B) if compute appears; switching means rebuilding from the log.</p><span class="src">Our idea · sol review</span></li>
+      <li class="part" style="--c:var(--rem)"><span class="k">E1</span><h3>Tutor-assisted dreams</h3><p>A bigger model helps write the dreams, since small models fix their own mistakes poorly.</p><span class="src">2404.17140</span></li>
+      <li class="part" style="--c:var(--nrem)"><span class="k">E2</span><h3>Retrain from base</h3><p>One LoRA retrained from the base on the full log, compared with stacking experts.</p><span class="src">Opus review</span></li>
+      <li class="part" style="--c:var(--frozen)"><span class="k">E3</span><h3>Dense vs hybrid core</h3><p>Qwen3-1.7B vs Qwen3.5-2B, with LFM2-1.2B as a third option.</p><span class="src">2402.01032</span></li>
+      <li class="part" style="--c:var(--wake)"><span class="k">E4 · E5</span><h3>Cadence · memory ablations</h3><p>Sleep timing vs immediate updates. Link weights and tiers turned off: do they really help?</p><span class="src">sol review · our ideas</span></li>
+      <li class="part" style="--c:var(--line)"><span class="k">E6</span><h3>Bigger hybrid cores</h3><p>Qwen3-Next 80B or Kimi Linear 48B, if compute appears. Switching means rebuilding from the log.</p><span class="src">2510.26692</span></li>
+      <li class="part" style="--c:var(--line)"><span class="k">E7 · E8</span><h3>JEPA · our own core</h3><p>V-JEPA 2 for predicting how the world changes. XSA and gated attention only if we ever pretrain our own core.</p><span class="src">V-JEPA 2 · 2603.09078</span></li>
     </ol>
-    <p class="note"><b>Dropped:</b> the surprise filter (it attracts poison; 2405.05904), a self-judge as the gate, merging adapters into the core, JEPA for now, and a small model as the night reflector.</p>
+    <p class="note"><b>Dropped:</b> the surprise filter (2405.05904), a self-judge as the gate, text notes as the product (now just a baseline), a fixed reflector model in the loop, and weight merging across different base models.</p>
   </section>
 
   <section>
@@ -183,40 +188,40 @@ svg text{font-family:var(--mono)}
           <span class="by">Ohio State · Feb 2025 · <a href="https://arxiv.org/abs/2502.14802">2502.14802</a></span>
           <p>Memory as a knowledge graph linked to passages. Retrieval spreads through the graph (Personalized PageRank) instead of doing plain vector lookup.</p>
           <div class="num">Pitched as "non-parametric continual learning"</div>
-          <p class="us"><b>For us</b>The memory graph. Also the baseline for our Hebbian link experiment (E4).</p>
+          <p class="us"><b>For us</b>Our hippocampus. We add Hebbian links and hot/cold tiers (ablated in E5).</p>
         </article>
-        <article class="card" data-v="use">
-          <div class="top"><h3>ACE: Agentic Context Engineering</h3><span class="tag use">use</span></div>
+        <article class="card" data-v="borrow">
+          <div class="top"><h3>ACE: Agentic Context Engineering</h3><span class="tag borrow">borrow</span></div>
           <span class="by">Oct 2025 · <a href="https://arxiv.org/abs/2510.04618">2510.04618</a></span>
           <p>A playbook of strategies that a generator, reflector and curator keep growing, updated in small pieces so nothing collapses.</p>
           <div class="num">Tested only with 70B+ models</div>
-          <p class="us"><b>For us</b>The skill library's update rule. Its size is why our reflector is a fixed 8B model.</p>
+          <p class="us"><b>For us</b>Powers the text-notes baseline (arm 4) we must beat.</p>
         </article>
-        <article class="card" data-v="use">
-          <div class="top"><h3>ReasoningBank</h3><span class="tag use">use</span></div>
+        <article class="card" data-v="borrow">
+          <div class="top"><h3>ReasoningBank</h3><span class="tag borrow">borrow</span></div>
           <span class="by">Google · Sep 2025 · <a href="https://arxiv.org/abs/2509.25140">2509.25140</a></span>
           <p>Turns both wins and failures into short reusable reasoning strategies and retrieves them on new tasks.</p>
           <div class="num">Smallest model tested: Gemma-3-12B</div>
-          <p class="us"><b>For us</b>What a "lesson" looks like, and learning from failures as well as wins.</p>
+          <p class="us"><b>For us</b>Part of the text-notes baseline. Idea kept: learn from failures too.</p>
         </article>
-        <article class="card" data-v="use">
-          <div class="top"><h3>GEPA</h3><span class="tag use">use</span></div>
+        <article class="card" data-v="borrow">
+          <div class="top"><h3>GEPA</h3><span class="tag borrow">borrow</span></div>
           <span class="by">Jul 2025 · <a href="https://arxiv.org/abs/2507.19457">2507.19457</a></span>
           <p>Evolves prompts by reflecting in plain language on rollouts. Reported to beat RL weight training (GRPO) with far fewer rollouts.</p>
           <div class="num">Smallest model tested: 8B</div>
-          <p class="us"><b>For us</b>Evidence that text-level learning can rival weights, which is why text comes first.</p>
+          <p class="us"><b>For us</b>A warning that text can rival weights, so the text baseline must be strong.</p>
         </article>
         <article class="card" data-v="use">
           <div class="top"><h3>Small LMs need strong verifiers</h3><span class="tag use">use</span></div>
           <span class="by">Apr 2024 · <a href="https://arxiv.org/abs/2404.17140">2404.17140</a></span>
           <p>Small models fix their own mistakes well only when a strong verifier checks them.</p>
-          <p class="us"><b>For us</b>Why the night reflector is larger than the core.</p>
+          <p class="us"><b>For us</b>Why dreams need grounded tests, and why E1 tries a tutor.</p>
         </article>
         <article class="card" data-v="use">
           <div class="top"><h3>One token to fool an LLM judge</h3><span class="tag use">use</span></div>
           <span class="by">Jul 2025 · <a href="https://arxiv.org/abs/2507.08794">2507.08794</a></span>
           <p>Trivial tokens can trick LLM-as-judge reward models into false positives.</p>
-          <p class="us"><b>For us</b>No self-judge in the gate. It appears only as an experiment arm.</p>
+          <p class="us"><b>For us</b>No self-judge anywhere in the gate.</p>
         </article>
         <article class="card" data-v="use">
           <div class="top"><h3>New knowledge → hallucination</h3><span class="tag use">use</span></div>
@@ -228,7 +233,7 @@ svg text{font-family:var(--mono)}
           <div class="top"><h3>RL's Razor</h3><span class="tag use">use</span></div>
           <span class="by">MIT · Sep 2025 · <a href="https://arxiv.org/abs/2509.04259">2509.04259</a></span>
           <p>Forgetting tracks how far training moves the model from its base (KL). SFT on outside answers moves it further.</p>
-          <p class="us"><b>For us</b>The frozen base writes the replay answers, with a KL penalty to the base.</p>
+          <p class="us"><b>For us</b>Replay answers come from the pre-update model, with a KL penalty to the base.</p>
         </article>
         <article class="card" data-v="use">
           <div class="top"><h3>Thresholdout (reusable holdout)</h3><span class="tag use">use</span></div>
@@ -247,21 +252,21 @@ svg text{font-family:var(--mono)}
           <span class="by">Google + Cornell · Jun 2026 · <a href="https://arxiv.org/abs/2606.03979">2606.03979</a></span>
           <p>Wake learns fast; sleep adds a new low-rank expert, distils into it from the pre-update model, then dreams self-made practice data rewarded by real gain.</p>
           <div class="num">ARC 80 vs SEAL 72.5 · SQuAD 48.9 vs 31.9 base · no dreaming → 35.7</div>
-          <p class="us"><b>For us</b>Its dreaming stage is our dream step. Its consolidation (new expert + distillation) is experiment E1. <a href="https://claude.ai/artifact/65vqoJu3D9HznJVg9FmqLT">Full explainer</a></p>
+          <p class="us"><b>For us</b>Template for our sleep loop and learnable layer: a new expert per sleep, distillation, dreaming. <a href="https://claude.ai/artifact/65vqoJu3D9HznJVg9FmqLT">Full explainer</a></p>
         </article>
         <article class="card" data-v="use">
           <div class="top"><h3>SEAL: Self-Adapting LLMs</h3><span class="tag use">use</span></div>
           <span class="by">MIT · Jun 2025 · <a href="https://arxiv.org/abs/2506.10943">2506.10943</a></span>
           <p>The model writes its own training notes ("self-edits"), trains a LoRA on them, and is rewarded only if the update improved the score.</p>
           <div class="num">SQuAD n=1: 47.0 vs 32.7 · ARC 72.5% vs 0% in-context</div>
-          <p class="us"><b>For us</b>The base loop inside the dreaming stage. Its forgetting across edits is why weights retrain from base with replay.</p>
+          <p class="us"><b>For us</b>The base loop inside the dreaming stage. Its forgetting across edits is why we add frozen experts plus replay.</p>
         </article>
-        <article class="card" data-v="later">
-          <div class="top"><h3>Sparse Memory Finetuning</h3><span class="tag later">later</span></div>
+        <article class="card" data-v="use">
+          <div class="top"><h3>Sparse Memory Finetuning</h3><span class="tag use">use</span></div>
           <span class="by">Meta FAIR + Berkeley · Oct 2025 · <a href="https://arxiv.org/abs/2510.15103">2510.15103</a></span>
           <p>A memory layer with a million slots; only the slots most specific to the new data (by TF-IDF) get updated.</p>
           <div class="num">Old-skill drop: full FT 89% · LoRA 71% · sparse 11%</div>
-          <p class="us"><b>For us</b>Experiment E2 vs LoRA. Memory layers can now be added to an existing model (2604.05248).</p>
+          <p class="us"><b>For us</b>Rival learnable layer (arm 6). Memory layers can now be added to an existing model (2604.05248).</p>
         </article>
         <article class="card" data-v="borrow">
           <div class="top"><h3>End-to-End Test-Time Training</h3><span class="tag borrow">borrow</span></div>
@@ -275,7 +280,7 @@ svg text{font-family:var(--mono)}
           <span class="by">Google · NeurIPS 2025 · <a href="https://arxiv.org/abs/2512.24695">2512.24695</a></span>
           <p>Treats a model as memories updated at different speeds (fast → slow). HOPE is the architecture the sleep paper builds on.</p>
           <div class="num">Beats Titans, RWKV-7; full attention still wins hard recall</div>
-          <p class="us"><b>For us</b>The fast-to-slow idea: memory → lessons → adapter.</p>
+          <p class="us"><b>For us</b>The fast-to-slow idea: hippocampus → expert → core merge.</p>
         </article>
         <article class="card" data-v="skip">
           <div class="top"><h3>Do LMs Need Sleep? Offline Recurrence</h3><span class="tag skip">skip</span></div>
@@ -309,7 +314,7 @@ svg text{font-family:var(--mono)}
           <span class="by">Moonshot · Oct 2025 · <a href="https://arxiv.org/abs/2510.26692">2510.26692</a></span>
           <p>Kimi Delta Attention mixed 3:1 with full attention. 48B total, 3B active. Open weights and kernels.</p>
           <div class="num">−75% KV cache · up to 6× faster decode at 1M context</div>
-          <p class="us"><b>For us</b>Too big for our budget. Deploy-core option in E7.</p>
+          <p class="us"><b>For us</b>Too big for our budget. Deploy-core option in E6.</p>
         </article>
         <article class="card" data-v="use">
           <div class="top"><h3>Gated Attention</h3><span class="tag use">use</span></div>

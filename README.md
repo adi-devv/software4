@@ -1,8 +1,8 @@
 # Software4
 
-**A brain-inspired LLM that keeps learning after deployment.** A frozen small model works by day. A memory graph and a skill library hold what it learns. At night it sleeps: it reflects, dreams and checks its work, and trains small adapters only when they beat plain text memory.
+**A brain-inspired LLM that keeps learning after deployment, in its own weights.** It has a frozen hybrid core (the cortex), a learnable layer that adds a new small expert each sleep, and a hippocampus memory whose links strengthen with use. At night it replays, dreams, checks its work against tests, and trains. Text notes and RAG are only baselines it has to beat.
 
-Status: planning is done (v3), and step 0 (failure labelling + hardware benchmark) is next.
+Status: planning is done (v4), and step 0 (a feasibility check on Kaggle) is next.
 
 - **Plan + papers page:** https://claude.ai/artifact/7CPfNetLBiXViGD5zQt5DM
 - **Sleep paper explainer:** https://claude.ai/artifact/65vqoJu3D9HznJVg9FmqLT
@@ -24,7 +24,7 @@ Status: planning is done (v3), and step 0 (failure labelling + hardware benchmar
 
 | Path | What |
 |---|---|
-| `PLAN.md` | The current plan (v3): architecture, night loop, experiment, build order |
+| `PLAN.md` | Part 1: the current plan (v4: architecture, sleep, core merge, experiment, build order). Part 2: experiments to try later |
 | `CLAUDE.md` | Instructions for Claude: answer style, status %, running the 3 Codex accounts |
 | `research/` | Paper notes (`papers_deep.md`, `papers_xsa.md`), reviews (`critique.md`, `opus_max_review.md`, `sol_review.md`), and the HTML pages for the papers and the sleep paper |
 | `scripts/run_rotate.sh` | Runs Codex jobs from a queue and moves to the next account when one hits its limit |
@@ -32,9 +32,10 @@ Status: planning is done (v3), and step 0 (failure labelling + hardware benchmar
 
 ## Key ideas
 - **The memory log is the truth; weights are a cache.** Any new base model can be rebuilt from the log.
-- **Text first:** the lessons and skills layer must win before any weight training.
+- **Learning goes into the weights:** new experts each sleep, merged into the core when a metric says so. Text notes are a baseline, not the product.
+- **Brain-like memory:** links strengthen with verified use, and often-used memories stay close (hot/cold tiers).
 - **Grounded checks only:** tests, execution and user corrections, never self-grading.
 - **A safety gate every cycle:** fresh held-out items, canaries and poison checks, with auto-rollback.
 
 ## Hardware
-GTX 1650 (4 GB) locally, plus free Kaggle T4s for the night training.
+Free Kaggle T4s for experiments and training, run from the Kaggle CLI. A GTX 1650 (4 GB) locally for development, memory and live use.

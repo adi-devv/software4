@@ -1,12 +1,14 @@
-# Software4 plan (v3, 2026-11-05)
+# Software4 plan (v4, 2026-11-05)
 
-A brain-inspired LLM system that keeps learning after deployment. A frozen core is paired with a memory graph and a skill library. A "night" loop then consolidates what was learned: text lessons first, and weights only if they prove they help.
+**One model that learns in its own weights.** It has a frozen hybrid core (the cortex), a learnable layer that grows each sleep, and a hippocampus memory. A sleep phase replays, dreams, checks and trains. Text notes, RAG and long context are **baselines to beat**, not the product.
 
 - **Papers page (plan diagram + paper library):** https://claude.ai/artifact/7CPfNetLBiXViGD5zQt5DM. Local copy: `research/software4-papers.html`.
 - **Sleep paper explainer:** https://claude.ai/artifact/65vqoJu3D9HznJVg9FmqLT. Local copy: `research/sleep-paper.html`.
 - **Reviews folded in:**
   - `research/critique.md`: v1 red team.
   - `research/opus_max_review.md` and `research/sol_review.md`: v2 reviews.
+  - Their safety fixes are kept.
+  - Their push towards "text first, weights optional" (v3) was reversed in v4. It drifted from the goal: by the README's test, a model that only gets better notes is Software 3.0.
 
 ---
 
@@ -14,83 +16,112 @@ A brain-inspired LLM system that keeps learning after deployment. A frozen core 
 
 ## Architecture
 
-| Layer | Choice | Source |
+| Part | Brain analogy | Choice | Source |
+|---|---|---|---|
+| **Core** | Cortex | **Frozen Qwen3.5-2B**: a hybrid with 18 Gated DeltaNet layers and 6 full-attention layers, 262K context, Apache-2.0, about 12 KiB of KV cache per token. Fallback: dense **Qwen3-1.7B** | HF cards; hybrid analyses 2507.06457, 2510.04800 |
+| **Learnable layer** | Fast-learning cortex | **One new low-rank expert per deep sleep.** Older experts are frozen, so new learning never overwrites them. Capped at N experts, which triggers a core merge. Rival arm: a **sparse memory layer** retrofitted into the core, where only the slots relevant to new data update | Sleep paper 2606.03979; sparse memory FT 2510.15103, 2604.05248 |
+| **Hippocampus** | Hippocampus | Memory graph plus vectors (HippoRAG 2 style), typed and timestamped, with provenance and trust. Handles exact recall by day and supplies the sleep loop's replay | HippoRAG 2 2502.14802 |
+| Connection strength | Synapses | **Hebbian link weights:** links used together in a *verified success* get stronger, and unused ones slowly decay. Kept in a separate index that can be rebuilt | Our idea |
+| Hot/cold tiers | Recent vs old memories | Frequently used memories are fast to reach. Old ones are demoted, never deleted, and pulled back up when used | Our idea |
+| Memory rules | — | **Append-only:** an update saves a new version, and revoked content gets a tombstone | Reviews |
+| Source of truth | — | The memory log. Experts can be rebuilt from it, and so can the whole learned state on a new base | Reviews |
+
+## Day
+- The core plus its experts does the tasks, pulling from the hippocampus.
+- Every episode is logged with its result (pass/fail, correction).
+- **Nap** every ~50 tasks, or when idle: update the link weights and tiers. No weight training; runs on the GTX 1650.
+
+## Night (deep sleep)
+
+**Trigger:** enough new verified episodes, or repeated failures on a skill. At most once a day.
+
+| Step | What it does | Source |
 |---|---|---|
-| Core | **One frozen base shared by every arm.** First choice: **Qwen3.5-2B**, a hybrid with 18 Gated DeltaNet layers and 6 full-attention layers (2 KV heads × 256), 262K context, Apache-2.0, about 12 KiB of KV cache per token. Fallback: dense **Qwen3-1.7B** (about 112 KiB per token), with the same token limit for every arm | HF cards |
-| Day runtime | llama.cpp with a quantized model on the GTX 1650 | Opus review |
-| Memory | Graph + vectors, HippoRAG 2 style, typed and timestamped, with provenance and trust | HippoRAG 2 |
-| Memory rules | Episodes are **append-only**: reconsolidation saves a new version, and revoked content gets a tombstone. Hot/cold tiers: demote rather than delete. Link weights sit in a separate, decaying index that can be rebuilt; they're **off by default** (see the experiments section) | Both reviews |
-| Skills | Text lesson and skill library | ACE 2510.04618, ReasoningBank 2509.25140, GEPA 2507.19457 |
-| Source of truth | The memory log. Weights are a cache that gets rebuilt | — |
+| Select | Verified usefulness, corrected failures and trusted sources. Trust is scored separately, new inputs are quarantined, and there's **no surprise filter** | 2405.05904 |
+| Replay | Mix new episodes with old ones from the hippocampus so old skills stay in practice. Replay answers are written by the pre-update model | RL's Razor 2509.04259 |
+| Dream | **The Sleep paper's dreaming stage.** The model writes self-edits and practice data (SEAL loop), with gradient-based dream selection (top-k plus some random picks) and novelty from temperature or perturbed retrieval. A dream is rewarded only for a grounded gain. Their ablation: SQuAD drops from 48.1 to 35.7 without dreaming | 2606.03979, SEAL 2506.10943 |
+| Check | Grounded only: hidden tests written independently, execution, user corrections. No self-judge | 2507.08794 |
+| Train | Train the **new expert** on the dreams that passed plus the replay. Distil from the pre-update model, with a KL penalty to the base | 2606.03979, 2509.04259 |
+| Gate | Test the **exact quantized model + experts** that will be deployed, with NaN checks (fp16 on T4/GTX 16-series). Add fresh gate items each cycle, plus canaries and poison checks. Roll back automatically on any regression | Thresholdout 1506.02629 |
 
-## Night loop
-
-| Step | What it does |
-|---|---|
-| Nap | Every ~50 tasks or when idle: memory linking and text lessons. Runs on the GTX 1650 |
-| Deep sleep trigger | Repeated failures with enough diverse verified examples, at most once a day |
-| Select | Verified usefulness, corrected failures and trusted sources. Trust is scored separately from novelty, and new inputs are quarantined |
-| Reflect | A **fixed, stronger reflector (Qwen3-8B on Kaggle)**, the same for every arm. ACE was tested on 70B+, GEPA on 8B+ and ReasoningBank on 12B+, and small models self-correct poorly (2404.17140) |
-| Dream | **The dreaming stage of the Sleep paper** (2606.03979). It is SEAL's loop: write a self-edit, LoRA-SFT a copy, reward = downstream gain, ReST outer loop. The paper adds **gradient-based dream selection** (top-k plus some random picks) and **novelty injection**. With no MoE router, our novelty comes from temperature or perturbed retrieval. The reward uses only grounded checks, not the paper's reward model. Runs in a sandbox. Their ablation: SQuAD accuracy drops from 48.1 to 35.7 without dreaming |
-| Check | Grounded only: hidden tests written independently, execution, user corrections. No self-judge (2507.08794) |
-| Train (optional) | **Retrain the LoRA from the base on the full verified log** each deep sleep. Target skills where the lesson is retrieved but the first attempt still often fails. Replay answers are written by the frozen base (2509.04259), with a KL penalty to the base |
-| Gate | Test the **exact quantized model + adapter** that will be deployed, with NaN checks (fp16 on GTX 16-series). Add fresh gate items each cycle, plus canaries and poison checks. Roll back automatically on any regression |
-| Upgrades | Rebuild from the log onto each new base. No weight merging |
+## Core update (merge)
+- **Triggered by a metric, not a fixed schedule:** the expert cap is reached, forgetting on canaries rises, or the replay backlog grows too big.
+- Merge the experts into the core's weights to make a new core version, which then starts a fresh expert stack.
+- Run the full gate plus the sealed test set, keep the old core for rollback, and merge at most about once a week.
+- The reviews warned that merges can cause forgetting, which is why every merge is gated and can be rolled back.
+- **New base models:** rebuild from the memory log; no weight merging across bases.
 
 ## Core experiment
 
 **Setup:**
 - Synthetic task streams with hidden tests.
-- 15+ cycles and 3+ seeds.
+- 15+ sleep cycles and 3+ seeds.
 - Report 95% confidence intervals.
-- Keep a sealed test set and use it only at milestones (1506.02629).
+- Keep a sealed test set and use it only at milestones.
 
 **Arms:**
 1. No memory
 2. RAG only
 3. Long context (same token limit as the others)
-4. Text stack
-5. Text + LoRA
-6. Text + LoRA trained on an equal amount of generic data (control)
-7. Text + LoRA + self-judge (checks whether a judge hurts)
-8. Oracle (correct info given in context)
+4. Text-notes stack (ACE / ReasoningBank-style lessons): the strongest 3.0 baseline
+5. **Ours:** hippocampus + experts + sleep
+6. **Ours with a sparse memory layer** in place of the experts
+7. Ours without dreaming (ablation)
+8. Ours trained on an equal amount of generic data (control)
+9. Oracle (correct info given in context)
 
-**Kill rule:** drop weight learning unless the LoRA gain over the text stack is ≥ 3 points and its 95% CI lower bound is > 0. Detecting 3 points needs about 1.7k paired tasks, which is why the streams are synthetic.
+**Success:**
+- Ours beats the best baseline by **≥ 3 points**, with the 95% CI lower bound **> 0**.
+- Old skills on the canaries drop **≤ 2 points** over all cycles.
+- Detecting 3 points needs about 1.7k paired tasks, which is why the streams are synthetic.
+- If the text notes win, we report that honestly as a result.
+
+## Helpers (not part of the model)
+- **Task and test writer:** a bigger model writes the synthetic streams and hidden tests once, before the experiments. Sarvam credits can cover this later.
+- **Grader:** tests and execution, not a model.
 
 ## Hardware
-- **GTX 1650 (4 GB, no bf16, Windows):** day loop, memory, naps, llama.cpp inference.
-- **Free Kaggle (T4×2, ~30 GPU-h/week):** 8B reflector, LoRA training, gate runs.
+- **Kaggle (T4×2, ~30 GPU-h/week):** experiments, expert training, gates.
+  - Driven from the CLI, which works, logged in as `adidevv`.
+  - One account only, per Kaggle's terms.
+- **GTX 1650 (4 GB, no bf16):** development, debugging, the hippocampus, naps, and live use later.
 
 ## Build order
-1. **Step 0:**
-   - Label real failures as missing info, didn't use it, or lacked a skill.
-   - Benchmark hardware: VRAM use, fp16 NaNs, llama.cpp speed, and fp16 LoRA for Qwen3.5-2B on a T4.
-2. Memory graph + skill library.
-3. Evaluation harness: synthetic streams, sealed test set, CIs.
-4. Night loop, text only.
-5. LoRA arm (needs steps 1–4 working).
-6. Later experiments (Part 2).
-7. Pick the deploy core.
+1. **Step 0, a feasibility check on Kaggle:**
+   - Qwen3.5-2B in fp16 on a T4, checking for NaNs.
+   - LoRA/expert adapters on the Gated DeltaNet layers.
+   - Whether a sparse memory layer can be retrofitted.
+   - llama.cpp speed on the 1650.
+   - A Kaggle job runner script.
+2. Hippocampus: graph, link weights, tiers, append-only log.
+3. Evaluation harness: synthetic streams, hidden tests, sealed set, canaries, CIs.
+4. Baselines (arms 1–4).
+5. Sleep loop with experts: select, replay, check, train, gate.
+6. Dreaming.
+7. Sparse memory arm (6) and ablations.
+8. Core merge.
+9. Later experiments (Part 2).
 
 ---
 
 # Part 2 — Experiments to try later
 
-Run each one as an extra arm on the core experiment's harness, after build step 5.
+Run each one on the same harness, after build step 7.
 
 | # | Experiment | Why | Source |
 |---|---|---|---|
-| E1 | **Sleep-paper consolidation vs our LoRA.** Add a new low-rank expert each cycle with everything else frozen, distil from the pre-update model, use the Learning-to-Imitate RL loss, and reset old experts. Compare against "retrain LoRA from base" | Their math tests used plain Qwen3-1.7B/8B and beat GRPO and OPSD (Qwen3-1.7B AIME-24: 53.2 vs base 49.8). The Opus review advised against distilling from the old model, so let data decide | 2606.03979 |
-| E2 | **Sparse memory finetuning** in place of LoRA | Forgetting: 11% vs 71% for LoRA in their setup. Memory layers can be added to an existing model. It's built for facts, which our design keeps in memory | 2510.15103, 2604.05248, 2605.03229 |
+| E1 | **Tutor-assisted dreams:** a bigger model helps write the dreams | Small models fix their own mistakes poorly without a strong verifier, so a 2B model may dream weakly | 2404.17140 |
+| E2 | **Retrain from base vs stacking experts:** v3's method, where one LoRA is retrained from the base on the full log each sleep | The Opus review warned that distilling from the old model can lock in its errors | Opus review |
 | E3 | **Dense vs hybrid core:** Qwen3-1.7B vs Qwen3.5-2B, with LFM2-1.2B as a third option | Hybrids are cheaper at long context but weaker at copying exactly from the prompt | 2402.01032 |
-| E4 | **Hebbian link weights on** vs plain HippoRAG 2 | Our own bet. Risk: retrieving something strengthens it, which strengthens retrieval again, a loop that can entrench poison. Strengthen only on verified success | Our bet; Opus review #7 |
-| E5 | **Hot/cold tiers + reconsolidation** vs a flat store | Our own bet: retrieval speed and accuracy as the store grows | Our bet |
-| E6 | **Sleep cadence:** nap/deep-sleep vs immediate text updates vs fixed counts | Our own bet. The sol review called the thresholds arbitrary | Our bet; sol review #4 |
-| E7 | **Bigger hybrid deploy cores** (Qwen3-Next-80B, Nemotron-H, Kimi Linear 48B) | Out of budget now. Revisit if compute appears. Switching just means rebuilding from the log | — |
+| E4 | **Sleep cadence:** nap/deep sleep vs immediate updates vs fixed counts | The sol review called the thresholds arbitrary | sol review #4 |
+| E5 | **Link weights / tiers off** (ablation) | Do our two memory ideas really help? | Our bet |
+| E6 | **Bigger hybrid cores** (Qwen3-Next-80B, Nemotron-H, Kimi Linear 48B) | Out of budget now. Switching means rebuilding from the log | — |
+| E7 | **JEPA world model** (V-JEPA 2) | For predicting how the world changes, not just text. Add it once the loop works | V-JEPA 2 |
+| E8 | **Our own pretrained core** (with XSA, gated attention) | Only if we ever pretrain; XSA can't be added to a frozen model | 2603.09078, 2505.06708 |
 
 ## Dropped (and why)
 - **Surprise-based selection:** it attracts poison, and training on unknown facts raises hallucination (2405.05904).
-- **Self-judge as a gate:** one token can fool an LLM judge (2507.08794). It stays only as arm 7.
-- **Weight merging on base upgrades:** we rebuild from the log instead.
-- **JEPA:** not needed for now.
-- **A 0.6B/1.7B model as the night reflector:** too small for ACE, GEPA or ReasoningBank.
+- **Self-judge as a gate:** one token can fool an LLM judge (2507.08794).
+- **Text notes as the product (v3):** kept only as baseline arm 4.
+- **A fixed 8B reflector in the loop (v3):** the model learns by itself now. A bigger model only writes tasks and tests (and is tried for dreams in E1).
+- **Weight merging across base models:** we rebuild from the log instead.
