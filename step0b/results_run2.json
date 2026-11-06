@@ -1,0 +1,76 @@
+{
+  "started": "2026-11-05 17:29:22",
+  "model": "Qwen/Qwen3.5-2B",
+  "setup": {
+    "fla_installed": true,
+    "fast_path_smoke_ok": true,
+    "torch": "2.11.0+cu130",
+    "transformers": "5.22.1",
+    "peft": "0.21.2",
+    "gpus": [
+      "Tesla T4",
+      "Tesla T4"
+    ]
+  },
+  "b0_baseline": {
+    "gsm8k_100": 0.7,
+    "seconds": 129
+  },
+  "b1_replay_set": {
+    "sources": {
+      "gsm8k_train": 200,
+      "alpaca": 200
+    },
+    "n": 400,
+    "sample": "Let $C$ be the cost of the computer.\nThe cost of the fridge is $500 more than the computer, so the fridge costs $C + 500$.\nThe cost of the TV is $600.\n\nThe total budget is $1600. We can set up the equ",
+    "seconds": 327
+  },
+  "r1_expert_A_replay": {
+    "error": "OutOfMemoryError('CUDA out of memory. Tried to allocate 1.64 GiB. GPU 0 has a total capacity of 14.56 GiB of which 1.58 GiB is free. Including non-PyTorch memory, this process has 12.98 GiB memory in use. Of the allocated memory 12.38 GiB is allocated by PyTorch, and 127.37 MiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://docs.pytorch.org/docs/stable/notes/cuda.html#optimizing-memory-usage-with-pytorch-cuda-alloc-conf)')",
+    "trace": "le.py\", line 1779, in _wrapped_call_impl\n    return self._call_impl(*args, **kwargs)\n           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.13/dist-packages/torch/nn/modules/module.py\", line 1790, in _call_impl\n    return forward_call(*args, **kwargs)\n  File \"/usr/local/lib/python3.13/dist-packages/peft/peft_model.py\", line 1007, in forward\n    return self.get_base_model()(*args, **kwargs)\n           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.13/dist-packages/torch/nn/modules/module.py\", line 1779, in _wrapped_call_impl\n    return self._call_impl(*args, **kwargs)\n           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.13/dist-packages/torch/nn/modules/module.py\", line 1790, in _call_impl\n    return forward_call(*args, **kwargs)\n  File \"/usr/local/lib/python3.13/dist-packages/transformers/utils/generic.py\", line 943, in wrapper\n    output = func(self, *args, **kwargs)\n  File \"/usr/local/lib/python3.13/dist-packages/transformers/models/qwen3_5/modeling_qwen3_5.py\", line 1726, in forward\n    loss = self.loss_function(logits=logits, labels=labels, vocab_size=self.config.vocab_size, **kwargs)\n  File \"/usr/local/lib/python3.13/dist-packages/transformers/loss/loss_utils.py\", line 72, in ForCausalLMLoss\n    loss = fixed_cross_entropy(logits, shift_labels, num_items_in_batch, ignore_index, **kwargs)\n  File \"/usr/local/lib/python3.13/dist-packages/transformers/loss/loss_utils.py\", line 42, in fixed_cross_entropy\n    loss = nn.functional.cross_entropy(source, target, ignore_index=ignore_index, reduction=reduction)\n  File \"/usr/local/lib/python3.13/dist-packages/torch/nn/functional.py\", line 3504, in cross_entropy\n    return torch._C._nn.cross_entropy_loss(\n           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^\n        input,\n        ^^^^^^\n    ...<5 lines>...\n        label_smoothing,\n        ^^^^^^^^^^^^^^^^\n    )\n    ^\ntorch.OutOfMemoryError: CUDA out of memory. Tried to allocate 1.64 GiB. GPU 0 has a total capacity of 14.56 GiB of which 1.58 GiB is free. Including non-PyTorch memory, this process has 12.98 GiB memory in use. Of the allocated memory 12.38 GiB is allocated by PyTorch, and 127.37 MiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://docs.pytorch.org/docs/stable/notes/cuda.html#optimizing-memory-usage-with-pytorch-cuda-alloc-conf)\n",
+    "seconds": 268
+  },
+  "r2_expert_B_replay": {
+    "error": "OutOfMemoryError('CUDA out of memory. Tried to allocate 1.64 GiB. GPU 0 has a total capacity of 14.56 GiB of which 1.45 GiB is free. Including non-PyTorch memory, this process has 13.11 GiB memory in use. Of the allocated memory 12.50 GiB is allocated by PyTorch, and 129.05 MiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://docs.pytorch.org/docs/stable/notes/cuda.html#optimizing-memory-usage-with-pytorch-cuda-alloc-conf)')",
+    "trace": "le.py\", line 1779, in _wrapped_call_impl\n    return self._call_impl(*args, **kwargs)\n           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.13/dist-packages/torch/nn/modules/module.py\", line 1790, in _call_impl\n    return forward_call(*args, **kwargs)\n  File \"/usr/local/lib/python3.13/dist-packages/peft/peft_model.py\", line 1007, in forward\n    return self.get_base_model()(*args, **kwargs)\n           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.13/dist-packages/torch/nn/modules/module.py\", line 1779, in _wrapped_call_impl\n    return self._call_impl(*args, **kwargs)\n           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.13/dist-packages/torch/nn/modules/module.py\", line 1790, in _call_impl\n    return forward_call(*args, **kwargs)\n  File \"/usr/local/lib/python3.13/dist-packages/transformers/utils/generic.py\", line 943, in wrapper\n    output = func(self, *args, **kwargs)\n  File \"/usr/local/lib/python3.13/dist-packages/transformers/models/qwen3_5/modeling_qwen3_5.py\", line 1726, in forward\n    loss = self.loss_function(logits=logits, labels=labels, vocab_size=self.config.vocab_size, **kwargs)\n  File \"/usr/local/lib/python3.13/dist-packages/transformers/loss/loss_utils.py\", line 72, in ForCausalLMLoss\n    loss = fixed_cross_entropy(logits, shift_labels, num_items_in_batch, ignore_index, **kwargs)\n  File \"/usr/local/lib/python3.13/dist-packages/transformers/loss/loss_utils.py\", line 42, in fixed_cross_entropy\n    loss = nn.functional.cross_entropy(source, target, ignore_index=ignore_index, reduction=reduction)\n  File \"/usr/local/lib/python3.13/dist-packages/torch/nn/functional.py\", line 3504, in cross_entropy\n    return torch._C._nn.cross_entropy_loss(\n           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^\n        input,\n        ^^^^^^\n    ...<5 lines>...\n        label_smoothing,\n        ^^^^^^^^^^^^^^^^\n    )\n    ^\ntorch.OutOfMemoryError: CUDA out of memory. Tried to allocate 1.64 GiB. GPU 0 has a total capacity of 14.56 GiB of which 1.45 GiB is free. Including non-PyTorch memory, this process has 13.11 GiB memory in use. Of the allocated memory 12.50 GiB is allocated by PyTorch, and 129.05 MiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://docs.pytorch.org/docs/stable/notes/cuda.html#optimizing-memory-usage-with-pytorch-cuda-alloc-conf)\n",
+    "seconds": 84
+  },
+  "r3_summed_vs_router": {
+    "summed": {
+      "skill_a": 0.77,
+      "skill_b": 0.02,
+      "gsm8k_100": 0.68
+    },
+    "router_acc": {
+      "skill_a": 1.0,
+      "skill_b": 1.0,
+      "gsm8k_100": 1.0
+    },
+    "routed": {
+      "skill_a": 0.78,
+      "skill_b": 0.66,
+      "gsm8k_100": 0.7
+    },
+    "seconds": 444
+  },
+  "r4_memory_replay": {
+    "train": {
+      "loss_first": 1.858,
+      "loss_last": 0.074,
+      "nan_steps": 0,
+      "steps": 189,
+      "peak_mem_gb": 14.57
+    },
+    "skill_a": [
+      0.82,
+      [
+        "Candle ~ Forest ~ Yellow [3]",
+        "Insect ~ Noodle ~ Yogurt [3]",
+        "Copper ~ Desert ~ Feather ~ Tiger [4]"
+      ]
+    ],
+    "gsm8k_100": 0.77,
+    "seconds": 712
+  },
+  "finished": "2026-11-05 18:06:15"
+}
