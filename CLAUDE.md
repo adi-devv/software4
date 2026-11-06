@@ -1,6 +1,6 @@
 # Software4
 
-Research project: a brain-inspired LLM system that keeps learning after deployment. The current plan is in `PLAN.md`. Papers, critiques and reviews are in `research/`.
+Research project: a brain-inspired LLM system that keeps learning after deployment. The current plan is in `PLAN.md`. Papers, critiques and reviews are in `research/`. Diagrams, design choices and milestones are in `docs/architecture.html`.
 
 ## How to talk to the user
 - Keep answers short: a few bullets or a small table. Expand only when asked.
@@ -71,5 +71,7 @@ Budget is about 30 GPU-hours a week, on one Kaggle account only (never rotate ac
 - Quick checks stay in the main chat.
 
 ## Working rules
+- **Milestone page:** when a build step starts or finishes, or a design choice changes, update `docs/architecture.html` in the same change (steps in the comment at its top).
+- **Pages live in the repo.** Keep every HTML page as a file here, and link to repo files, not claude.ai links, because the Claude account may not renew.
 - **Hardware:** the user's GTX 1650 (4 GB VRAM, no bf16, Windows). Use fp16, and benchmark VRAM before you assume anything fits. Run heavier training on free Kaggle, following the rules above.
 - **Citations:** verify every claim before relying on it, and mark unverified ones.

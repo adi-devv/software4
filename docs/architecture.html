@@ -1,0 +1,389 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Software4 Architecture</title>
+<!--
+  HOW TO UPDATE (see CLAUDE.md): whenever a build step starts or finishes, or a design choice changes:
+  1. Milestones: change the step's class (done / now / next), its pill and its result line. Update the progress bar and "Last updated".
+  2. Diagrams: a part that has now been tested on Kaggle loses its "plan" class, which turns its dashed outline solid.
+  3. Design choices: add or change the row, and link the evidence.
+  Keep this file standalone: no claude.ai links and no scripts.
+-->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: one column, status first, then diagrams at full width. Same night palette as the paper pages. */
+:root{
+  --bg:#F2F3F8; --paper:#FFFFFF; --ink:#1B1E33; --muted:#5A5F7A; --line:#D9DBE6;
+  --wake:#E8A23A; --wake-soft:#FBF0DD;
+  --nrem:#4B47C9; --nrem-soft:#E6E5FA;
+  --rem:#8C3FB0; --rem-soft:#F1E4F7;
+  --frozen:#6B7280; --frozen-soft:#ECEDF1;
+  --good:#1F8A5B; --good-soft:#E1F3EA;
+  --display:"Bricolage Grotesque","Segoe UI",system-ui,sans-serif;
+  --body:"Source Serif 4",Georgia,"Times New Roman",serif;
+  --mono:"IBM Plex Mono",ui-monospace,Consolas,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#12131F; --paper:#1B1D2D; --ink:#E7E8F2; --muted:#9EA2BC; --line:#2E3148;
+  --wake:#F0B45A; --wake-soft:#3A2E1A; --nrem:#9C99F2; --nrem-soft:#25244A;
+  --rem:#C98AE6; --rem-soft:#35213F; --frozen:#A3A8B8; --frozen-soft:#272A3A;
+  --good:#4CC28C; --good-soft:#1B3328; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#12131F; --paper:#1B1D2D; --ink:#E7E8F2; --muted:#9EA2BC; --line:#2E3148;
+  --wake:#F0B45A; --wake-soft:#3A2E1A; --nrem:#9C99F2; --nrem-soft:#25244A;
+  --rem:#C98AE6; --rem-soft:#35213F; --frozen:#A3A8B8; --frozen-soft:#272A3A;
+  --good:#4CC28C; --good-soft:#1B3328; color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font-size:17px;line-height:1.6;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:40px 72px}
+main{max-width:960px;margin:0 auto;display:flex;flex-direction:column;gap:52px}
+section,header{display:flex;flex-direction:column;gap:14px}
+h1,h2,h3{font-family:var(--display);text-wrap:balance;margin:0;line-height:1.15}
+h1{font-size:clamp(2rem,5vw,3rem);font-weight:700;letter-spacing:-.01em}
+h2{font-size:1.5rem;font-weight:700}
+h3{font-size:1.08rem;font-weight:500}
+p{margin:0;max-width:68ch}
+a{color:var(--nrem)}
+a:focus-visible{outline:2px solid var(--nrem);outline-offset:2px}
+.eyebrow{font-family:var(--mono);font-size:.75rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.lede{font-size:1.15rem}
+.note{font-size:.9rem;color:var(--muted)}
+.links{font-family:var(--mono);font-size:.82rem;display:flex;flex-wrap:wrap;gap:6px 18px;color:var(--muted)}
+
+.progress{display:grid;grid-template-columns:repeat(11,1fr);gap:4px}
+.progress i{height:10px;border-radius:2px;background:var(--frozen-soft)}
+.progress i.done{background:var(--good)}
+.progress i.now{background:var(--wake)}
+
+figure{margin:0;display:flex;flex-direction:column;gap:10px;min-width:0}
+.draw{background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:16px;overflow-x:auto}
+figure svg{display:block;width:100%;height:auto;min-width:680px}
+figcaption{font-size:.92rem;color:var(--muted);max-width:68ch}
+svg text{font-family:var(--mono)}
+.tt{font-size:13px;font-weight:500;fill:var(--ink)}
+.ts{font-size:11.5px;fill:var(--muted)}
+.al{font-size:11.5px;fill:var(--muted)}
+.n{fill:var(--paper);stroke:var(--ink);stroke-width:1.3}
+.n.plan{stroke:var(--muted);stroke-dasharray:5 4}
+.n.core{fill:var(--frozen-soft)}
+.n.exp{fill:var(--nrem-soft);stroke:var(--nrem)}
+.n.mem{fill:var(--rem-soft);stroke:var(--rem)}
+.ln{fill:none;stroke:var(--muted);stroke-width:1.4}
+.ar{fill:var(--muted)}
+.legend{display:flex;flex-wrap:wrap;gap:6px 18px;font-family:var(--mono);font-size:.75rem;color:var(--muted)}
+.legend svg{min-width:0;width:26px;height:12px;display:inline-block;vertical-align:-2px;margin-right:6px}
+
+.tablewrap{background:var(--paper);border:1px solid var(--line);border-radius:10px;overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:.92rem}
+.tablewrap.wide table{min-width:720px}
+th,td{text-align:left;padding:10px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+tr:last-child td{border-bottom:0}
+th{font-family:var(--mono);font-size:.72rem;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:500}
+td:first-child{font-weight:600}
+td.num{font-variant-numeric:tabular-nums}
+
+.pill{font-family:var(--mono);font-size:.72rem;padding:2px 8px;border-radius:999px;white-space:nowrap;display:inline-block}
+.pill.done{background:var(--good-soft);color:var(--good)}
+.pill.now{background:var(--wake-soft);color:var(--ink)}
+.pill.next{background:var(--frozen-soft);color:var(--frozen)}
+.pill.bet{background:var(--rem-soft);color:var(--rem)}
+
+.steps{list-style:none;margin:0;padding:0;display:flex;flex-direction:column}
+.steps li{display:grid;grid-template-columns:22px 1fr;gap:12px;min-width:0}
+.rail{position:relative}
+.rail::before{content:"";position:absolute;left:10px;top:0;bottom:0;width:2px;background:var(--line)}
+.steps li:first-child .rail::before{top:10px}
+.steps li:last-child .rail::before{bottom:auto;height:10px}
+.dot{position:absolute;left:4px;top:7px;width:14px;height:14px;border-radius:50%;background:var(--bg);border:2px solid var(--frozen)}
+.done .dot{background:var(--good);border-color:var(--good)}
+.now .dot{background:var(--wake);border-color:var(--wake)}
+.body{padding-bottom:22px;display:flex;flex-direction:column;gap:5px;min-width:0}
+.head{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 10px}
+.stepn{font-family:var(--mono);font-size:.75rem;color:var(--muted)}
+.body p{font-size:.97rem}
+.next .body h3{color:var(--muted)}
+ul.plain{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:6px;max-width:68ch}
+@media (max-width:560px){body{font-size:16px}}
+</style>
+</head>
+<body>
+<main>
+
+<header>
+  <span class="eyebrow">Living document · last updated 2026-11-06</span>
+  <h1>Software4 Architecture</h1>
+  <p class="lede">A brain-inspired model that keeps learning after deployment, in its own weights. This page shows what the system looks like, why it is built this way, and how far we have got.</p>
+  <div class="links">
+    <a href="../PLAN.md">Full plan</a>
+    <a href="../research/software4-papers.html">Papers</a>
+    <a href="../research/sleep-paper.html">Sleep paper explainer</a>
+    <a href="../step0/RESULTS.md">Step 0 results</a>
+    <a href="../step0b/RESULTS.md">Step 0b results</a>
+  </div>
+</header>
+
+<section id="milestones">
+  <span class="eyebrow">Milestones</span>
+  <h2>2 of 11 steps done, pilot next</h2>
+  <div class="progress" role="img" aria-label="2 of 11 steps done, 1 in progress">
+    <i class="done"></i><i class="done"></i><i class="now"></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+  </div>
+  <ol class="steps">
+    <li class="done"><div class="rail"><span class="dot"></span></div><div class="body">
+      <div class="head"><span class="stepn">Step 0</span><h3>Feasibility check</h3><span class="pill done">done 2026-11-05</span></div>
+      <p>Added the frozen core, a first expert and a first memory layer, on Kaggle. All 7 checks passed. fp16 is clean on T4 and the base model scores 70% on GSM8K.</p>
+      <p class="note">Found the two big problems: a plain expert forgets (GSM8K falls to 10%), and experts that are all on at once interfere. The memory layer forgot far less (64%).</p>
+    </div></li>
+    <li class="done"><div class="rail"><span class="dot"></span></div><div class="body">
+      <div class="head"><span class="stepn">Step 0b</span><h3>Forgetting test: replay and router added</h3><span class="pill done">done 2026-11-06</span></div>
+      <p>Replay keeps GSM8K at 71–74%. The router keeps both skills (A 94%, B 76%), while both experts on at once drop B to 0%. Memory layer with replay: skill 82%, GSM8K 77%.</p>
+      <p class="note">Toy test with one seed. Replay overlaps the math test, and the router's task was easy.</p>
+    </div></li>
+    <li class="now"><div class="rail"><span class="dot"></span></div><div class="body">
+      <div class="head"><span class="stepn">Step 1b</span><h3>Pilot: several sleep cycles</h3><span class="pill now">script being written, not run</span></div>
+      <p>Adds 3 sleep cycles in a row, a simple gate, and comparison with RAG and text notes, on small hand-made tasks. It must show new skills being kept without old ones dropping. If not, we rethink before step 2.</p>
+    </div></li>
+    <li class="next"><div class="rail"><span class="dot"></span></div><div class="body">
+      <div class="head"><span class="stepn">Step 2</span><h3>Add the hippocampus</h3><span class="pill next">not started</span></div>
+      <p>Memory graph, plastic link strengths, fast-then-deep recall, append-only log.</p>
+    </div></li>
+    <li class="next"><div class="rail"><span class="dot"></span></div><div class="body">
+      <div class="head"><span class="stepn">Step 3</span><h3>Evaluation harness</h3><span class="pill next">not started</span></div>
+      <p>Synthetic task streams, hidden tests, sealed test set, canaries, confidence intervals.</p>
+    </div></li>
+    <li class="next"><div class="rail"><span class="dot"></span></div><div class="body">
+      <div class="head"><span class="stepn">Step 4</span><h3>Baselines</h3><span class="pill next">not started</span></div>
+      <p>Arms 1–4 and 10: no memory, RAG, long context, text notes, hippocampus only.</p>
+    </div></li>
+    <li class="next"><div class="rail"><span class="dot"></span></div><div class="body">
+      <div class="head"><span class="stepn">Step 5</span><h3>Add the full sleep loop</h3><span class="pill next">not started</span></div>
+      <p>Select, replay, check, train and gate, with experts and the memory layer (arms 5 and 6).</p>
+    </div></li>
+    <li class="next"><div class="rail"><span class="dot"></span></div><div class="body">
+      <div class="head"><span class="stepn">Step 6</span><h3>Add dreaming</h3><span class="pill next">not started</span></div>
+      <p>The model writes its own practice data, and a dream counts only if it brings a grounded gain.</p>
+    </div></li>
+    <li class="next"><div class="rail"><span class="dot"></span></div><div class="body">
+      <div class="head"><span class="stepn">Step 7</span><h3>Ablations</h3><span class="pill next">not started</span></div>
+      <p>Arms 7 and 8: no dreaming, and generic data as a control.</p>
+    </div></li>
+    <li class="next"><div class="rail"><span class="dot"></span></div><div class="body">
+      <div class="head"><span class="stepn">Step 8</span><h3>Add core merges</h3><span class="pill next">not started</span></div>
+      <p>Arm 11: experts merge into the core, so the stable part learns too. This measures whether merging causes forgetting.</p>
+    </div></li>
+    <li class="next"><div class="rail"><span class="dot"></span></div><div class="body">
+      <div class="head"><span class="stepn">Step 9</span><h3>Later experiments</h3><span class="pill next">not started</span></div>
+      <p>E1–E10 in the plan, including bigger cores, a world model and a BDH-style short-term layer.</p>
+    </div></li>
+  </ol>
+</section>
+
+<section id="architecture">
+  <span class="eyebrow">Architecture</span>
+  <h2>How it fits together</h2>
+  <div class="legend">
+    <span><svg viewBox="0 0 26 12" aria-hidden="true"><rect x="1" y="1" width="24" height="10" rx="2" fill="none" stroke="currentColor" stroke-width="1.3"/></svg>tested on Kaggle</span>
+    <span><svg viewBox="0 0 26 12" aria-hidden="true"><rect x="1" y="1" width="24" height="10" rx="2" fill="none" stroke="currentColor" stroke-width="1.3" stroke-dasharray="4 3"/></svg>planned, not built</span>
+  </div>
+
+  <figure>
+    <div class="draw">
+      <svg viewBox="0 0 880 400" role="img" aria-label="By day the model does tasks, recalls from the hippocampus and logs graded results. By night deep sleep turns logged episodes into a new expert, which passes a gate before joining the stack. At the cap, experts merge into the core.">
+        <defs><marker id="a1" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="8" markerHeight="8" orient="auto"><path class="ar" d="M0 0 L8 4 L0 8 Z"/></marker></defs>
+        <rect x="0" y="0" width="880" height="256" rx="10" fill="var(--wake-soft)"/>
+        <rect x="0" y="264" width="880" height="136" rx="10" fill="var(--nrem-soft)"/>
+        <text class="tt" x="16" y="26">Day</text>
+        <text class="tt" x="16" y="288">Night</text>
+
+        <path class="ln" d="M104 78H163" marker-end="url(#a1)"/><text class="al" x="134" y="71" text-anchor="middle">task</text>
+        <path class="ln" d="M267 78H326" marker-end="url(#a1)"/><text class="al" x="297" y="71" text-anchor="middle">switch</text>
+        <path class="ln" d="M480 78H539" marker-end="url(#a1)"/><text class="al" x="510" y="71" text-anchor="middle">answer</text>
+        <path class="ln" d="M663 78H722" marker-end="url(#a1)"/><text class="al" x="693" y="71" text-anchor="middle">result</text>
+        <path class="ln" d="M590 144H470V166" marker-end="url(#a1)"/><text class="al" x="530" y="138" text-anchor="middle">updates links</text>
+        <path class="ln" d="M440 170V122" marker-end="url(#a1)"/><text class="al" x="432" y="150" text-anchor="end">recall</text>
+        <path class="ln" d="M791 106V190H539" marker-end="url(#a1)"/><text class="al" x="640" y="184" text-anchor="middle">stores episodes</text>
+        <path class="ln" d="M535 215H745V296" marker-end="url(#a1)"/><text class="al" x="640" y="209" text-anchor="middle">old memories</text>
+        <path class="ln" d="M791 190V296" marker-end="url(#a1)"/>
+        <text class="al" x="799" y="240">verified</text><text class="al" x="799" y="254">episodes</text>
+        <path class="ln" d="M700 332H634" marker-end="url(#a1)"/><text class="al" x="667" y="325" text-anchor="middle">expert</text>
+        <path class="ln" d="M460 332H394" marker-end="url(#a1)"/><text class="al" x="427" y="325" text-anchor="middle">pass</text>
+        <path class="ln" d="M240 332H184" marker-end="url(#a1)"/><text class="al" x="212" y="325" text-anchor="middle">at cap</text>
+        <path class="ln" d="M365 300V122" marker-end="url(#a1)"/><text class="al" x="357" y="214" text-anchor="end">new expert</text>
+        <path class="ln" d="M100 300V135H345V122" marker-end="url(#a1)"/><text class="al" x="200" y="129" text-anchor="middle">new core version</text>
+
+        <rect class="n plan" x="24" y="50" width="80" height="56" rx="7"/>
+        <text class="tt" x="64" y="75" text-anchor="middle">Task</text><text class="ts" x="64" y="93" text-anchor="middle">new work</text>
+        <rect class="n" x="167" y="50" width="100" height="56" rx="7"/>
+        <text class="tt" x="217" y="75" text-anchor="middle">Router</text><text class="ts" x="217" y="93" text-anchor="middle">picks expert</text>
+        <rect class="n core" x="330" y="38" width="150" height="80" rx="7"/>
+        <text class="tt" x="405" y="66" text-anchor="middle">Frozen core</text><text class="ts" x="405" y="86" text-anchor="middle">+ one expert,</text><text class="ts" x="405" y="102" text-anchor="middle">or memory layer</text>
+        <rect class="n plan" x="543" y="50" width="120" height="56" rx="7"/>
+        <text class="tt" x="603" y="75" text-anchor="middle">Grader</text><text class="ts" x="603" y="93" text-anchor="middle">tests, no judge</text>
+        <rect class="n plan" x="726" y="50" width="130" height="56" rx="7"/>
+        <text class="tt" x="791" y="75" text-anchor="middle">Episode log</text><text class="ts" x="791" y="93" text-anchor="middle">append-only</text>
+        <rect class="n plan" x="590" y="122" width="170" height="44" rx="7"/>
+        <text class="tt" x="675" y="141" text-anchor="middle">Nap, ~50 tasks</text><text class="ts" x="675" y="157" text-anchor="middle">link strengths only</text>
+        <rect class="n plan" x="375" y="170" width="160" height="60" rx="7"/>
+        <text class="tt" x="455" y="195" text-anchor="middle">Hippocampus</text><text class="ts" x="455" y="213" text-anchor="middle">graph, plastic links</text>
+        <rect class="n plan" x="700" y="300" width="164" height="64" rx="7"/>
+        <text class="tt" x="782" y="327" text-anchor="middle">Deep sleep</text><text class="ts" x="782" y="346" text-anchor="middle">6 steps, see figure 3</text>
+        <rect class="n plan" x="460" y="300" width="170" height="64" rx="7"/>
+        <text class="tt" x="545" y="327" text-anchor="middle">Gate</text><text class="ts" x="545" y="346" text-anchor="middle">fresh tests, canaries</text>
+        <text class="ts" x="545" y="384" text-anchor="middle">fail: rolled back</text>
+        <rect class="n exp" x="240" y="300" width="150" height="64" rx="7"/>
+        <text class="tt" x="315" y="327" text-anchor="middle">Expert stack</text><text class="ts" x="315" y="346" text-anchor="middle">older ones frozen</text>
+        <rect class="n plan" x="20" y="300" width="160" height="64" rx="7"/>
+        <text class="tt" x="100" y="327" text-anchor="middle">Core merge</text><text class="ts" x="100" y="346" text-anchor="middle">gated, can roll back</text>
+      </svg>
+    </div>
+    <figcaption><b>Figure 1: the whole system.</b> By day it works and logs. By night it turns verified episodes into a new expert, and only a gate lets that expert in. When the stack is full, experts merge into the core. The log is the source of truth, so the learned state can be rebuilt on a new base model.</figcaption>
+  </figure>
+
+  <figure>
+    <div class="draw">
+      <svg viewBox="0 0 920 424" role="img" aria-label="Two options inside the same 24 frozen layers. Option A adds a small expert to every layer, and a router switches on one at a time. Option B hooks one shared memory layer on the middle layer, with no router.">
+        <defs>
+          <marker id="a2" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="8" markerHeight="8" orient="auto"><path class="ar" d="M0 0 L8 4 L0 8 Z"/></marker>
+          <marker id="a2s" viewBox="0 0 8 8" refX="1" refY="4" markerWidth="8" markerHeight="8" orient="auto"><path class="ar" d="M8 0 L0 4 L8 8 Z"/></marker>
+          <pattern id="stackA" x="170" y="92" width="130" height="11" patternUnits="userSpaceOnUse">
+            <rect x="0" y="0" width="98" height="8" fill="var(--frozen)" opacity=".4"/>
+            <rect x="102" y="0" width="28" height="8" fill="var(--nrem)"/>
+          </pattern>
+          <pattern id="stackB" x="640" y="92" width="130" height="11" patternUnits="userSpaceOnUse">
+            <rect x="0" y="0" width="130" height="8" fill="var(--frozen)" opacity=".4"/>
+          </pattern>
+        </defs>
+        <line x1="460" y1="8" x2="460" y2="416" stroke="var(--line)" stroke-width="1"/>
+
+        <text class="tt" x="16" y="24">Option A: experts + router</text>
+        <rect class="n" x="170" y="44" width="130" height="30" rx="6"/><text class="ts" x="235" y="64" text-anchor="middle">Question</text>
+        <path class="ln" d="M235 74V89" marker-end="url(#a2)"/>
+        <rect x="170" y="92" width="130" height="264" fill="url(#stackA)"/>
+        <path class="ln" d="M235 356V371" marker-end="url(#a2)"/>
+        <rect class="n" x="170" y="374" width="130" height="30" rx="6"/><text class="ts" x="235" y="394" text-anchor="middle">Answer</text>
+        <path class="ln" d="M170 59H78V146" marker-end="url(#a2)"/>
+        <text class="al" x="86" y="108">reads</text><text class="al" x="86" y="122">state</text>
+        <rect class="n" x="16" y="150" width="124" height="70" rx="7"/>
+        <text class="tt" x="78" y="175" text-anchor="middle">Router</text><text class="ts" x="78" y="193" text-anchor="middle">nearest centroid</text><text class="ts" x="78" y="209" text-anchor="middle">add-ons off</text>
+        <path class="ln" d="M140 185H166" marker-end="url(#a2)"/>
+        <text class="al" x="78" y="238" text-anchor="middle">switches on</text><text class="al" x="78" y="252" text-anchor="middle">A, B or none</text>
+        <text class="ts" x="16" y="312">24 frozen layers:</text><text class="ts" x="16" y="328">18 Gated DeltaNet</text><text class="ts" x="16" y="344">6 full attention</text>
+        <text class="tt" x="312" y="186" fill="var(--nrem)" style="fill:var(--nrem)">Expert</text>
+        <text class="ts" x="312" y="204">small add-on in</text><text class="ts" x="312" y="220">every layer (r=16)</text><text class="ts" x="312" y="236">one on at a time</text><text class="ts" x="312" y="252">older ones frozen</text>
+
+        <text class="tt" x="486" y="24">Option B: memory layer</text>
+        <rect class="n" x="640" y="44" width="130" height="30" rx="6"/><text class="ts" x="705" y="64" text-anchor="middle">Question</text>
+        <path class="ln" d="M705 74V89" marker-end="url(#a2)"/>
+        <rect x="640" y="92" width="130" height="264" fill="url(#stackB)"/>
+        <rect x="640" y="224" width="130" height="8" fill="var(--rem)"/>
+        <path class="ln" d="M705 356V371" marker-end="url(#a2)"/>
+        <rect class="n" x="640" y="374" width="130" height="30" rx="6"/><text class="ts" x="705" y="394" text-anchor="middle">Answer</text>
+        <text class="ts" x="486" y="186">no router:</text><text class="ts" x="486" y="202">always on when used</text>
+        <text class="ts" x="486" y="312">the same 24</text><text class="ts" x="486" y="328">frozen layers</text>
+        <path class="ln" d="M772 228H789" marker-start="url(#a2s)" marker-end="url(#a2)"/>
+        <rect class="n mem" x="792" y="190" width="116" height="76" rx="7"/>
+        <text class="tt" x="850" y="212" text-anchor="middle">Memory layer</text><text class="ts" x="850" y="232" text-anchor="middle">8192 slots</text><text class="ts" x="850" y="250" text-anchor="middle">uses top 32</text>
+        <text class="al" x="850" y="284" text-anchor="middle">hook on middle</text><text class="al" x="850" y="300" text-anchor="middle">layer's MLP:</text><text class="al" x="850" y="316" text-anchor="middle">out + mem(in)</text>
+      </svg>
+    </div>
+    <figcaption><b>Figure 2: where learning enters the model.</b> Grey bars are the frozen layers. A adds a small piece (blue) to every layer, one set per skill. B adds one shared store (purple) at one point. We are testing both, and they are never on together in tests.</figcaption>
+  </figure>
+
+  <div class="tablewrap">
+    <table>
+      <thead><tr><th>Step 0b result</th><th>Experts + router</th><th>Memory layer</th></tr></thead>
+      <tbody>
+        <tr><td>New skills</td><td class="num">A 94%, B 76%</td><td class="num">A 82% (one skill only)</td></tr>
+        <tr><td>GSM8K (base 70%)</td><td class="num">74% with expert A on, 70% routed</td><td class="num">77%</td></tr>
+        <tr><td>Weak point so far</td><td>Needs the router to tell skills apart, and that test was easy</td><td>One shared store, so new skills could still overwrite old ones. Not yet tested with several skills</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="note">Not a fair contest yet: different runs and settings, one seed, 100 math questions. Differences under about 9 points could be noise. The pilot runs both on the same tasks.</p>
+
+  <figure>
+    <div class="draw">
+      <svg viewBox="0 0 880 316" role="img" aria-label="Deep sleep runs select, replay, dream, check, train and gate in order. Passing the gate keeps the new expert. Separately, a core merge runs when a metric triggers it, then a full gate, and produces a new core version while keeping the old one.">
+        <defs><marker id="a3" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="8" markerHeight="8" orient="auto"><path class="ar" d="M0 0 L8 4 L0 8 Z"/></marker></defs>
+        <rect class="n plan" x="8" y="8" width="124" height="34" rx="6"/><text class="ts" x="70" y="30" text-anchor="middle">Episode log</text>
+        <rect class="n plan" x="156" y="8" width="124" height="34" rx="6"/><text class="ts" x="218" y="30" text-anchor="middle">Hippocampus</text>
+        <path class="ln" d="M70 42V66" marker-end="url(#a3)"/>
+        <path class="ln" d="M218 42V66" marker-end="url(#a3)"/>
+        <path class="ln" d="M132 112H152" marker-end="url(#a3)"/>
+        <path class="ln" d="M280 112H300" marker-end="url(#a3)"/>
+        <path class="ln" d="M428 112H448" marker-end="url(#a3)"/>
+        <path class="ln" d="M576 112H596" marker-end="url(#a3)"/>
+        <path class="ln" d="M724 112H744" marker-end="url(#a3)"/>
+
+        <rect class="n plan" x="8" y="70" width="124" height="84" rx="7"/>
+        <text class="tt" x="70" y="96" text-anchor="middle">Select</text><text class="ts" x="70" y="116" text-anchor="middle">verified wins,</text><text class="ts" x="70" y="132" text-anchor="middle">fixed failures</text>
+        <rect class="n" x="156" y="70" width="124" height="84" rx="7"/>
+        <text class="tt" x="218" y="96" text-anchor="middle">Replay</text><text class="ts" x="218" y="116" text-anchor="middle">new + old mix,</text><text class="ts" x="218" y="132" text-anchor="middle">old answers</text>
+        <rect class="n plan" x="304" y="70" width="124" height="84" rx="7"/>
+        <text class="tt" x="366" y="96" text-anchor="middle">Dream</text><text class="ts" x="366" y="116" text-anchor="middle">writes practice,</text><text class="ts" x="366" y="132" text-anchor="middle">keeps real gains</text>
+        <rect class="n plan" x="452" y="70" width="124" height="84" rx="7"/>
+        <text class="tt" x="514" y="96" text-anchor="middle">Check</text><text class="ts" x="514" y="116" text-anchor="middle">tests and runs,</text><text class="ts" x="514" y="132" text-anchor="middle">no self-grading</text>
+        <rect class="n" x="600" y="70" width="124" height="84" rx="7"/>
+        <text class="tt" x="662" y="96" text-anchor="middle">Train</text><text class="ts" x="662" y="116" text-anchor="middle">new expert,</text><text class="ts" x="662" y="132" text-anchor="middle">distils old</text>
+        <rect class="n plan" x="748" y="70" width="124" height="84" rx="7"/>
+        <text class="tt" x="810" y="96" text-anchor="middle">Gate</text><text class="ts" x="810" y="116" text-anchor="middle">fresh tests,</text><text class="ts" x="810" y="132" text-anchor="middle">auto rollback</text>
+        <text class="al" x="810" y="174" text-anchor="middle">pass: keep expert</text><text class="al" x="810" y="190" text-anchor="middle">fail: discard it</text>
+
+        <text class="tt" x="8" y="226">Core merge, when a metric says so (at most about weekly)</text>
+        <path class="ln" d="M198 272H222" marker-end="url(#a3)"/>
+        <path class="ln" d="M416 272H440" marker-end="url(#a3)"/>
+        <path class="ln" d="M634 272H658" marker-end="url(#a3)"/>
+        <rect class="n plan" x="8" y="240" width="190" height="64" rx="7"/>
+        <text class="tt" x="103" y="260" text-anchor="middle">Trigger</text><text class="ts" x="103" y="278" text-anchor="middle">experts at cap, canaries</text><text class="ts" x="103" y="294" text-anchor="middle">slipping, or big backlog</text>
+        <rect class="n plan" x="226" y="240" width="190" height="64" rx="7"/>
+        <text class="tt" x="321" y="260" text-anchor="middle">Merge</text><text class="ts" x="321" y="278" text-anchor="middle">experts into core weights</text>
+        <rect class="n plan" x="444" y="240" width="190" height="64" rx="7"/>
+        <text class="tt" x="539" y="260" text-anchor="middle">Full gate</text><text class="ts" x="539" y="278" text-anchor="middle">plus the sealed test set</text>
+        <rect class="n plan" x="662" y="240" width="210" height="64" rx="7"/>
+        <text class="tt" x="767" y="260" text-anchor="middle">New core version</text><text class="ts" x="767" y="278" text-anchor="middle">fresh expert stack,</text><text class="ts" x="767" y="294" text-anchor="middle">old core kept for rollback</text>
+      </svg>
+    </div>
+    <figcaption><b>Figure 3: deep sleep and core merge.</b> Deep sleep runs when there are enough new verified episodes, or repeated failures on a skill, at most once a day. Only replay and training have been tested so far, on toy tasks. The pilot adds a simple gate.</figcaption>
+  </figure>
+</section>
+
+<section id="choices">
+  <span class="eyebrow">Design choices</span>
+  <h2>What we chose, and why</h2>
+  <div class="tablewrap wide">
+    <table>
+      <thead><tr><th>Choice</th><th>Why</th><th>Evidence</th><th>Status</th></tr></thead>
+      <tbody>
+        <tr><td>Freeze the core</td><td>New learning can't damage what the base model already knows.</td><td>Sleep paper 2606.03979. fp16 on T4 agrees 99.7% with fp32 (step 0)</td><td><span class="pill done">tested</span></td></tr>
+        <tr><td>Qwen3.5-2B hybrid core</td><td>Small enough for free hardware, with cheap long context: about 12 KiB of cache per token. Fallback is dense Qwen3-1.7B.</td><td>Step 0: 80 tok/s on the GTX 1650</td><td><span class="pill done">tested</span></td></tr>
+        <tr><td>A new expert each sleep</td><td>Old experts are frozen, so new learning can't overwrite them.</td><td>Sleep paper. Step 0b: A 94%, B 76%, and neither erased the other</td><td><span class="pill done">tested on toys</span></td></tr>
+        <tr><td>Router, not all experts on</td><td>Experts interfere with each other when all are on.</td><td>Step 0b: both on drops B to 0%, routed keeps 76%, router accuracy 100%</td><td><span class="pill done">tested on toys</span></td></tr>
+        <tr><td>Replay answers from the old model</td><td>Practising old skills during training stops forgetting, and the update can't drift far.</td><td>RL's Razor 2509.04259. Step 0b: GSM8K 74% vs 10% without</td><td><span class="pill done">tested on toys</span></td></tr>
+        <tr><td>Memory layer as co-lead</td><td>It forgot far less in step 0, so it earned a full arm rather than just being a rival.</td><td>2510.15103, 2604.05248. Step 0: GSM8K 64% vs 10%. Step 0b: 77%</td><td><span class="pill done">tested on toys</span></td></tr>
+        <tr><td>The core also updates</td><td>A stable part that never learns is not the goal, so experts merge in when a metric says so, with a gate and rollback.</td><td>Reviews warn merges can cause forgetting, so arm 11 measures it</td><td><span class="pill bet">untested bet</span></td></tr>
+        <tr><td>Hippocampus with plastic links</td><td>Links strengthen with verified use and fade with disuse, so strong memories are found first. Nothing is deleted.</td><td>HippoRAG 2 2502.14802 plus our own idea. Experiment E5 tests it</td><td><span class="pill bet">untested bet</span></td></tr>
+        <tr><td>Dreaming</td><td>Practice the model writes for itself, rewarded only for a real gain.</td><td>Sleep paper: SQuAD falls to 35.7 without it (authors' number, not replicated)</td><td><span class="pill next">not built</span></td></tr>
+        <tr><td>Grounded checks only</td><td>Tests, execution and user corrections. Never the model grading itself.</td><td>One token can fool an LLM judge (2507.08794)</td><td><span class="pill next">not built</span></td></tr>
+        <tr><td>Log is the truth, weights are a cache</td><td>Any new base model can be rebuilt from the log, with no weight merging across bases.</td><td>Reviews</td><td><span class="pill next">not built</span></td></tr>
+        <tr><td>Text notes are a baseline, not the product</td><td>By the README's test, a model that only gets better notes is Software 3.0. If notes win, we report that honestly.</td><td>v3 went text-first, v4 reversed it. Arms 4 and 10 test this</td><td><span class="pill next">not built</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="note">Budget doesn't decide the architecture. Parts that don't fit the budget wait until they do, and they stay in the plan.</p>
+
+  <h3>Decided against</h3>
+  <ul class="plain">
+    <li><b>BDH (Dragon Hatchling) as the core:</b> it has no released weights and must be trained from scratch. A short-term layer inspired by it stays as experiment E10.</li>
+    <li><b>Surprise-based selection:</b> it attracts poison, and training on unknown facts raises hallucination (2405.05904).</li>
+    <li><b>A model judging its own work:</b> see grounded checks above.</li>
+    <li><b>A fixed 8B reflector in the loop:</b> the model learns by itself. A bigger model only writes tasks and tests, and experiment E1 tries it for dreams.</li>
+    <li><b>Weight merging across base models:</b> we rebuild from the log instead.</li>
+  </ul>
+</section>
+
+</main>
+</body>
+</html>

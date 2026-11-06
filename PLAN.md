@@ -2,8 +2,9 @@
 
 **One model that learns in its own weights.** It has a frozen hybrid core (the cortex), a learnable layer that grows each sleep, and a hippocampus memory. A sleep phase replays, dreams, checks and trains. Text notes, RAG and long context are **baselines to beat**, not the product.
 
-- **Papers page (plan diagram + paper library):** https://claude.ai/artifact/7CPfNetLBiXViGD5zQt5DM. Local copy: `research/software4-papers.html`.
-- **Sleep paper explainer:** https://claude.ai/artifact/65vqoJu3D9HznJVg9FmqLT. Local copy: `research/sleep-paper.html`.
+- **Architecture and milestones:** `docs/architecture.html` (diagrams, design choices, progress).
+- **Papers page (plan diagram + paper library):** `research/software4-papers.html`.
+- **Sleep paper explainer:** `research/sleep-paper.html`.
 - **Reviews folded in:**
   - `research/critique.md`: v1 red team.
   - `research/opus_max_review.md` and `research/sol_review.md`: v2 reviews.
@@ -38,10 +39,10 @@
 |---|---|---|
 | Select | Verified usefulness, corrected failures and trusted sources. Trust is scored separately, new inputs are quarantined, and there's **no surprise filter** | 2405.05904 |
 | Replay | Mix new episodes with old ones from the hippocampus so old skills stay in practice. Replay answers are written by the pre-update model | RL's Razor 2509.04259 |
-| Dream | **The Sleep paper's dreaming stage.** The model writes self-edits and practice data (SEAL loop), with gradient-based dream selection (top-k plus some random picks) and novelty from temperature or perturbed retrieval. A dream is rewarded only for a grounded gain. Their ablation: SQuAD drops from 48.1 to 35.7 without dreaming | 2606.03979, SEAL 2506.10943 |
+| Dream | **The Sleep paper's dreaming stage.** The model writes self-edits and practice data (SEAL loop), with gradient-based dream selection (top-k plus some random picks) and novelty from temperature or perturbed retrieval. A dream is rewarded only for a grounded gain. Their ablation: SQuAD drops from 48.9 to 35.7 without dreaming | 2606.03979, SEAL 2506.10943 |
 | Check | Grounded only: hidden tests written independently, execution, user corrections. No self-judge | 2507.08794 |
 | Train | Train the **new expert** on the dreams that passed plus the replay. Distil from the pre-update model, with a KL penalty to the base | 2606.03979, 2509.04259 |
-| Gate | Test the **exact quantized model + experts** that will be deployed, with NaN checks (fp16 on T4/GTX 16-series). Add fresh gate items each cycle, plus canaries and poison checks. Roll back automatically on any regression | Thresholdout 1506.02629 |
+| Gate | Test the **exact quantized model + experts** that will be deployed, with NaN checks (fp16 on T4/GTX 16-series). Add fresh gate items each cycle, plus canaries and poison checks. Roll back automatically on a regression larger than a margin set from measured noise, so chance swings don't throw out good updates | Thresholdout 1506.02629 |
 
 ## Core update (merge)
 - **Triggered by a metric, not a fixed schedule:** the expert cap is reached, forgetting on canaries rises, or the replay backlog grows too big.
@@ -54,9 +55,10 @@
 
 **Setup:**
 - Synthetic task streams with hidden tests.
-- 15+ sleep cycles and 3+ seeds.
-- Report 95% confidence intervals.
+- 15+ sleep cycles and 3+ seeds, with more seeds if the intervals come out too wide.
+- Report 95% confidence intervals, calculated per stream because tasks within a stream aren't independent.
 - Keep a sealed test set and use it only at milestones.
+- **Rough compute (estimate, not measured):** 5 arms train weights, so 15 cycles × 3 seeds is 225 deep sleeps. At 20–30 minutes each, that's about 75–110 GPU-hours, before task runs and extra seeds.
 
 **Arms:**
 1. No memory
@@ -68,11 +70,13 @@
 7. Ours without dreaming (ablation)
 8. Ours trained on an equal amount of generic data (control)
 9. Oracle (correct info given in context)
+10. **Hippocampus only, no weight learning:** the key baseline, since it shows whether the weights add anything beyond better memory
+11. **Ours with core merges,** compared with arm 5, to measure whether merging causes forgetting
 
 **Success:**
-- Ours beats the best baseline by **≥ 3 points**, with the 95% CI lower bound **> 0**.
-- Old skills on the canaries drop **≤ 2 points** over all cycles.
-- Detecting 3 points needs about 1.7k paired tasks, which is why the streams are synthetic.
+- Ours beats the best baseline, including arm 10, by **≥ 3 points**, with the 95% CI lower bound **> 0**.
+- Old skills on the canaries drop **≤ 2 points** over all cycles, using enough canaries to measure 2 points.
+- Detecting 3 points needs about 1.7k paired tasks if tasks were independent, which is why the streams are synthetic. Non-independent tasks will need more.
 - If the text notes win, we report that honestly as a result.
 
 ## Helpers (not part of the model)
@@ -91,13 +95,15 @@
    - Experts train on the Gated DeltaNet layers, but a plain expert forgets badly (GSM8K → 10%), and experts that are all on at once interfere (skill A 90 → 53%). Hence the router, and replay must be proven in step 5.
    - The sparse memory layer retrofits and forgets little (GSM8K 64%).
    - llama.cpp on the 1650: 80 tok/s. The Kaggle runner works from the CLI.
+   - **Step 0b, forgetting test — DONE** (`step0b/RESULTS.md`): replay keeps GSM8K at 71–74% (expert A 94%, B 76%). The router keeps both skills, while both experts on at once drop B to 0%. Memory layer + replay: skill A 82%, GSM8K 77%. Toy test: replay overlaps the math test, and the router's task was easy.
+1b. **Pilot, before building the rest:** a few sleep cycles on small hand-made tasks, with experts and the memory layer, replay and a simple gate. It must show new skills being kept without old ones dropping. If not, rethink before step 2.
 2. Hippocampus: graph, plastic link strengths, fast-then-deep recall, append-only log.
 3. Evaluation harness: synthetic streams, hidden tests, sealed set, canaries, CIs.
-4. Baselines (arms 1–4).
-5. Sleep loop with experts: select, replay, check, train, gate.
+4. Baselines (arms 1–4 and 10).
+5. Sleep loop with experts and the sparse memory layer (arms 5 and 6): select, replay, check, train, gate.
 6. Dreaming.
-7. Sparse memory arm (6) and ablations.
-8. Core merge.
+7. Ablations (arms 7 and 8).
+8. Core merge (arm 11).
 9. Later experiments (Part 2).
 
 ---
@@ -116,6 +122,8 @@ Run each one on the same harness, after build step 7.
 | E6 | **Bigger hybrid cores** (Qwen3-Next-80B, Nemotron-H, Kimi Linear 48B) | Out of budget now. Switching means rebuilding from the log | — |
 | E7 | **JEPA world model** (V-JEPA 2) | For predicting how the world changes, not just text. Add it once the loop works | V-JEPA 2 |
 | E8 | **Our own pretrained core** (with XSA, gated attention) | Only if we ever pretrain; XSA can't be added to a frozen model | 2603.09078, 2505.06708 |
+| E9 | **Same approach on a world model (very late):** frozen pretrained world model + learnable layer + episode memory + deep sleep, tried first in a small simulated world | Keep-learning may not depend on predicting text, and reality grades predictions automatically. Untested; do only after the text version works and after E7 | Our idea |
+| E10 | **BDH-style short-term layer:** a small Hebbian layer on top of the frozen core, inspired by Dragon Hatchling | BDH state is short-term and its weights stay fixed, so test whether it helps within a session. Not as the core: no released weights, and it must be trained from scratch | 2509.26507 (partly read) |
 
 ## Dropped (and why)
 - **Surprise-based selection:** it attracts poison, and training on unknown facts raises hallucination (2405.05904).

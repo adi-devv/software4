@@ -1,0 +1,86 @@
+{
+  "started": "2026-11-06 06:47:41",
+  "model": "Qwen/Qwen3.5-2B",
+  "setup": {
+    "fla_installed": true,
+    "fast_path_smoke_ok": true,
+    "torch": "2.11.0+cu130",
+    "transformers": "5.22.1",
+    "peft": "0.21.2",
+    "gpus": [
+      "Tesla T4",
+      "Tesla T4"
+    ]
+  },
+  "b0_baseline": {
+    "gsm8k_100": 0.7,
+    "seconds": 140
+  },
+  "b1_replay_set": {
+    "sources": {
+      "gsm8k_train": 200,
+      "alpaca": 200
+    },
+    "n": 400,
+    "sample": "Let $C$ be the cost of the computer.\nThe cost of the fridge is $500 more than the computer, so the fridge costs $C + 500$.\nThe cost of the TV is $600.\n\nThe total budget is $1600. We can set up the equ",
+    "seconds": 351
+  },
+  "r1_expert_A_replay": {
+    "replay_frac": 0.4,
+    "train": {
+      "loss_first": 2.196,
+      "loss_last": 0.053,
+      "nan_steps": 0,
+      "steps": 126,
+      "peak_mem_gb": 9.18
+    },
+    "skill_a": [
+      0.94,
+      [
+        "Candle ~ Forest ~ Yellow [3]",
+        "Insect ~ Noodle ~ Yogurt [3]",
+        "Copper ~ Desert ~ Feather ~ Tiger [4]"
+      ]
+    ],
+    "gsm8k_100": 0.74,
+    "seconds": 923
+  },
+  "r2_expert_B_replay": {
+    "train": {
+      "loss_first": 2.35,
+      "loss_last": 0.06,
+      "nan_steps": 0,
+      "steps": 126,
+      "peak_mem_gb": 9.25
+    },
+    "skill_b": [
+      0.76,
+      [
+        "sum=146 max=93",
+        "sum=103 max=62",
+        "sum=161 max=71"
+      ]
+    ],
+    "gsm8k_100": 0.71,
+    "seconds": 710
+  },
+  "r3_summed_vs_router": {
+    "summed": {
+      "skill_a": 0.95,
+      "skill_b": 0.0,
+      "gsm8k_100": 0.72
+    },
+    "router_acc": {
+      "skill_a": 1.0,
+      "skill_b": 1.0,
+      "gsm8k_100": 1.0
+    },
+    "routed": {
+      "skill_a": 0.94,
+      "skill_b": 0.76,
+      "gsm8k_100": 0.7
+    },
+    "seconds": 463
+  },
+  "finished": "2026-11-06 07:34:31"
+}

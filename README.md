@@ -2,10 +2,13 @@
 
 **A brain-inspired LLM that keeps learning after deployment, in its own weights.** It has a frozen hybrid core (the cortex), a learnable layer that adds a new small expert each sleep, and a hippocampus memory whose links strengthen with use. At night it replays, dreams, checks its work against tests, and trains. Text notes and RAG are only baselines it has to beat.
 
-Status: planning is done (v4). Step 0 (feasibility) passed; see `step0/RESULTS.md`. Next: the hippocampus and the evaluation harness.
+Status: planning is done (v4). Step 0 (feasibility) and step 0b (forgetting test) passed on toy tasks; see `step0/RESULTS.md` and `step0b/RESULTS.md`. Next: a small pilot, then the hippocampus and the evaluation harness.
 
-- **Plan + papers page:** https://claude.ai/artifact/7CPfNetLBiXViGD5zQt5DM
-- **Sleep paper explainer:** https://claude.ai/artifact/65vqoJu3D9HznJVg9FmqLT
+Pages (plain HTML files in this repo; clone it and open them in a browser):
+
+- **[Architecture and milestones](docs/architecture.html):** flow diagrams, design choices, and what's done so far
+- **[Plan + papers](research/software4-papers.html)**
+- **[Sleep paper explainer](research/sleep-paper.html)**
 
 ## The idea: Software 4.0
 
@@ -26,6 +29,7 @@ Status: planning is done (v4). Step 0 (feasibility) passed; see `step0/RESULTS.m
 |---|---|
 | `PLAN.md` | Part 1: the current plan (v4: architecture, sleep, core merge, experiment, build order). Part 2: experiments to try later |
 | `CLAUDE.md` | Instructions for Claude: answer style, status %, running the 3 Codex accounts |
+| `docs/architecture.html` | Architecture diagrams, design choices and milestones, updated at each step |
 | `research/` | Paper notes (`papers_deep.md`, `papers_xsa.md`), reviews (`critique.md`, `opus_max_review.md`, `sol_review.md`), and the HTML pages for the papers and the sleep paper |
 | `scripts/run_rotate.sh` | Runs Codex jobs from a queue and moves to the next account when one hits its limit |
 | `scripts/codex_usage.sh` | Shows 5h and weekly usage % for each Codex account |
