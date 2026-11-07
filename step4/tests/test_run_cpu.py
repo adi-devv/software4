@@ -86,6 +86,30 @@ def test_fake_full_and_reuse(cpu_dir):
     assert (out / "timings.json").is_file()
 
 
+@pytest.mark.parametrize("error", [OSError("disk full"), TypeError("bad JSON")])
+def test_answer_log_failure_does_not_abort_scoring(cpu_dir, monkeypatch, error):
+    monkeypatch.setenv("S4_BACKEND", "fake")
+    monkeypatch.setenv("S4_CYCLES", "3")
+    monkeypatch.setenv("S4_STEPS", "2")
+    cfg, _, _ = run.settings(ROOT)
+    original_open = Path.open
+    original_dumps = json.dumps
+    def failing_open(path, *args, **kwargs):
+        if path.name == 'answers.jsonl' and isinstance(error, OSError):
+            raise error
+        return original_open(path, *args, **kwargs)
+    def failing_dumps(value, *args, **kwargs):
+        if isinstance(error, TypeError) and isinstance(value, dict) and 'task_id' in value and 'answer' in value:
+            raise error
+        return original_dumps(value, *args, **kwargs)
+    monkeypatch.setattr(Path, 'open', failing_open)
+    monkeypatch.setattr(json, 'dumps', failing_dumps)
+    assert run.worker('no_memory', cfg, cpu_dir, False) == 0
+    result = json.loads((cpu_dir / 'no_memory' / 'result.json').read_text(encoding='utf-8'))
+    assert result['status'] == 'complete' and result['answer_log_failures'] > 0
+    assert result['scores'] and result['parse_by_cycle']
+
+
 def test_smoke_trains_only_longest_twice(cpu_dir):
     proc, payload, out = invoke(cpu_dir, smoke="1")
     assert proc.returncode == 0, proc.stdout + proc.stderr

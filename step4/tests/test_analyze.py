@@ -2,6 +2,7 @@
 import subprocess
 import sys
 from pathlib import Path
+from step4.analyze import analyze, context_matches, markdown
 
 
 def write_jsonl(path, rows):
@@ -48,3 +49,30 @@ def test_analysis_cli(tmp_path):
     pair = data['pairwise_rule'][0]
     assert pair['n'] == 4 and pair['difference'] == -0.25 and pair['draws'] == 10000
     assert 'rule:B' in run.stdout and (tmp_path / 'analysis.md').is_file()
+
+
+def test_fact_copy_matches_whole_values():
+    prompt = 'Context:\nFact: Field note: the leader of Alder is Blue.\n\nTask:\nBlue'
+    assert context_matches(prompt, 'Blue') == (True, False, False)
+    assert context_matches(prompt, 'Blu') == (False, False, False)
+    assert context_matches('Task:\nFactless Blue', 'Blue') == (False, False, False)
+
+
+def test_costs_from_artifacts_and_missing_values(tmp_path):
+    for arm in ('ours', 'rag'):
+        folder = tmp_path / arm
+        folder.mkdir()
+        write_jsonl(folder / 'records.jsonl', [dict(type='score', arm=arm, stream='s', cycle=0,
+                    attempt=1, phase='hidden', task_id='x', skill='fact:smoke', correct=True),
+                    dict(type='cycle_done', arm=arm, stream='s', cycle=0, attempt=1)])
+    (tmp_path / 'timings.json').write_text(json.dumps({'arms_seconds': {'ours': 1800}}))
+    (tmp_path / 'ours' / 'result.json').write_text(json.dumps({'worker_device': {'scheduled': {}}}))
+    (tmp_path / 'rag' / 'result.json').write_text(json.dumps({'elapsed_seconds': 900}))
+    (tmp_path / 'results.json').write_text(json.dumps({'config': {'backend': 'fake'}}))
+    result = analyze(tmp_path)
+    assert result['cost']['arms']['ours'] == {'worker_seconds': 1800, 'devices': 1, 'gpu_seconds': 1800, 'accuracy_points_per_worker_hour': 200}
+    assert result['cost']['arms']['rag']['gpu_seconds'] == 0
+    assert result['cost']['total_worker_hours'] == 0.75
+    assert 'Accuracy points / worker-hour' in markdown(result)
+    (tmp_path / 'rag' / 'result.json').unlink()
+    assert analyze(tmp_path)['cost']['total_is_partial']

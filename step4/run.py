@@ -372,7 +372,7 @@ def worker(name, cfg, run_dir, smoke):
     out.mkdir(parents=True, exist_ok=True)
     started = time.perf_counter()
     result = dict(arm=name, status="failed", started_utc=datetime.now(timezone.utc).isoformat(),
-                  cuda_visible_devices=os.environ.get("CUDA_VISIBLE_DEVICES", ""))
+                  cuda_visible_devices=os.environ.get("CUDA_VISIBLE_DEVICES", ""), answer_log_failures=0)
     try:
         if cfg["backend"] == "hf":
             import torch
@@ -420,9 +420,13 @@ def worker(name, cfg, run_dir, smoke):
                                skill=task.skill, expert=trace.get("expert"),
                                retrieved=trace.get("retrieved", []), prompt=trace.get("prompt"),
                                answer=response)
-                    with (out / "answers.jsonl").open("a", encoding="utf-8") as log:
-                        log.write(json.dumps(row) + "\n")
-                        log.flush()
+                    try:
+                        serialized = json.dumps(row) + "\n"
+                        with (out / "answers.jsonl").open("a", encoding="utf-8") as log:
+                            log.write(serialized)
+                            log.flush()
+                    except (OSError, TypeError, ValueError, OverflowError):
+                        result["answer_log_failures"] += 1
                 if task.mode == "test" and task.day >= 0 and task.id not in canary_ids:
                     tally = parse.setdefault(task.day, dict(answers=0, parse_failures=0))
                     tally["answers"] += 1

@@ -1,5 +1,9 @@
 # Step 4 run ledger
 
+## Step 4c
+
+**Status: code done, needs fresh smoke.** The review fixes change the config hash and the behavior of ours on empty corrections. Results from this branch are not comparable with the seed-41 4b run. The pre-registered stop-rule thresholds are unchanged.
+
 Smoke debugging runs v1-v7 and one full run (2026-11-07/08 IST). The first full run FAILED the stop rule; the 4b full run PASSED it on one seed (see the table).
 
 | Run | Time used | Result | Weekly GPU-hours |

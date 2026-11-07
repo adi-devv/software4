@@ -10,8 +10,12 @@ def task(mode='day'):
 def test_render_entries():
     wrong = 'Question: Q\nResponse: WRONG\nCorrect: False\nCorrection: Correct answer: yes. lesson'
     assert render_entry(wrong) == 'Question: Q\nVerified answer: yes'
+    assert render_entry(wrong.replace('Correct answer: yes. lesson', '')) == 'Question: Q'
+    assert render_entry(wrong.replace('False', 'None').replace('Correct answer: yes. lesson', '')) == 'Question: Q'
     assert render_entry(wrong.replace('False', 'None').replace('Correct answer: yes. lesson', 'Final answer: yes')) == 'Question: Q\nVerified answer: yes'
     assert render_entry('Question: Q\nResponse: reasoning\nFinal answer: yes\nCorrect: True\nCorrection: ') == 'Question: Q\nVerified answer: yes'
+    correct_unparsed = 'Question: Q\nResponse: \nCorrect: True\nCorrection: '
+    assert render_entry(correct_unparsed) == correct_unparsed
     assert render_entry('Fact: hello') == 'Fact: hello'
     assert render_entry('unparseable') == 'unparseable'
 

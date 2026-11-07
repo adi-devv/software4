@@ -18,6 +18,7 @@ from harness.results import load_records
 RESPONSE = re.compile(r'^\s*Response:\s*(.*?)(?=^\s*(?:Correct|Question|Verified answer|Response|Correction):|\Z)', re.I | re.M | re.S)
 VERIFIED = re.compile(r'^\s*Verified answer:\s*(.*?)\s*$', re.I | re.M)
 CORRECT = re.compile(r'^\s*Correct:\s*(False|True|None)\s*$', re.I | re.M)
+FACT = re.compile(r'^\s*Fact:[ \t]*(.*)$', re.I | re.M)
 
 
 def context_matches(prompt, extracted):
@@ -35,7 +36,48 @@ def context_matches(prompt, extracted):
         value, _ = _extract(m.group(1))
         if value is not None and value.strip() == extracted.strip():
             copied = verified = True
+    for m in FACT.finditer(prompt):
+        if re.search(r'(?<!\w)' + re.escape(extracted.strip()) + r'(?!\w)', m.group(1), re.I):
+            copied = True
     return copied, wrong, verified
+
+
+def read_json(path):
+    try:
+        return json.loads(path.read_text(encoding='utf-8'))
+    except (OSError, ValueError):
+        return {}
+
+
+def cost_stats(run_dir, arms):
+    timings = read_json(run_dir / 'timings.json')
+    results = read_json(run_dir / 'results.json')
+    seconds = timings.get('arms_seconds', {})
+    saved = results.get('results', {})
+    costs = {}
+    for arm, data in arms.items():
+        worker = read_json(run_dir / arm / 'result.json') or saved.get(arm, {})
+        elapsed = seconds.get(arm, worker.get('elapsed_seconds'))
+        if not isinstance(elapsed, (int, float)) or isinstance(elapsed, bool) or elapsed < 0:
+            elapsed = None
+        # Each HF worker is assigned exactly one device; CPU workers use none.
+        backend = results.get('config', {}).get('backend')
+        devices = 1 if worker.get('worker_device') else 0 if backend in ('fake', 'tiny') else None
+        hours = elapsed / 3600 if elapsed is not None else None
+        costs[arm] = {'worker_seconds': elapsed, 'devices': devices,
+                      'gpu_seconds': elapsed * devices if elapsed is not None and devices is not None else None,
+                      'accuracy_points_per_worker_hour': data['accuracy'] * 100 / hours
+                      if hours and data['accuracy'] is not None else None}
+    extra = set(seconds) | set(saved)
+    for arm in extra - set(costs):
+        worker = read_json(run_dir / arm / 'result.json') or saved.get(arm, {})
+        elapsed = seconds.get(arm, worker.get('elapsed_seconds'))
+        if isinstance(elapsed, (int, float)) and not isinstance(elapsed, bool) and elapsed >= 0:
+            costs[arm] = {'worker_seconds': elapsed, 'devices': None, 'gpu_seconds': None,
+                          'accuracy_points_per_worker_hour': None}
+    known = [v['worker_seconds'] for v in costs.values() if v['worker_seconds'] is not None]
+    return {'arms': costs, 'total_worker_hours': sum(known) / 3600 if known else None,
+            'total_is_partial': len(known) < len(costs)}
 
 
 def answer_stats(path, rows, cycle):
@@ -107,6 +149,7 @@ def analyze(run_dir, cycle=None):
             pair = paired_bootstrap(rules[first], rules[second])
             if pair:
                 result['pairwise_rule'].append({'first': first, 'second': second, **pair})
+    result['cost'] = cost_stats(run_dir, result['arms'])
     return result
 
 
@@ -118,7 +161,16 @@ def markdown(result):
         lines.append(f"| {arm} | overall | {data['n']} | {pct(data['accuracy'])} |")
         for skill, stats in data['skills'].items():
             lines.append(f"| {arm} | {skill} | {stats['n']} | {pct(stats['accuracy'])} |")
-    lines += ['', '## Rule comparisons (first minus second)', '', '| First | Second | Paired N | Difference | 95% CI |', '|---|---|---:|---:|---:|']
+    def number(x):
+        return 'N/A' if x is None else f'{x:.2f}'
+    cost = result['cost']
+    lines += ['', '## Worker time and cost proxy', '',
+              'Accuracy points per worker-hour uses overall hidden accuracy for this cycle; GPU-seconds count one T4 per assigned worker. This is not a billing estimate.', '',
+              '| Arm | Worker seconds | Devices | GPU-seconds | Accuracy points / worker-hour |', '|---|---:|---:|---:|---:|']
+    for arm, c in cost['arms'].items():
+        lines.append(f"| {arm} | {number(c['worker_seconds'])} | {number(c['devices'])} | {number(c['gpu_seconds'])} | {number(c['accuracy_points_per_worker_hour'])} |")
+    lines += ['', f"Total worker-hours: {number(cost['total_worker_hours'])}" + (' (partial; some timings missing)' if cost['total_is_partial'] else ''),
+              '', '## Rule comparisons (first minus second)', '', '| First | Second | Paired N | Difference | 95% CI |', '|---|---|---:|---:|---:|']
     for p in result['pairwise_rule']:
         lines.append(f"| {p['first']} | {p['second']} | {p['n']} | {pct(p['difference'])} | [{pct(p['ci_low'])}, {pct(p['ci_high'])}] |")
     for arm, data in result['arms'].items():

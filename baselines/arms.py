@@ -24,9 +24,9 @@ def render_entry(text):
         return text
     question, response, correct, correction = match.groups()
     value = parse_answer(response) if correct == 'True' else parse_answer(correction, correction=True)
-    if not question.strip() or not value:
+    if correct == 'True' and not value:
         return text
-    return 'Question: ' + question + '\nVerified answer: ' + value
+    return 'Question: ' + question + ('\nVerified answer: ' + value if value else '')
 
 
 def build_prompt(llm, task, entries, context_tokens, order=None):
