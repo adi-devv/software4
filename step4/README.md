@@ -7,6 +7,11 @@ and the harness runner. Rule A is taught in cycle 0, rule B in cycle 1, and the 
 exposures and checks retention (rejected candidates may still retry). No forced broken adapter.
 This small run can show a trend; it cannot establish the plan's multi-seed statistical gate.
 
+**Order of checks.** Everything was first hot-checked locally on the small `Qwen/Qwen3-0.6B`
+(GTX 1650, plain transformer): unit tests, real sleep, and a local smoke. Only then did it go to
+Kaggle: smoke on real Qwen3.5-2B (v1-v7, 2 x T4), then the full run. Local 0.6B results say nothing
+about 2B quality; they only prove the code path.
+
 ## Design, pre-registered before any real run
 
 - **Fair budget.** Every arm that reads context (`ours`, `hippo_only`, `rag`, `text_notes`) gets the
