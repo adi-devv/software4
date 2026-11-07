@@ -323,8 +323,9 @@ already be warm at k=5. Systems rotate order across queries.
   dispatch. No explicit entities, gold-derived links, outcomes, naps, or forced-deep queries.
   Update identities and quarantine/revocation metadata are supplied as structured events.
   RAG/notes retain all text versions because they have no corresponding lifecycle support.
-  This tests Hippocampus core lifecycle APIs; `HippoOnly.observe()` currently appends rather than
-  calling update/tombstone, so these gains need not appear in the existing full harness arm.
+  This tests Hippocampus core lifecycle APIs with explicit identities. Ordinary `add()` also
+  versions trusted update notices in the controlled fact grammar; this benchmark uses explicit
+  `update()` calls, so that additional ingestion path does not affect its measurements.
 - Fictional names follow `harness.worlds.NameFactory`; fact/update wording and ally chains follow
   the harness pattern. Categories have separate corpora; insertion and query order are seeded.
   Revised originals all precede updates; gold ids include version, so stale hits cannot score.

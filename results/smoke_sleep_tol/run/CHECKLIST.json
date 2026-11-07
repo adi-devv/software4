@@ -1,0 +1,925 @@
+{
+  "small": false,
+  "model": "Qwen/Qwen3-0.6B",
+  "seed": 0,
+  "torch": "2.5.1+cu121",
+  "gpu": "NVIDIA GeForce GTX 1650",
+  "steps": 64,
+  "lr": 0.0004,
+  "elapsed_seconds": 669.4816254999896,
+  "checks": {
+    "a": {
+      "status": "pass",
+      "evidence": {
+        "rule_A_on_no_hippo": 0.625,
+        "experts_off": 0.0,
+        "base": 0.0,
+        "criterion": "positive no-context gain; off equals base"
+      },
+      "explanation": "A without hippocampus: 0.625; experts off/base: 0.000/0.000."
+    },
+    "b": {
+      "status": "pass",
+      "evidence": {
+        "A_after_sleep1": 0.625,
+        "A_after_sleep2": 0.625,
+        "criterion": "nonzero learning retained without context"
+      },
+      "explanation": "A without hippocampus after sleeps 1/2: 0.625/0.625; requires nonzero learned accuracy and no drop."
+    },
+    "c": {
+      "status": "pass",
+      "evidence": {
+        "errors": [],
+        "total": 82,
+        "expected": {
+          "rule:A": "expert-0",
+          "rule:B": "expert-1"
+        }
+      },
+      "explanation": "0 routing errors across 82 test prompts."
+    },
+    "d": {
+      "status": "pass",
+      "evidence": {
+        "revised_recall": [
+          "Fact: Update notice: the leader of Alder is now Sora.",
+          "Question: Apply the Cobalt beacon rule to code nkuh. End your reply with a line 'Final answer: <answer>'.\nResponse: Final answer: <answer>\nCorrect: False\nCorrection: Correct answer: HUKN. Cobalt beacon rule: reverse the four-letter code, then uppercase it.",
+          "Question: Apply the Cobalt beacon rule to code xpyp. End your reply with a line 'Final answer: <answer>'.\nResponse: Final answer: <answer>\nCorrect: False\nCorrection: Correct answer: PYPX. Cobalt beacon rule: reverse the four-letter code, then uppercase it.",
+          "Question: Apply the Cobalt beacon rule to code guoa. End your reply with a line 'Final answer: <answer>'.\nResponse: Final answer: <answer>\nCorrect: False\nCorrection: Correct answer: AOUG. Cobalt beacon rule: reverse the four-letter code, then uppercase it.",
+          "Question: Apply the Cobalt beacon rule to code mpxn. End your reply with a line 'Final answer: <answer>'.\nResponse: Final answer: <answer>\nCorrect: False\nCorrection: Correct answer: NXPM. Cobalt beacon rule: reverse the four-letter code, then uppercase it."
+        ],
+        "poison_in_recall": [],
+        "quarantined_adds": [
+          {
+            "type": "add",
+            "t": 33.0,
+            "id": "m000030",
+            "kind": "fact",
+            "source": "untrusted",
+            "text": "Fact: Update notice: the leader of Birch is now Zorg.",
+            "trust": 0.2,
+            "quarantined": true,
+            "entities": [
+              "fact",
+              "update",
+              "birch",
+              "zorg"
+            ],
+            "meta": {
+              "task_source": "untrusted",
+              "family": "fact",
+              "skill": "fact:smoke"
+            },
+            "seq": 57
+          }
+        ],
+        "criterion": "current fact only; poison never recalled"
+      },
+      "explanation": "Current revision recalled: True; obsolete original also recalled: False; quarantined poison recalled: 0."
+    },
+    "e": {
+      "status": "pass",
+      "evidence": {
+        "decision": {
+          "accepted": false,
+          "candidate": "expert-2",
+          "examples": 16,
+          "fault_injected": true,
+          "peak_gpu_mib": 1320.15185546875,
+          "peak_reserved_mib": 1476.0,
+          "pre_gate": {
+            "delta_base_cap": 1.0,
+            "max_delta_base_ratio": 289.57489013671875
+          },
+          "reasons": [
+            "adapter delta exceeds frozen projection norm"
+          ],
+          "replay": 8,
+          "training": {
+            "finite": true,
+            "handle": "expert-2",
+            "loss": 5.763332843780518,
+            "nonfinite_gradient_steps": 0,
+            "optimizer_steps": 1,
+            "seed": 2,
+            "skipped_steps": 0,
+            "steps": 1,
+            "wall_seconds": 2.6577753000019584
+          },
+          "wall_seconds": 2.927596599998651
+        },
+        "before_hash": "1bcfbd04e02e0030c564800094d542d7a31691dc06e0d5ee50162c31df11a72a",
+        "after_hash": "1bcfbd04e02e0030c564800094d542d7a31691dc06e0d5ee50162c31df11a72a",
+        "outputs_identical": true,
+        "active_unchanged": true,
+        "events_unchanged": true,
+        "router_unchanged": true
+      },
+      "explanation": "Broken candidate accepted: False; post-sleep outputs identical: True. The arm checks scale, forced trusted validation, route coverage and exact canary preservation before the unchanged paired-noise gate."
+    },
+    "f": {
+      "status": "pass",
+      "evidence": {
+        "before_fingerprint": "b1e94a42f08ed41c5543dce81ff568c1e39935d20f04e8f988ee2361921520c0",
+        "after_fingerprint": "b1e94a42f08ed41c5543dce81ff568c1e39935d20f04e8f988ee2361921520c0",
+        "base_before_hash": "d93a6405268ff1be438b022f726d528ceffbd8b087881f241c03de548f8cd0c1",
+        "base_after_hash": "d93a6405268ff1be438b022f726d528ceffbd8b087881f241c03de548f8cd0c1",
+        "old_adapters_unchanged": [
+          true,
+          true,
+          true
+        ]
+      },
+      "explanation": "Frozen fingerprint equal: True; uncached base outputs identical: True."
+    },
+    "g": {
+      "status": "pass",
+      "evidence": {
+        "split_audit": [],
+        "trained_unique_prompts": 56,
+        "forbidden_overlap": [],
+        "all_training_prompts_from_train": true,
+        "training": [
+          {
+            "handle": "expert-0",
+            "steps": 64,
+            "seed": 0,
+            "loss": 0.019428599625825882,
+            "skipped_steps": 0,
+            "optimizer_steps": 64,
+            "nonfinite_gradient_steps": 0,
+            "finite": true,
+            "wall_seconds": 166.2877468999941
+          },
+          {
+            "handle": "expert-1",
+            "steps": 64,
+            "seed": 1,
+            "loss": 0.0012644600355997682,
+            "skipped_steps": 0,
+            "optimizer_steps": 64,
+            "nonfinite_gradient_steps": 0,
+            "finite": true,
+            "wall_seconds": 165.70547340001212
+          },
+          {
+            "handle": "expert-2",
+            "steps": 1,
+            "seed": 2,
+            "loss": 5.763332843780518,
+            "skipped_steps": 0,
+            "optimizer_steps": 1,
+            "nonfinite_gradient_steps": 0,
+            "finite": true,
+            "wall_seconds": 2.6577753000019584
+          }
+        ]
+      },
+      "explanation": "Nonfinite/skipped training steps: 0; split-audit violations: 0; forbidden training prompt overlap: 0."
+    }
+  },
+  "per_arm": {
+    "no_memory": {
+      "-1": {
+        "rule:A": null,
+        "rule:B": null,
+        "fact:smoke": null,
+        "canary:smoke": 1.0
+      },
+      "0": {
+        "rule:A": 0.0,
+        "rule:B": null,
+        "fact:smoke": 0.0,
+        "canary:smoke": 1.0
+      },
+      "1": {
+        "rule:A": 0.0,
+        "rule:B": 0.25,
+        "fact:smoke": 0.0,
+        "canary:smoke": 1.0
+      },
+      "2": {
+        "rule:A": 0.0,
+        "rule:B": 0.25,
+        "fact:smoke": 0.0,
+        "canary:smoke": 1.0
+      }
+    },
+    "hippo_only": {
+      "-1": {
+        "rule:A": null,
+        "rule:B": null,
+        "fact:smoke": null,
+        "canary:smoke": 1.0
+      },
+      "0": {
+        "rule:A": 0.0,
+        "rule:B": null,
+        "fact:smoke": 1.0,
+        "canary:smoke": 1.0
+      },
+      "1": {
+        "rule:A": 0.0,
+        "rule:B": 0.25,
+        "fact:smoke": 1.0,
+        "canary:smoke": 1.0
+      },
+      "2": {
+        "rule:A": 0.0,
+        "rule:B": 0.25,
+        "fact:smoke": 1.0,
+        "canary:smoke": 1.0
+      }
+    },
+    "ours": {
+      "-1": {
+        "rule:A": null,
+        "rule:B": null,
+        "fact:smoke": null,
+        "canary:smoke": 1.0
+      },
+      "0": {
+        "rule:A": 0.625,
+        "rule:B": null,
+        "fact:smoke": 1.0,
+        "canary:smoke": 1.0
+      },
+      "1": {
+        "rule:A": 0.625,
+        "rule:B": 1.0,
+        "fact:smoke": 1.0,
+        "canary:smoke": 1.0
+      },
+      "2": {
+        "rule:A": 0.625,
+        "rule:B": 1.0,
+        "fact:smoke": 1.0,
+        "canary:smoke": 0.875
+      }
+    },
+    "oracle": {
+      "-1": {
+        "rule:A": null,
+        "rule:B": null,
+        "fact:smoke": null,
+        "canary:smoke": 1.0
+      },
+      "0": {
+        "rule:A": 0.0,
+        "rule:B": null,
+        "fact:smoke": 1.0,
+        "canary:smoke": 1.0
+      },
+      "1": {
+        "rule:A": 0.0,
+        "rule:B": 0.75,
+        "fact:smoke": 1.0,
+        "canary:smoke": 1.0
+      },
+      "2": {
+        "rule:A": 0.0,
+        "rule:B": 0.75,
+        "fact:smoke": 1.0,
+        "canary:smoke": 1.0
+      }
+    }
+  },
+  "ablations": {
+    "0": {
+      "on_no_hippo": {
+        "rule:A": 0.625,
+        "rule:B": null,
+        "fact:smoke": 0.0
+      },
+      "off_no_hippo": {
+        "rule:A": 0.0,
+        "rule:B": null,
+        "fact:smoke": 0.0
+      },
+      "off_with_hippo": {
+        "rule:A": 0.0,
+        "rule:B": null,
+        "fact:smoke": 1.0
+      }
+    },
+    "1": {
+      "on_no_hippo": {
+        "rule:A": 0.625,
+        "rule:B": 1.0,
+        "fact:smoke": 0.0
+      },
+      "off_no_hippo": {
+        "rule:A": 0.0,
+        "rule:B": 0.25,
+        "fact:smoke": 0.0
+      },
+      "off_with_hippo": {
+        "rule:A": 0.0,
+        "rule:B": 0.25,
+        "fact:smoke": 1.0
+      }
+    },
+    "2": {
+      "on_no_hippo": {
+        "rule:A": 0.625,
+        "rule:B": 1.0,
+        "fact:smoke": 0.0
+      },
+      "off_no_hippo": {
+        "rule:A": 0.0,
+        "rule:B": 0.25,
+        "fact:smoke": 0.0
+      },
+      "off_with_hippo": {
+        "rule:A": 0.0,
+        "rule:B": 0.25,
+        "fact:smoke": 1.0
+      }
+    }
+  },
+  "sleeps": [
+    {
+      "accept": true,
+      "accepted": true,
+      "candidate": "expert-0",
+      "checks": {
+        "canary": {
+          "cand_mean": 1.0,
+          "cur_mean": 1.0,
+          "diff": 0.0,
+          "margin": 0.0,
+          "n": 8,
+          "regression": false
+        },
+        "gate": {
+          "cand_mean": 0.5,
+          "cur_mean": 0.0,
+          "diff": 0.5,
+          "margin": 0.6793575062919268,
+          "n": 4,
+          "regression": false
+        }
+      },
+      "examples": 24,
+      "fault_injected": false,
+      "nap": {
+        "applied": 0,
+        "pending": 24
+      },
+      "peak_gpu_mib": 1327.79833984375,
+      "peak_reserved_mib": 1380.0,
+      "poison_absorbed_candidate": 0,
+      "poison_absorbed_current": 0,
+      "pre_gate": {
+        "changed_canaries": [],
+        "coverage": {
+          "routes": [
+            {
+              "previous": null,
+              "proposed": null,
+              "skill": "canary:smoke"
+            },
+            {
+              "previous": null,
+              "proposed": "expert-0",
+              "skill": "rule:A"
+            }
+          ],
+          "uncovered": []
+        },
+        "delta_base_cap": 1.0,
+        "max_delta_base_ratio": 0.02343440055847168,
+        "validation": {
+          "candidate_correct": 24,
+          "current_correct": 0,
+          "examples": [
+            {
+              "candidate_correct": true,
+              "current_correct": false,
+              "replay": false,
+              "task_id": "ba1417fbac"
+            },
+            {
+              "candidate_correct": true,
+              "current_correct": false,
+              "replay": false,
+              "task_id": "7b27b73368"
+            },
+            {
+              "candidate_correct": true,
+              "current_correct": false,
+              "replay": false,
+              "task_id": "35b6f989c0"
+            },
+            {
+              "candidate_correct": true,
+              "current_correct": false,
+              "replay": false,
+              "task_id": "a82c306487"
+            },
+            {
+              "candidate_correct": true,
+              "current_correct": false,
+              "replay": false,
+              "task_id": "f65676086a"
+            },
+            {
+              "candidate_correct": true,
+              "current_correct": false,
+              "replay": false,
+              "task_id": "c0b63d8d60"
+            },
+            {
+              "candidate_correct": true,
+              "current_correct": false,
+              "replay": false,
+              "task_id": "f436ce2517"
+            },
+            {
+              "candidate_correct": true,
+              "current_correct": false,
+              "replay": false,
+              "task_id": "88affdb6fd"
+            },
+            {
+              "candidate_correct": true,
+              "current_correct": false,
+              "replay": false,
+              "task_id": "05112f3b95"
+            },
+            {
+              "candidate_correct": true,
+              "current_correct": false,
+              "replay": false,
+              "task_id": "ce3514aaed"
+            },
+            {
+              "candidate_correct": true,
+              "current_correct": false,
+              "replay": false,
+              "task_id": "ef0f6171fa"
+            },
+            {
+              "candidate_correct": true,
+              "current_correct": false,
+              "replay": false,
+              "task_id": "9ec00c89a9"
+            },
+            {
+              "candidate_correct": true,
+              "current_correct": false,
+              "replay": false,
+              "task_id": "94fa6dddb8"
+            },
+            {
+              "candidate_correct": true,
+              "current_correct": false,
+              "replay": false,
+              "task_id": "07cbe81c45"
+            },
+            {
+              "candidate_correct": true,
+              "current_correct": false,
+              "replay": false,
+              "task_id": "32c0af652c"
+            },
+            {
+              "candidate_correct": true,
+              "current_correct": false,
+              "replay": false,
+              "task_id": "d84e5db844"
+            },
+            {
+              "candidate_correct": true,
+              "current_correct": false,
+              "replay": false,
+              "task_id": "6278d4788f"
+            },
+            {
+              "candidate_correct": true,
+              "current_correct": false,
+              "replay": false,
+              "task_id": "9095b1901a"
+            },
+            {
+              "candidate_correct": true,
+              "current_correct": false,
+              "replay": false,
+              "task_id": "8a16b44f7d"
+            },
+            {
+              "candidate_correct": true,
+              "current_correct": false,
+              "replay": false,
+              "task_id": "d2a5520cb5"
+            },
+            {
+              "candidate_correct": true,
+              "current_correct": false,
+              "replay": false,
+              "task_id": "3588494af5"
+            },
+            {
+              "candidate_correct": true,
+              "current_correct": false,
+              "replay": false,
+              "task_id": "1719c902fa"
+            },
+            {
+              "candidate_correct": true,
+              "current_correct": false,
+              "replay": false,
+              "task_id": "31f3072109"
+            },
+            {
+              "candidate_correct": true,
+              "current_correct": false,
+              "replay": false,
+              "task_id": "f0b0b33d78"
+            }
+          ],
+          "regressions": [],
+          "replay_flip_tolerance": 0,
+          "tolerated": []
+        }
+      },
+      "reasons": [],
+      "replay": 0,
+      "training": {
+        "finite": true,
+        "handle": "expert-0",
+        "loss": 0.019428599625825882,
+        "nonfinite_gradient_steps": 0,
+        "optimizer_steps": 64,
+        "seed": 0,
+        "skipped_steps": 0,
+        "steps": 64,
+        "wall_seconds": 166.2877468999941
+      },
+      "wall_seconds": 191.7467439000029
+    },
+    {
+      "accept": true,
+      "accepted": true,
+      "candidate": "expert-1",
+      "checks": {
+        "canary": {
+          "cand_mean": 1.0,
+          "cur_mean": 1.0,
+          "diff": 0.0,
+          "margin": 0.0,
+          "n": 8,
+          "regression": false
+        },
+        "gate": {
+          "cand_mean": 0.875,
+          "cur_mean": 0.375,
+          "diff": 0.5,
+          "margin": 0.3580417020237005,
+          "n": 8,
+          "regression": false
+        }
+      },
+      "examples": 32,
+      "fault_injected": false,
+      "nap": {
+        "applied": 0,
+        "pending": 24
+      },
+      "peak_gpu_mib": 1336.6357421875,
+      "peak_reserved_mib": 1476.0,
+      "poison_absorbed_candidate": 0,
+      "poison_absorbed_current": 0,
+      "pre_gate": {
+        "changed_canaries": [],
+        "coverage": {
+          "routes": [
+            {
+              "previous": null,
+              "proposed": null,
+              "skill": "canary:smoke"
+            },
+            {
+              "previous": "expert-0",
+              "proposed": "expert-0",
+              "skill": "rule:A"
+            },
+            {
+              "previous": "expert-0",
+              "proposed": "expert-1",
+              "skill": "rule:B"
+            }
+          ],
+          "uncovered": []
+        },
+        "delta_base_cap": 1.0,
+        "max_delta_base_ratio": 0.02081364579498768,
+        "validation": {
+          "candidate_correct": 31,
+          "current_correct": 8,
+          "examples": [
+            {
+              "candidate_correct": true,
+              "current_correct": false,
+              "replay": false,
+              "task_id": "9d401468ee"
+            },
+            {
+              "candidate_correct": true,
+              "current_correct": false,
+              "replay": false,
+              "task_id": "b0f7ab61c7"
+            },
+            {
+              "candidate_correct": true,
+              "current_correct": false,
+              "replay": false,
+              "task_id": "8501fcb9b0"
+            },
+            {
+              "candidate_correct": true,
+              "current_correct": false,
+              "replay": false,
+              "task_id": "e989fcf4cb"
+            },
+            {
+              "candidate_correct": true,
+              "current_correct": false,
+              "replay": false,
+              "task_id": "d4e7cd5867"
+            },
+            {
+              "candidate_correct": true,
+              "current_correct": false,
+              "replay": false,
+              "task_id": "477cac19ca"
+            },
+            {
+              "candidate_correct": true,
+              "current_correct": false,
+              "replay": false,
+              "task_id": "092dcd26a0"
+            },
+            {
+              "candidate_correct": true,
+              "current_correct": false,
+              "replay": false,
+              "task_id": "7f64878a91"
+            },
+            {
+              "candidate_correct": true,
+              "current_correct": false,
+              "replay": false,
+              "task_id": "97fff72f8a"
+            },
+            {
+              "candidate_correct": true,
+              "current_correct": false,
+              "replay": false,
+              "task_id": "58b901eab1"
+            },
+            {
+              "candidate_correct": true,
+              "current_correct": false,
+              "replay": false,
+              "task_id": "d4158df967"
+            },
+            {
+              "candidate_correct": true,
+              "current_correct": false,
+              "replay": false,
+              "task_id": "7e43113332"
+            },
+            {
+              "candidate_correct": true,
+              "current_correct": false,
+              "replay": false,
+              "task_id": "4ddbfeb340"
+            },
+            {
+              "candidate_correct": true,
+              "current_correct": false,
+              "replay": false,
+              "task_id": "6e71fa5674"
+            },
+            {
+              "candidate_correct": true,
+              "current_correct": false,
+              "replay": false,
+              "task_id": "ad723c2416"
+            },
+            {
+              "candidate_correct": true,
+              "current_correct": false,
+              "replay": false,
+              "task_id": "883338f440"
+            },
+            {
+              "candidate_correct": true,
+              "current_correct": false,
+              "replay": false,
+              "task_id": "ac74d4fed4"
+            },
+            {
+              "candidate_correct": true,
+              "current_correct": false,
+              "replay": false,
+              "task_id": "5c9793ba0d"
+            },
+            {
+              "candidate_correct": true,
+              "current_correct": false,
+              "replay": false,
+              "task_id": "0e17a29b94"
+            },
+            {
+              "candidate_correct": true,
+              "current_correct": false,
+              "replay": false,
+              "task_id": "5dbf59684e"
+            },
+            {
+              "candidate_correct": true,
+              "current_correct": false,
+              "replay": false,
+              "task_id": "70417bc90c"
+            },
+            {
+              "candidate_correct": true,
+              "current_correct": false,
+              "replay": false,
+              "task_id": "e3870a8de5"
+            },
+            {
+              "candidate_correct": true,
+              "current_correct": false,
+              "replay": false,
+              "task_id": "b78220d015"
+            },
+            {
+              "candidate_correct": true,
+              "current_correct": false,
+              "replay": false,
+              "task_id": "a6b4575c59"
+            },
+            {
+              "candidate_correct": true,
+              "current_correct": true,
+              "replay": true,
+              "task_id": "35b6f989c0"
+            },
+            {
+              "candidate_correct": true,
+              "current_correct": true,
+              "replay": true,
+              "task_id": "a82c306487"
+            },
+            {
+              "candidate_correct": true,
+              "current_correct": true,
+              "replay": true,
+              "task_id": "f65676086a"
+            },
+            {
+              "candidate_correct": true,
+              "current_correct": true,
+              "replay": true,
+              "task_id": "05112f3b95"
+            },
+            {
+              "candidate_correct": false,
+              "current_correct": true,
+              "replay": true,
+              "task_id": "32c0af652c"
+            },
+            {
+              "candidate_correct": true,
+              "current_correct": true,
+              "replay": true,
+              "task_id": "d84e5db844"
+            },
+            {
+              "candidate_correct": true,
+              "current_correct": true,
+              "replay": true,
+              "task_id": "8a16b44f7d"
+            },
+            {
+              "candidate_correct": true,
+              "current_correct": true,
+              "replay": true,
+              "task_id": "31f3072109"
+            }
+          ],
+          "regressions": [],
+          "replay_flip_tolerance": 1,
+          "tolerated": [
+            "32c0af652c"
+          ]
+        }
+      },
+      "reasons": [],
+      "replay": 8,
+      "training": {
+        "finite": true,
+        "handle": "expert-1",
+        "loss": 0.0012644600355997682,
+        "nonfinite_gradient_steps": 0,
+        "optimizer_steps": 64,
+        "seed": 1,
+        "skipped_steps": 0,
+        "steps": 64,
+        "wall_seconds": 165.70547340001212
+      },
+      "wall_seconds": 196.77720730000874
+    },
+    {
+      "accepted": false,
+      "candidate": "expert-2",
+      "examples": 16,
+      "fault_injected": true,
+      "peak_gpu_mib": 1320.15185546875,
+      "peak_reserved_mib": 1476.0,
+      "pre_gate": {
+        "delta_base_cap": 1.0,
+        "max_delta_base_ratio": 289.57489013671875
+      },
+      "reasons": [
+        "adapter delta exceeds frozen projection norm"
+      ],
+      "replay": 8,
+      "training": {
+        "finite": true,
+        "handle": "expert-2",
+        "loss": 5.763332843780518,
+        "nonfinite_gradient_steps": 0,
+        "optimizer_steps": 1,
+        "seed": 2,
+        "skipped_steps": 0,
+        "steps": 1,
+        "wall_seconds": 2.6577753000019584
+      },
+      "wall_seconds": 2.927596599998651
+    }
+  ],
+  "canaries_verified": [
+    {
+      "task_id": "40229d0187",
+      "skill": "canary:smoke",
+      "prompt": "What is 1 + 1? End your reply with a line 'Final answer: <answer>'.",
+      "answer": "Final answer: 2",
+      "correct": 1
+    },
+    {
+      "task_id": "c3757f7ee7",
+      "skill": "canary:smoke",
+      "prompt": "What is 2 + 3? End your reply with a line 'Final answer: <answer>'.",
+      "answer": "Final answer: 5.",
+      "correct": 1
+    },
+    {
+      "task_id": "beea841c0e",
+      "skill": "canary:smoke",
+      "prompt": "What is 7 - 2? End your reply with a line 'Final answer: <answer>'.",
+      "answer": "Final answer: 5",
+      "correct": 1
+    },
+    {
+      "task_id": "edcd7b14c4",
+      "skill": "canary:smoke",
+      "prompt": "What is 3 * 3? End your reply with a line 'Final answer: <answer>'.",
+      "answer": "Final answer: 9",
+      "correct": 1
+    },
+    {
+      "task_id": "9c174bcd3a",
+      "skill": "canary:smoke",
+      "prompt": "What color is a clear daytime sky? Give one word. End your reply with a line 'Final answer: <answer>'.",
+      "answer": "Final answer: blue",
+      "correct": 1
+    },
+    {
+      "task_id": "6acd3c1bf0",
+      "skill": "canary:smoke",
+      "prompt": "What is the capital of France? End your reply with a line 'Final answer: <answer>'.",
+      "answer": "Final answer: Paris",
+      "correct": 1
+    },
+    {
+      "task_id": "a94cf65fd8",
+      "skill": "canary:smoke",
+      "prompt": "How many days are in a week? End your reply with a line 'Final answer: <answer>'.",
+      "answer": "Final answer: 7",
+      "correct": 1
+    },
+    {
+      "task_id": "1252b42df5",
+      "skill": "canary:smoke",
+      "prompt": "What is the chemical formula for water? End your reply with a line 'Final answer: <answer>'.",
+      "answer": "Final answer: H\u2082O",
+      "correct": 1
+    }
+  ],
+  "verification_recovered": false
+}

@@ -68,6 +68,10 @@ class FakeBackend:
     def is_finite(self, handle):
         return self.experts[handle]['finite']
 
+    def adapter_delta_ratio(self, handle):
+        # Dimensionless stand-in for the HF effective-delta measurement.
+        return 10.0 if self.experts[handle]['broken'] else 0.01
+
     def frozen_fingerprint(self):
         return 'fake-frozen-core-v1'
 

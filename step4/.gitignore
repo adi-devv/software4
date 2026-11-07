@@ -1,0 +1,7 @@
+output*/
+tests/.run-*/
+tests/.pytest*/
+**/.pytest*/
+__pycache__/
+.hf-pinned/
+.pip-cache/

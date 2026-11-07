@@ -194,7 +194,7 @@ class HippoOnly(Base):
         if task.mode == 'test': return
         used = self._pending.pop(task.id, [])
         self.tick += 1
-        mid = self.hippo.add(episode(task, answer, result, correction), kind='fact' if task.kind == 'teach' else 'episode', source='system' if task.source == 'trusted' else task.source, meta={'task_source': task.source}, t=self.tick)
+        mid = self.hippo.add(episode(task, answer, result, correction), kind='fact' if task.kind == 'teach' else 'episode', source='system' if task.source == 'trusted' else task.source, meta={'task_source': task.source, 'family': task.family, 'skill': task.skill}, t=self.tick)
         if result is not None:
             self.hippo.record_outcome(task.id, used, success=bool(result), verified=True, correction=correction, episode_id=mid, t=self.tick)
 

@@ -112,3 +112,29 @@ def test_fingerprint_large_tensor_endpoint(backend):
     with torch.no_grad():
         large[-1] = 1
     assert before != backend.frozen_fingerprint()
+
+
+def test_effective_delta_norm_detects_finite_damage_and_is_factor_invariant(backend):
+    b = backend
+    h = b.train_expert([('x', 'Z')], steps=1, seed=1)
+    ratio = b.adapter_delta_ratio(h)
+    with torch.no_grad():
+        dense = max(float((2 * layer.adapters[h]['b'] @ layer.adapters[h]['a']).norm()
+                          / layer.base.weight.float().norm()) for layer in b.layers.values())
+        assert ratio == pytest.approx(dense, rel=1e-5)
+        for layer in b.layers.values():
+            layer.adapters[h]['a'].mul_(2)
+            layer.adapters[h]['b'].div_(2)
+    assert b.adapter_delta_ratio(h) == pytest.approx(ratio)
+    b.next_broken = True
+    broken = b.train_expert([('x', 'Z')], steps=1, seed=2)
+    assert b.is_finite(broken) and b.adapter_delta_ratio(broken) > 1
+
+
+def test_inference_cap_is_wider_than_training_cap(backend):
+    b = backend
+    long = 'z' * 300
+    assert len(b._ids(long)) == 112 == b.train_cap  # training/replay truncation is unchanged
+    assert len(b._ids(long, b.infer_cap)) == 300  # a fair 512-token context is not cut at 112
+    assert b.generate('x', max_new_tokens=2) is not None
+    assert ('x', None, 2) in b._cache and ('x', None, 16) not in b._cache

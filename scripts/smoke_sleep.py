@@ -1,7 +1,7 @@
 """Run the real local three-cycle smoke. No downloads, no model grading.
 
 HF_HUB_OFFLINE=1 S4_MODEL=Qwen/Qwen3-0.6B python scripts/smoke_sleep.py
-S4_SMOKE=1 uses two optimizer steps instead of 64 (same world and checks).
+S4_SMOKE=1 uses two optimizer steps (same world and checks).
 """
 import argparse
 import copy
@@ -21,7 +21,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from baselines import NoMemory, HippoOnly, SleepArm, SleepConfig
 from baselines.arms import build_prompt
 from harness.grading import grade
-from harness.runner import read_lines, run_arm
+from harness.runner import Services, read_lines, run_arm
 from harness.smoke_world import smoke_stream, smoke_canaries, gold_context, REVISED, POISON
 from harness.tasks import arm_scope, grading_scope
 
@@ -53,12 +53,25 @@ class MeasuredSleep(SleepArm):
                     peak_gpu_mib=torch.cuda.max_memory_allocated() / 2**20,
                     peak_reserved_mib=torch.cuda.max_memory_reserved() / 2**20,
                     fault_injected=cycle == 2)
+        # Persist diagnostics even for adapters discarded after a rejection.
+        if self.backend.train_calls:
+            info['training'] = {k: v for k, v in self.backend.train_calls[-1].items()
+                                if k != 'examples'}
         print(f'Sleep {cycle + 1}: {info}', flush=True)
         return info
 
 
 def digest_outputs(values):
     return hashlib.sha256(json.dumps(values, sort_keys=True).encode()).hexdigest()
+
+
+def same_router(before, before_none, after, after_none):
+    """Return a JSON-safe bool, including when the final array comparison is true."""
+    return bool(list(before) == list(after)
+                and all((v == after[h]).all() for h, v in before.items())
+                and ((before_none is None and after_none is None)
+                     or (before_none is not None and after_none is not None
+                         and (before_none == after_none).all())))
 
 
 def prompt_for(backend, task, context=()):
@@ -101,7 +114,13 @@ def main():
     from baselines.sleep_hf import HFBackend
     parser = argparse.ArgumentParser()
     parser.add_argument('--output', type=Path)
+    parser.add_argument('--steps', type=int, default=64)
+    parser.add_argument('--lr', type=float, default=4e-4)
+    parser.add_argument('--recover', action='store_true',
+                        help='rebuild verification from completed checkpoints after report failure')
     args = parser.parse_args()
+    if args.steps < 1 or not 0 < args.lr <= 1e-3:
+        parser.error('require positive steps and 0 < lr <= 0.001')
     small = os.environ.get('S4_SMOKE') == '1'
     root = Path(__file__).resolve().parents[1]
     out = args.output or root / 'results' / 'smoke_sleep'
@@ -109,13 +128,13 @@ def main():
         out = out / 'small'
     out.mkdir(parents=True, exist_ok=True)
     result_path = out / 'results.jsonl'
-    if result_path.exists():
+    if result_path.exists() and not args.recover:
         raise RuntimeError(f'Use a fresh output directory; {result_path} already exists')
     torch.set_num_threads(4)
     torch.manual_seed(0)
     start = time.perf_counter()
     stream, canary = smoke_stream(0), smoke_canaries()
-    backend = HFBackend(directory=out / 'adapters')
+    backend = HFBackend(directory=out / 'adapters', lr=args.lr)
     fingerprint = backend.frozen_fingerprint()
     print(f'{torch.cuda.get_device_name()} | torch {torch.__version__} | small={small}', flush=True)
 
@@ -130,14 +149,15 @@ def main():
     all_items = stream.hidden_items(2) + canary.items()
     base_before = measure(all_items, 2, lambda t: backend.generate(prompt_for(backend, t)))
     ablations, routing, recall, rollback = {}, {}, {}, {}
-    for arm in [NoMemory(llm=backend, context_tokens=64),
+    for arm in ([] if args.recover else [NoMemory(llm=backend, context_tokens=64),
                 HippoOnly(llm=backend, context_tokens=64),
-                Oracle(llm=backend, context_tokens=64)]:
+                Oracle(llm=backend, context_tokens=64)]):
         print(f'Running {arm.name}', flush=True)
         run_arm(arm, stream, [canary], result_path, ckpt_dir=out / 'checkpoints')
 
-    arm = MeasuredSleep(backend, SleepConfig(steps=2 if small else 64,
-                                            context_tokens=64, seed=0), llm=backend)
+    arm = MeasuredSleep(backend, SleepConfig(steps=2 if small else args.steps,
+                                            context_tokens=64, seed=0), llm=backend,
+                        snapshot_dir=out / 'backend_snapshots')
     before_rollback, active_before, state_before, old_weights = [], [], {}, {}
 
     def hook(cycle, phase, n):
@@ -183,15 +203,64 @@ def main():
                             after_hash=digest_outputs(after), outputs_identical=after == before_rollback,
                             active_unchanged=active_before == arm.active_experts,
                             events_unchanged=state_before['events'] == arm.hippo.log.events,
-                            router_unchanged=(list(state_before['centroids']) == list(arm.centroids)
-                                and all((v == arm.centroids[h]).all()
-                                        for h, v in state_before['centroids'].items())
-                                and ((state_before['none'] is None and arm.none_centroid is None)
-                                     or (state_before['none'] is not None and arm.none_centroid is not None
-                                         and (state_before['none'] == arm.none_centroid).all()))))
+                            router_unchanged=same_router(state_before['centroids'],
+                                state_before['none'], arm.centroids, arm.none_centroid))
 
     print('Running ours', flush=True)
-    run_arm(arm, stream, [canary], result_path, ckpt_dir=out / 'checkpoints', fault_hook=hook)
+    if args.recover:
+        # The completed JSONL remains the source of scores, decisions and timings.
+        # Rebuild read-only verification from actual saved states; never retrain
+        # the accepted experts. Repeat only the cheap one-step fault injection.
+        prior_records = read_lines(result_path)
+        original_sleeps = {r['cycle']: r['info'] for r in prior_records
+                           if r['type'] == 'cycle_done' and r['arm'] == 'ours'}
+        if not all(c in original_sleeps for c in range(3)):
+            raise RuntimeError('Recovery requires all three completed sleep cycles')
+        arm.bind(Services(stream, [canary]))
+        checkpoint = lambda c: json.loads((out / 'checkpoints' /
+            f'ours__{stream.stream_id}__{c}.json').read_text(encoding='utf-8'))
+        previous = checkpoint(-1)
+        for cycle in range(3):
+            after = checkpoint(cycle)
+            assert after['events'][:len(previous['events'])] == previous['events']
+            extension = after['events'][len(previous['events']):]
+            day = []
+            for event in extension:
+                if event['type'] in ('sleep', 'nap'):
+                    break
+                day.append(event)
+            before = copy.deepcopy(previous)
+            before['events'] += day
+            before['tick'] = max([before['tick']] + [e['t'] for e in day])
+            arm.load_state(before)
+            new, replay = arm._training_set(cycle)
+            examples = [('Context:\n\n\nTask:\n' + q, a) for _, (q, a) in new + replay]
+            hook(cycle, 'sleep', 0)
+            if cycle < 2:
+                arm.load_state(after)
+                handle = original_sleeps[cycle]['candidate']
+                training = original_sleeps[cycle].get('training')
+                if training is None:
+                    metadata = backend.experts[handle]
+                    training = dict(handle=handle, steps=arm.cfg.steps, seed=arm.seed + cycle,
+                        loss=metadata['loss'], skipped_steps=metadata['skipped_steps'],
+                        optimizer_steps=metadata['optimizer_steps'], nonfinite_gradient_steps=0,
+                        finite=backend.is_finite(handle), wall_seconds=None)
+                backend.train_calls.append(dict(training, examples=examples,
+                                               recovered_from_checkpoint=True))
+            else:
+                with arm_scope():
+                    repeated = arm.sleep(cycle)
+                assert not repeated['accepted']
+                assert repeated['reasons'] == original_sleeps[cycle]['reasons']
+                state = arm.save_state()
+                for key in ('events', 'tick', 'active_experts', 'centroids',
+                            'none_centroid', 'accepted_ids', 'pending'):
+                    assert state[key] == after[key], key
+            hook(cycle, 'hidden', 0)
+            previous = after
+    else:
+        run_arm(arm, stream, [canary], result_path, ckpt_dir=out / 'checkpoints', fault_hook=hook)
     backend._cache.clear()
     base_after = measure(all_items, 2, lambda t: backend.generate(prompt_for(backend, t)))
     records = read_lines(result_path)
@@ -261,7 +330,7 @@ def main():
              f'quarantined poison recalled: {len(poison_hits)}.',
         'e': f'Broken candidate accepted: {sleeps[2]["info"]["accepted"]}; '
              f'post-sleep outputs identical: {rollback["outputs_identical"]}. '
-             'The unchanged gate rejects regressions beyond paired noise, not arbitrary bad weights.',
+             'The arm checks scale, forced trusted validation, route coverage and exact canary preservation before the unchanged paired-noise gate.',
         'f': f'Frozen fingerprint equal: {fingerprint == final_fingerprint}; '
              f'uncached base outputs identical: {base_before == base_after}.',
         'g': f'Nonfinite/skipped training steps: {sum(c["skipped_steps"] for c in backend.train_calls)}; '
@@ -272,17 +341,19 @@ def main():
         checks[k]['explanation'] = explanation
     payload = dict(small=small, model=os.environ.get('S4_MODEL', 'Qwen/Qwen3-0.6B'),
                    seed=0, torch=torch.__version__, gpu=torch.cuda.get_device_name(),
-                   steps=2 if small else 64, lr=backend.lr,
+                   steps=2 if small else args.steps, lr=backend.lr,
                    elapsed_seconds=time.perf_counter() - start, checks=checks,
                    per_arm=per_arm, ablations=short_ablations,
                    sleeps=[r['info'] for r in sleeps], canaries_verified=verified)
+    payload['verification_recovered'] = args.recover
     (out / 'CHECKLIST.json').write_text(json.dumps(payload, indent=2, allow_nan=False), encoding='utf-8')
     (out / 'evidence.json').write_text(json.dumps(dict(ablations=ablations, routing=routing,
         recall=recall, base_before=base_before, base_after=base_after,
         training=backend.train_calls), indent=2), encoding='utf-8')
     lines = [f'# Local sleep smoke ({"small" if small else "full"})', '',
+             f'Command: `python scripts/smoke_sleep.py --steps {payload["steps"]} --lr {backend.lr}`', '',
              f'Model: {payload["model"]}; seed 0; fp16 base, fp32 rank-4 q/v LoRA; '
-             f'{payload["steps"]} optimizer steps, batch 4, lr 0.0002. '
+             f'{payload["steps"]} optimizer steps, batch 4, lr {backend.lr}. '
              'Cycle 3: one step then finite random damage to the new adapter.', '',
              '| Arm | Cycle | A correct / 8 | B correct / 8 | Facts correct / 6 | Canaries correct / 8 |',
              '|---|---:|---:|---:|---:|---:|']
@@ -304,7 +375,12 @@ def main():
         lines.append(f'| {i+1} | {"accept" if info["accepted"] else "reject"} | '
                      f'{info["wall_seconds"]:.1f} | {info["peak_gpu_mib"]:.1f} | {info["peak_reserved_mib"]:.1f} |')
     lines += ['', 'Checklist: ' + ', '.join(f'{k}: {v["status"]}' for k, v in checks.items()) + '.', '',
-              f'Total wall time: {payload["elapsed_seconds"]:.1f} seconds.', '',
+              f'{"Verification rebuild" if args.recover else "Total"} wall time: '
+              f'{payload["elapsed_seconds"]:.1f} seconds.', '',
+              'The arm first caps the effective adapter delta at the frozen projection norm '
+              'and requires zero canary output changes, no per-example regression on forced '
+              'trusted train/replay validation, and independent gate/canary route coverage. '
+              'The norm cap alone does not establish behavioral safety. '
               'Gate uses the unchanged harness paired-noise test (alpha 0.05). '
               'No learning-gain threshold is used for accepting candidates. '
               'Eight items cannot establish broad retention or statistical significance. '
@@ -313,9 +389,18 @@ def main():
               '112 input tokens plus at most 16 target tokens. The same world is used in both runs. '
               'A and B are opaque rule names; instructions are supplied only as train corrections '
               'or oracle context. Cycle 3 has eight fresh arithmetic control examples. '
-              'No hippocampus, existing arm, gate, or grading code was changed. '
+              'Trusted fact update notices use hippocampus versioning; '
+              'the harness gate, grading, router threshold, and rule definitions are unchanged. '
               'Failed checks and complete evidence are in CHECKLIST.json and evidence.json.']
     lines += ['', *[f'- {k}: **{v["status"]}**. {v["explanation"]}' for k, v in checks.items()]]
+    if args.recover:
+        lines += ['', 'This recovery report reuses the completed JSONL scores, decisions, '
+                  'and measured sleep timings. Ablations, recall, routing, base invariance, '
+                  'and rollback were rebuilt from the saved checkpoints. Accepted experts were '
+                  'reused; only the one-step fault injection was repeated. Training diagnostics '
+                  'come from persisted cycle receipts (legacy accepted checkpoints may lack '
+                  'individual training wall times). Relative backend snapshot paths resolve '
+                  'inside this run directory.']
     report = out / 'SMOKE_RESULTS.md' if small or args.output else root / 'results' / 'SMOKE_RESULTS.md'
     report.write_text('\n'.join(lines) + '\n', encoding='utf-8')
     print(json.dumps({k: v['status'] for k, v in checks.items()}), flush=True)

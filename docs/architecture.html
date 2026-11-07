@@ -128,7 +128,7 @@ ul.plain{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:6px;
 
 <section id="milestones">
   <span class="eyebrow">Milestones</span>
-  <h2>6 of 11 steps done, first sleep loop being built</h2>
+  <h2>6 of 11 steps done, first sleep loop built, fixing 3 failing checks</h2>
   <div class="progress" role="img" aria-label="6 of 11 steps done, 1 in progress">
     <i class="done"></i><i class="done"></i><i class="done"></i><i class="done"></i><i class="done"></i><i class="done"></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
   </div>
@@ -159,14 +159,14 @@ ul.plain{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:6px;
       <p class="note">Review fixes: arms receive facades with no answer-bearing references; checkpoint saves run under the arm lock; split audits block invalid streams. Sleep can score a gate once through trusted internal grading, with other arm code still locked out.</p>
     </div></li>
     <li class="done"><div class="rail"><span class="dot"></span></div><div class="body">
-      <div class="head"><span class="stepn">Step 4</span><h3>Baselines</h3><span class="pill done">built, reviewed; hippocampus, baselines and scripts: 107 tests pass</span></div>
+      <div class="head"><span class="stepn">Step 4</span><h3>Baselines</h3><span class="pill done">built, reviewed; 385 tests pass across the repo</span></div>
       <p class="note">Review fixes: HF chat templates and matching token counts, distillation batches bounded by input capacity, chronological evidence, and a shared Context/Task prompt format. Real-model quality remains unevaluated.</p>
       <p>Arms 1–4 and 10: no memory, RAG, long context, text notes, hippocampus only.</p>
     </div></li>
     <li class="now"><div class="rail"><span class="dot"></span></div><div class="body">
       <div class="head"><span class="stepn">Step 5</span><h3>Add the full sleep loop</h3><span class="pill now">thin version in progress</span></div>
       <p>Select, replay, check, train and gate, with experts and the memory layer (arms 5 and 6).</p>
-      <p class="note">Started with a thin loop: day (answer with the hippocampus, log outcomes), night (train a tiny expert, gate, keep or roll back), next day (router). Plan: small local test on Qwen3-0.6B on the GTX 1650, then one lean Kaggle run on Qwen3.5-2B with 4 arms, and only then dreaming and ablations.</p>
+      <p class="note">Thin loop built and checked on the GTX 1650 with Qwen3-0.6B (about 11 min per run): it learns a new rule into its weights, keeps it, and leaves the frozen core untouched. All 7 local checks pass after the independent review fixes (2026-11-07), including router, old-fact-vs-revision and rollback of a broken expert. An Opus plan review then changed the Kaggle run design: RAG and text notes get a fair 512-token budget (a 64-token starved RAG row is kept), new hippo_only and expert_only arms, a fresh world with 120 hidden items per rule scored per family, 3 cycles, and a stop rule written before the run (ours must beat fair RAG and hippo_only by 15+ points, 95% CI above 0). Next: CPU test, smoke, then one Kaggle run on Qwen3.5-2B; dreaming and ablations only if it passes.</p>
     </div></li>
     <li class="next"><div class="rail"><span class="dot"></span></div><div class="body">
       <div class="head"><span class="stepn">Step 6</span><h3>Add dreaming</h3><span class="pill next">not started</span></div>

@@ -43,6 +43,8 @@ class LoRALinear(nn.Module):
 
 class HFBackend:
     input_limit = 128
+    train_cap = 112       # left-truncation for training prompts (unchanged)
+    infer_cap = 1024      # left-truncation at inference, so 512-token contexts fit
 
     def __init__(self, model=None, tokenizer=None, *, device='cuda', directory=None, lr=2e-4):
         self.device = torch.device(device)
@@ -89,8 +91,8 @@ class HFBackend:
             [{'role': 'user', 'content': prompt}], tokenize=False,
             add_generation_prompt=True, **options)
 
-    def _ids(self, prompt):
-        return self.tokenizer.encode(self._format(prompt), add_special_tokens=False)[-112:]
+    def _ids(self, prompt, cap=None):
+        return self.tokenizer.encode(self._format(prompt), add_special_tokens=False)[-(cap or self.train_cap):]
 
     def count_tokens(self, text):
         return len(self.tokenizer.encode(self._format(text), add_special_tokens=False))
@@ -98,20 +100,20 @@ class HFBackend:
     def _autocast(self):
         return torch.autocast('cuda', dtype=torch.float16) if self.device.type == 'cuda' else nullcontext()
 
-    def generate(self, prompt, expert=None):
-        key = (prompt, expert)
+    def generate(self, prompt, expert=None, max_new_tokens=16):
+        key = (prompt, expert, max_new_tokens)
         if expert is not None and expert not in self.experts:
             raise KeyError(expert)
         if key in self._cache:
             return self._cache[key]
         self._activate(expert)
         self.model.eval()
-        ids = torch.tensor([self._ids(prompt)], device=self.device)
+        ids = torch.tensor([self._ids(prompt, self.infer_cap)], device=self.device)
         try:
             with torch.inference_mode(), self._autocast():
                 output = self.model.generate(
                     input_ids=ids, attention_mask=torch.ones_like(ids),
-                    max_new_tokens=16, do_sample=False,
+                    max_new_tokens=max_new_tokens, do_sample=False,
                     pad_token_id=self.tokenizer.eos_token_id,
                     eos_token_id=self.tokenizer.eos_token_id)
             answer = self.tokenizer.decode(output[0, ids.shape[1]:], skip_special_tokens=True)
@@ -222,6 +224,22 @@ class HFBackend:
     def is_finite(self, handle):
         return self.experts[handle]['finite'] and all(
             bool(torch.isfinite(p).all()) for p in self._parameters(handle))
+
+    def adapter_delta_ratio(self, handle):
+        """Largest ||2BA||_F / ||W||_F, computed with rank-four Gram matrices.
+
+        Unlike separate factor norms this is invariant to A/B rescaling. No
+        dense delta or extra model activations are allocated on the GPU.
+        """
+        ratios = []
+        with torch.no_grad():
+            for layer in self.layers.values():
+                a, b = (layer.adapters[handle][k] for k in ('a', 'b'))
+                squared = ((a @ a.T) * (b.T @ b)).sum().clamp_min(0)
+                delta = 2 * squared.sqrt()
+                base = layer.base.weight.float().norm().clamp_min(1e-12)
+                ratios.append(float(delta / base))
+        return max(ratios)
 
     def frozen_fingerprint(self):
         h = hashlib.sha256()

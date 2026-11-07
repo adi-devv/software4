@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import math
 import random
+import re
 from copy import deepcopy
 
 import numpy as np
@@ -73,6 +74,8 @@ class Hippocampus:
         self._ncache = None
         self._old_vec_cache: dict = {}
         self._add_count = 0
+        self._fact_ids: dict[tuple[str, str], str] = {}
+        self._fact_members: dict[tuple[str, str], set[str]] = {}
         self.last_nap: float | None = None
         self.last_nap_info: dict = {}
 
@@ -98,6 +101,17 @@ class Hippocampus:
     # ------------------------------------------------------------- public writes
     def add(self, text: str, *, kind: str = "fact", source: str = "user", trust: float | None = None,
             entities=None, meta=None, t=None, id: str | None = None, quarantine: bool = False) -> str:
+        """Append a memory, or version an identified, trusted fact revision.
+
+        In the controlled ``Field note/Update notice: the REL of SUBJECT is
+        VALUE`` grammar, REL+SUBJECT identify a single-valued fact. An explicit
+        update notice with no caller-supplied id versions that identity instead
+        of adding a contradictory live passage. This is exact grammar matching,
+        never embedding similarity. Quarantined or lower-trust assertions cannot
+        overwrite trusted facts. Originals remain accessible via get/as_of, and
+        log replay reconstructs the identity index just like the vector index.
+        Other prose and explicit ids retain the normal append semantics.
+        """
         if not text or not text.strip():
             raise ValueError("empty text")
         mid = id or f"m{self._add_count:06d}"
@@ -106,17 +120,29 @@ class Hippocampus:
         trusted = source in self.cfg.trusted_sources
         if trust is None:
             trust = self.cfg.default_trust if trusted else self.cfg.untrusted_trust
+        key = self._fact_key(text) if kind == 'fact' else None
+        previous = self._mems.get(self._fact_ids.get(key))
+        if (id is None and key is not None and 'update notice:' in text.lower()
+                and trusted and not quarantine and previous is not None
+                and previous.eligible and trust >= previous.trust):
+            self.update(previous.id, text, entities=entities, t=t,
+                        trust=trust, source=source, meta=meta or {})
+            return previous.id
         self._emit({"type": "add", "t": self._t(t), "id": mid, "kind": kind, "source": source,
                     "text": text, "trust": float(trust), "quarantined": bool(quarantine or not trusted),
                     "entities": self._entities(text, entities), "meta": meta or {}})
         return mid
 
-    def update(self, id: str, text: str, *, entities=None, t=None) -> int:
+    def update(self, id: str, text: str, *, entities=None, t=None,
+               trust=None, source=None, meta=None) -> int:
         m = self._get(id)
         if m.tombstoned_at is not None:
             raise ValueError("memory is tombstoned")
         self._emit({"type": "update", "t": self._t(t), "id": id, "text": text,
-                    "entities": self._entities(text, entities)})
+                    "entities": self._entities(text, entities),
+                    "trust": m.trust if trust is None else float(trust),
+                    "source": m.source if source is None else source,
+                    "meta": deepcopy(m.meta if meta is None else meta)})
         return len(m.versions)
 
     def tombstone(self, id: str, reason: str = "", t=None) -> None:
@@ -155,9 +181,12 @@ class Hippocampus:
     def get(self, id: str, version: int | None = None, as_of: float | None = None) -> dict:
         m = self._get(id)
         v = self._pick_version(m, version, as_of)
+        historical = version is not None or as_of is not None
         return {"id": m.id, "version": v[0], "t": v[1], "text": v[2], "entities": list(v[3]),
-                "kind": m.kind, "source": m.source, "trust": m.trust, "quarantined": m.quarantined,
-                "tombstoned": m.tombstoned_at is not None, "meta": deepcopy(m.meta)}
+                "kind": m.kind, "source": v[4] if historical else m.source,
+                "trust": v[5] if historical else m.trust, "quarantined": m.quarantined,
+                "tombstoned": m.tombstoned_at is not None,
+                "meta": deepcopy(v[6] if historical else m.meta)}
 
     def strength(self, id: str, now=None) -> float:
         return self._plast.node(id, self._t(now))
@@ -433,6 +462,30 @@ class Hippocampus:
         return [new[i] for i in pick_new] + [old[i] for i in pick_old]
 
     # ------------------------------------------------------------ log -> state
+    @staticmethod
+    def _fact_key(text):
+        match = re.fullmatch(
+            r'(?:Fact:\s*)?(?:Field note|Update notice):\s*the (.+?) of (.+?) is (?:now )?[^.\n]+\.?',
+            text.strip(), re.I)
+        return tuple(normalize_phrase(p) for p in match.groups()) if match else None
+
+    def _index_fact(self, m, old_key=None):
+        """Reselect affected identities from all members, also during event replay."""
+        key = self._fact_key(m.versions[-1][2]) if m.kind == 'fact' else None
+        if old_key is not None and old_key != key:
+            self._fact_members.get(old_key, set()).discard(m.id)
+        if key is not None:
+            self._fact_members.setdefault(key, set()).add(m.id)
+        for affected in {old_key, key} - {None}:
+            eligible = [self._mems[mid] for mid in self._fact_members.get(affected, ())
+                        if self._mems[mid].eligible
+                        and self._mems[mid].source in self.cfg.trusted_sources]
+            if eligible:
+                winner = max(eligible, key=lambda x: (x.trust, x.versions[-1][1], x.slot))
+                self._fact_ids[affected] = winner.id
+            else:
+                self._fact_ids.pop(affected, None)
+
     def _entities(self, text, entities) -> list[str]:
         raw = entities if entities is not None else self.extractor.extract(text)
         out = list(dict.fromkeys(normalize_phrase(e) for e in raw if e and e.strip()))
@@ -489,12 +542,15 @@ class Hippocampus:
         m = _Mem(id=mid, kind=ev.get("kind", "fact"), source=ev.get("source", ""), created=ev["t"],
                  trust=float(ev.get("trust", 1.0)), quarantined=bool(ev.get("quarantined", False)),
                  released_at=None, tombstoned_at=None,
-                 versions=[(1, ev["t"], ev["text"], tuple(ev.get("entities", ())))],
+                 versions=[(1, ev["t"], ev["text"], tuple(ev.get("entities", ())),
+                            ev.get("source", ""), float(ev.get("trust", 1.0)),
+                            deepcopy(ev.get("meta", {})))],
                  slot=slot, contrib=(), meta=deepcopy(ev.get("meta", {})))
         self._mems[mid] = m
         self._order.append(mid)
         self._slot_ids.append(mid)
         self._add_count += 1
+        self._index_fact(m)
         self._set_slot(m, vec, ev["t"])
         if m.eligible:
             self._graph_add(m)
@@ -507,7 +563,13 @@ class Hippocampus:
             return
         if m.eligible:
             self._graph_remove(m)
-        m.versions.append((len(m.versions) + 1, ev["t"], ev["text"], tuple(ev.get("entities", ()))))
+        old_key = self._fact_key(m.versions[-1][2])
+        m.trust = float(ev.get('trust', m.trust))
+        m.source = ev.get('source', m.source)
+        m.meta = deepcopy(ev.get('meta', m.meta))
+        m.versions.append((len(m.versions) + 1, ev["t"], ev["text"], tuple(ev.get("entities", ())),
+                           m.source, m.trust, deepcopy(m.meta)))
+        self._index_fact(m, old_key)
         self._set_slot(m, self.embedder.embed([ev["text"]])[0], ev["t"])
         if m.eligible:
             self._graph_add(m)
@@ -521,6 +583,7 @@ class Hippocampus:
         if m.eligible:
             self._graph_remove(m)
         m.tombstoned_at = ev["t"]
+        self._index_fact(m)
         self._alive[m.slot] = False
         self._fast.discard(m.slot)
         if m.slot in self._recent:
@@ -537,6 +600,7 @@ class Hippocampus:
             m.trust = float(ev["trust"])
         self._trust[m.slot] = m.trust
         self._alive[m.slot] = m.eligible
+        self._index_fact(m)
         if m.eligible:
             self._graph_add(m)
             self._push_recent(m.slot)
@@ -547,6 +611,7 @@ class Hippocampus:
         if m is not None:
             m.trust = float(ev["trust"])
             self._trust[m.slot] = m.trust
+            self._index_fact(m)
 
     def _on_outcome(self, ev) -> None:
         ev = dict(ev)
