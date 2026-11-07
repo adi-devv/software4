@@ -9,8 +9,8 @@ attempt number), score records, then `cycle_done`. The loader keeps only records
 reached `cycle_done`, so a crash mid-cycle leaves harmless debris, and a rerun redoes only that cycle.
 
 Resuming a stateful arm: if it has save_state/load_state, the checkpoint of the last finished cycle
-is loaded. Otherwise the finished cycles' day tasks and sleeps are replayed (not re-scored or
-re-logged), which only reproduces the arm's state if the arm is deterministic.
+is loaded. Otherwise all finished cycles' arm calls, including hidden tests and canaries, are
+replayed without logging scores, which only reproduces the arm's state if it is deterministic.
 
 Leak guard: arm calls run inside `arm_scope()`; the arm gets `Task` objects with no answers;
 `observe` is only ever called for train items; a grading scope or sealed read attempted while arm
@@ -18,8 +18,10 @@ code runs raises, the attempt is logged as a `violation` record, and the run sto
 """
 from __future__ import annotations
 
+import hashlib
 import json
 from pathlib import Path
+from weakref import WeakKeyDictionary
 
 from .gate import GateSession
 from .grading import grade
@@ -34,30 +36,43 @@ class SimulatedCrash(RuntimeError):
     """Raised by test fault hooks."""
 
 
+_SERVICE_STATE = WeakKeyDictionary()
+
+
 class Services:
     """Handed to arms that define bind(). Gives gate sessions; never answers."""
+
+    __slots__ = ("stream_id", "n_cycles", "__weakref__")
 
     def __init__(self, stream, canaries):
         self.stream_id = stream.stream_id
         self.n_cycles = stream.n_cycles
-        self._stream = stream
-        self._canaries = list(canaries)
-        self._opened = set()
+        # Backend references stay harness-owned, outside the arm-visible object graph.
+        _SERVICE_STATE[self] = (stream, list(canaries), set())
 
     def gate_session(self, cycle: int) -> GateSession:
         """Fresh gate batch + canaries for this cycle. Can be opened once per cycle."""
-        if cycle in self._opened:
+        stream, canaries, opened = _SERVICE_STATE[self]
+        cycle = int(cycle)
+        if cycle in opened:
             raise RuntimeError(f"gate session for cycle {cycle} already opened")
-        self._opened.add(cycle)
-        can = [i for cs in self._canaries for i in cs.items()]
-        return GateSession(cycle, self._stream.gate_items(cycle), can)
+        opened.add(cycle)
+        can = [i for cs in canaries for i in cs.items()]
+        return GateSession(cycle, stream.gate_items(cycle), can)
 
 
 class _Writer:
     def __init__(self, path):
         self.path = Path(path)
         self.path.parent.mkdir(parents=True, exist_ok=True)
+        needs_newline = False
+        if self.path.exists() and self.path.stat().st_size:
+            with self.path.open("rb") as f:
+                f.seek(-1, 2)
+                needs_newline = f.read(1) != b"\n"
         self.f = self.path.open("a", encoding="utf-8", newline="\n")
+        if needs_newline:
+            self.f.write("\n")  # isolate a torn tail without changing existing bytes
 
     def write(self, rec):
         self.f.write(json.dumps(rec, sort_keys=True, default=str) + "\n")
@@ -87,16 +102,32 @@ def read_lines(path):
     return out
 
 
-def _scan(path, arm, stream_id):
+def _experiment_digest(stream, canary_items):
+    h = hashlib.sha256(stream.digest().encode("utf-8"))
+    with grading_scope():
+        for cs, items in canary_items:
+            h.update(repr((cs.name, [(it.id, it.prompt, it.skill, it.family, it.source, it._secret)
+                                    for it in items])).encode("utf-8"))
+    return h.hexdigest()
+
+
+def _scan(path, arm, stream_id, digest):
     done, attempts = {}, 0
+    matched, verified = False, False
     for r in read_lines(path):
         if r.get("arm") != arm or r.get("stream") != stream_id:
             continue
-        if r["type"] == "cycle_start":
-            attempts = max(attempts, r["attempt"])
-        elif r["type"] == "cycle_done":
+        matched = True
+        if r["type"] == "experiment":
+            if r["digest"] != digest:
+                raise ValueError("experiment contents or configuration changed; use a new output path")
+            verified = True
+        attempts = max(attempts, r.get("attempt", 0))
+        if r["type"] == "cycle_done":
             done[r["cycle"]] = r["attempt"]
-    return done, attempts
+    if matched and not verified:
+        raise ValueError("experiment identity missing from existing results; use a new output path")
+    return done, attempts, verified
 
 
 def _call(writer, arm_name, stream_id, cycle, what, fn, *args):
@@ -117,21 +148,26 @@ def _ckpt_path(ckpt_dir, name, stream_id, cycle):
 
 def run_arm(arm, stream, canaries, out_path, *, arm_name=None, fault_hook=None, ckpt_dir=None):
     """Play `stream` through `arm`, appending to `out_path`. Safe to call again after a crash."""
+    stream.validate()
     name = arm_name or arm.name
     sid = stream.stream_id
-    done, attempts = _scan(out_path, name, sid)
+    canary_items = [(cs, cs.items()) for cs in canaries]
+    digest = _experiment_digest(stream, canary_items)
+    done, attempts, verified = _scan(out_path, name, sid, digest)
     nxt = -1
     while nxt in done:
         nxt += 1
     w = _Writer(out_path)
     try:
+        if not verified:
+            w.write({"type": "experiment", "arm": name, "stream": sid, "digest": digest})
+            w.flush()
         if hasattr(arm, "reset"):
             _call(w, name, sid, nxt, "reset", arm.reset)
         if hasattr(arm, "bind"):
             _call(w, name, sid, nxt, "bind", arm.bind, Services(stream, canaries))
         if nxt > -1:
-            _restore(arm, stream, name, nxt - 1, ckpt_dir, w)
-        canary_items = [(cs, cs.items()) for cs in canaries]
+            _restore(arm, stream, name, nxt - 1, ckpt_dir, w, canary_items)
 
         for cycle in range(nxt, stream.n_cycles):
             attempts += 1
@@ -163,7 +199,7 @@ def run_arm(arm, stream, canaries, out_path, *, arm_name=None, fault_hook=None, 
                     n += 1
                     _test_one(arm, item, cycle, "canary", w, name, sid, at)
             if ckpt_dir is not None and hasattr(arm, "save_state"):
-                state = arm.save_state()
+                state = _call(w, name, sid, cycle, "save_state", arm.save_state)
                 if state is not None:
                     p = _ckpt_path(ckpt_dir, name, sid, cycle)
                     p.parent.mkdir(parents=True, exist_ok=True)
@@ -211,24 +247,29 @@ def _test_one(arm, item, cycle, phase, w, name, sid, attempt, record=True):
     return g
 
 
-def _restore(arm, stream, name, last_done, ckpt_dir, w):
+def _restore(arm, stream, name, last_done, ckpt_dir, w, canary_items):
     sid = stream.stream_id
-    if last_done < 0:
-        return
     if ckpt_dir is not None and hasattr(arm, "load_state"):
         p = _ckpt_path(ckpt_dir, name, sid, last_done)
         if p.exists():
             _call(w, name, sid, last_done, "load_state", arm.load_state,
                   json.loads(p.read_text(encoding="utf-8")))
             return
-    for c in range(0, last_done + 1):  # replay, no scoring, no logging
-        for item in stream.train_items(c):
-            _train_one(arm, stream, item, c, w, name, sid, 0, record=False)
-        _call(w, name, sid, c, "sleep", arm.sleep, c)
+    for c in range(-1, last_done + 1):  # replay every arm call in its original order
+        if c >= 0:
+            for item in stream.train_items(c):
+                _train_one(arm, stream, item, c, w, name, sid, 0, record=False)
+            _call(w, name, sid, c, "sleep", arm.sleep, c)
+            for item in stream.hidden_items(c):
+                _test_one(arm, item, c, "hidden", w, name, sid, 0, record=False)
+        for cs, items in canary_items:
+            for item in items:
+                _test_one(arm, item, c, "canary", w, name, sid, 0, record=False)
 
 
 def run_sealed_milestone(arm, stream, out_path, *, milestone: str, reason: str, arm_name=None):
     """The only place the sealed set is read. Logged (stream.sealed.access_log, and the results file)."""
+    stream.validate()
     name = arm_name or arm.name
     sid = stream.stream_id
     items = stream.sealed.read(milestone=milestone, reason=reason)

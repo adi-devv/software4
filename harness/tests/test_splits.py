@@ -2,8 +2,10 @@ import dataclasses
 
 import pytest
 
+from harness.arms_fake import NoKnowledge
+from harness.runner import run_arm, run_sealed_milestone
 from harness.splits import SPLITS, assign_splits, audit, gate_batches
-from harness.streams import synthetic_stream
+from harness.streams import build_stream, synthetic_stream
 
 
 @pytest.mark.parametrize("seed", [1, 2, 3, 4, 5])
@@ -82,3 +84,47 @@ def test_audit_detects_gate_item_in_two_batches(stream):
 def test_gate_batches_helper_round_robin():
     gb = gate_batches([f"k{i}" for i in range(10)], 1, "s", 5)
     assert sorted(gb.values()) == [0, 0, 1, 1, 2, 2, 3, 3, 4, 4]
+
+
+def test_build_stream_rejects_cross_split_duplicates():
+    class DuplicateSource:
+        def raw(self):
+            return ([{"name": "rule", "family": "rule", "intro_cycle": 0}],
+                    [{"skill": "rule", "kind": "probe", "key": key, "input_key": "x=7",
+                      "prompt": "What is f(7)?", "expected": "42", "split": split}
+                     for key, split in (("a", "train"), ("b", "hidden"))])
+
+    with pytest.raises(ValueError, match="input shared by splits train and hidden"):
+        build_stream(DuplicateSource(), seed=0, n_cycles=1)
+
+
+@pytest.mark.parametrize("sealed", [False, True])
+def test_runner_rejects_audit_violations_before_arm_calls(tmp_path, sealed):
+    stream = synthetic_stream(8)
+    fps = stream.fingerprints
+    tr = next(f for f in fps if f.split == "train")
+    hi = next(f for f in fps if f.split == "hidden")
+    stream.fingerprints = [dataclasses.replace(f, input_h=tr.input_h) if f is hi else f
+                           for f in fps]
+    calls = []
+
+    class Spy(NoKnowledge):
+        def reset(self):
+            calls.append("reset")
+            super().reset()
+
+        def answer(self, task):
+            calls.append("answer")
+            return super().answer(task)
+
+    arm = Spy()
+    calls.clear()
+    p = tmp_path / "r.jsonl"
+    with pytest.raises(ValueError, match="input shared by splits"):
+        if sealed:
+            run_sealed_milestone(arm, stream, p, milestone="merge", reason="verify core merge")
+        else:
+            run_arm(arm, stream, [], p)
+    assert calls == []
+    assert not p.exists()
+    assert stream.sealed.read_count == 0

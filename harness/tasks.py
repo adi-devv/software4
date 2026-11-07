@@ -6,11 +6,13 @@ arm call in `arm_scope()`; while an arm runs, grading scopes and sealed reads ar
 
 Scope of the guarantee: this stops accidental and naive leakage by arm code running in the same
 process (reading answers off the stream, calling the grader, reading the sealed set). It cannot
-stop code that deliberately rewrites module internals. Run untrusted arms in their own process.
+stop code that deliberately inspects or rewrites module internals. Run untrusted arms
+in their own process.
 """
 from __future__ import annotations
 
 import contextlib
+import threading
 from dataclasses import dataclass
 
 
@@ -23,6 +25,7 @@ class SealedAccessError(RuntimeError):
 
 
 _STATE = {"arm": 0, "grading": 0}  # process-global on purpose, so threads don't escape it
+_GATE = threading.local()  # only the trusted scoring thread may grade during an arm call
 
 
 @contextlib.contextmanager
@@ -47,8 +50,21 @@ def grading_scope():
         _STATE["grading"] -= 1
 
 
+@contextlib.contextmanager
+def _gate_grading_scope():
+    """Trusted gate scoring only: no arm callbacks may run inside this scope."""
+    active = getattr(_GATE, "active", False)
+    _GATE.active = True
+    _STATE["grading"] += 1
+    try:
+        yield
+    finally:
+        _STATE["grading"] -= 1
+        _GATE.active = active
+
+
 def grading_active() -> bool:
-    return _STATE["grading"] > 0 and _STATE["arm"] == 0
+    return _STATE["grading"] > 0 and (_STATE["arm"] == 0 or getattr(_GATE, "active", False))
 
 
 def arm_running() -> bool:

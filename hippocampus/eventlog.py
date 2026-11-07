@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import json
+from copy import deepcopy
 from pathlib import Path
 
 
@@ -47,7 +48,7 @@ class EventLog:
         return events
 
     def append(self, ev: dict) -> dict:
-        ev = dict(ev)
+        ev = deepcopy(ev)
         ev["seq"] = self._next_seq
         self._next_seq += 1
         if self.path is not None:
@@ -59,7 +60,7 @@ class EventLog:
                     self._needs_newline = False
                 f.write(line.encode("utf-8"))
         self.events.append(ev)
-        return ev
+        return deepcopy(ev)
 
     def __len__(self) -> int:
         return len(self.events)

@@ -134,13 +134,15 @@ def paired_tasks_needed(delta: float, discordance: float, alpha: float = 0.05,
     """Independent paired tasks needed to detect a mean paired difference `delta`.
 
     `discordance` is the fraction of tasks where the two systems disagree (one right, one wrong).
-    Variance of a paired 0/1 difference = discordance - delta^2.
+    Null variance is discordance; alternative variance is discordance - delta^2.
+    This is a normal approximation; exact McNemar power may require more pairs.
     """
     nd = NormalDist()
     za = nd.inv_cdf(1 - alpha / (2 if two_sided else 1))
     zb = nd.inv_cdf(power)
     var = max(discordance - delta * delta, 1e-12)
-    return int(math.ceil((za + zb) ** 2 * var / (delta * delta)))
+    return int(math.ceil((za * math.sqrt(discordance) + zb * math.sqrt(var)) ** 2
+                         / (delta * delta)))
 
 
 def two_proportions_needed(delta: float, p: float = 0.5, alpha: float = 0.05,

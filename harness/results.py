@@ -133,23 +133,26 @@ def common_streams(res: Results, arms, n_cycles=None):
     return sorted(set.intersection(*sets)) if sets else []
 
 
-def success_check(res: Results, *, ours: str = OURS, baselines=None, require=("hippo_only",),
-                  n_cycles: int | None = None, min_gain: float = 0.03,
+def success_check(res: Results, *, ours: str = OURS, baselines=None, require=PLAN_BASELINES,
+                  n_cycles: int | None = 15, min_gain: float = 0.03,
                   max_canary_drop: float = 0.02, min_streams: int = 3, conf: float = 0.95,
                   last_k: int = 1) -> SuccessResult:
-    """PLAN.md success rule. Baselines default to the plan's (arms 1-4 and 10) present in results;
-    arms named in `require` must be among them or the check fails (arm 10 cannot be skipped).
+    """PLAN.md success rule: beat every baseline with Bonferroni-adjusted paired intervals.
+
+    `require` defaults to arms 1-4 and 10, which must be selected and present in the results.
+    Each common stream must complete the pre-learning baseline and at least `n_cycles` sleeps
+    (default 15); pass None to disable the duration requirement for exploratory runs.
     """
     if baselines is None:
-        baselines = [b for b in PLAN_BASELINES if b in res.arms()]
+        baselines = PLAN_BASELINES
     baselines = list(baselines)
-    missing = [r for r in require if r not in baselines]
+    missing = [r for r in require if r not in baselines or r not in res.arms()]
     arms = [ours] + baselines
     streams = common_streams(res, arms, n_cycles) if all(a in res.arms() for a in arms) else []
     failures = [f"missing_required_baseline:{m}" for m in missing]
     if not baselines:
         failures.append("no_baselines")
-    if not streams:
+    if not streams or not baselines:
         return evaluate_success([], canary_worst_drops=[], n_canary_items=0, canary_needed=1,
                                 min_gain=min_gain, max_canary_drop=max_canary_drop,
                                 min_streams=min_streams, conf=conf,
@@ -157,6 +160,7 @@ def success_check(res: Results, *, ours: str = OURS, baselines=None, require=("h
     final = {s: min(res.last_cycle(a, s) for a in arms) for s in streams}
     means = {b: np.mean([res.primary(b, s, final[s], last_k) for s in streams]) for b in baselines}
     best = max(means, key=lambda b: means[b])
+    corrected_conf = 1 - (1 - conf) / len(baselines)  # Bonferroni simultaneous intervals
     diffs = [res.primary(ours, s, final[s], last_k) - res.primary(best, s, final[s], last_k)
              for s in streams]
     naive = []
@@ -169,8 +173,21 @@ def success_check(res: Results, *, ours: str = OURS, baselines=None, require=("h
     need = canaries_needed(max_canary_drop, discordance=q)
     out = evaluate_success(diffs, canary_worst_drops=[d[0] for d in drops],
                            n_canary_items=n_items, canary_needed=need, min_gain=min_gain,
-                           max_canary_drop=max_canary_drop, min_streams=min_streams, conf=conf,
+                           max_canary_drop=max_canary_drop, min_streams=min_streams,
+                           conf=corrected_conf,
                            naive_diffs=naive, extra_failures=failures)
+    for b in baselines:
+        ci = paired_stream_ci([res.primary(ours, s, final[s], last_k) for s in streams],
+                              [res.primary(b, s, final[s], last_k) for s in streams],
+                              conf=corrected_conf)
+        out.criteria[f"baseline:{b}"] = {
+            "pass": bool(ci.ok and ci.lo > 0 and ci.mean >= min_gain),
+            "mean_diff": ci.mean, "required": min_gain,
+            "lower": ci.lo, "upper": ci.hi, "confidence": corrected_conf,
+        }
+    out.passed = all(c["pass"] for c in out.criteria.values())
+    out.notes.append(f"Bonferroni correction: {conf:.1%} family confidence across "
+                     f"{len(baselines)} baselines; each paired CI uses {corrected_conf:.1%}")
     out.notes.insert(0, f"best baseline by mean primary score: {best} "
                         f"({means[best]:.4f}); ours: "
                         f"{np.mean([res.primary(ours, s, final[s], last_k) for s in streams]):.4f}")

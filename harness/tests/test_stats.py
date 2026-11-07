@@ -75,6 +75,15 @@ def test_power_helpers_and_plan_figure():
     assert canaries_needed(0.02, discordance=0.05) < canaries_needed(0.02, discordance=0.2)
 
 
+@pytest.mark.parametrize("delta,q,two_sided,needed", [
+    (0.03, 0.20, True, 1742),
+    (0.03, 0.25, False, 1716),
+    (0.02, 0.02, False, 308),
+])
+def test_paired_sample_size_uses_null_and_alternative_variance(delta, q, two_sided, needed):
+    assert paired_tasks_needed(delta, q, two_sided=two_sided) == needed
+
+
 def test_false_positive_rate_numpy_simulation():
     fp = simulate_false_positive(n_streams=6, true_gain=0.0, reps=3000, seed=1)
     assert fp["pass_rate"] < 0.05
@@ -114,7 +123,7 @@ def test_equal_skill_arms_rarely_pass_harness_level(equal_runs):
 def test_better_arm_passes_given_enough_streams(tmp_path, canaries):
     p = tmp_path / "r.jsonl"
     ps = {"ours": 0.85, **BASE}
-    big = [SyntheticCanarySet(seed=0, n=320)]       # a 2-point drop needs >= 303 canaries
+    big = [SyntheticCanarySet(seed=0, n=320)]       # normal approximation needs >= 308 canaries
     run_noisy_arms(p, range(200, 206), ps, big)
     res = Results.from_file(p)
     out = success_check(res)

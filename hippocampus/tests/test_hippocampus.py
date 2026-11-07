@@ -9,6 +9,7 @@ import time
 import pytest
 
 from hippocampus import Config, Hippocampus, ManualClock
+from hippocampus.eventlog import EventLog
 
 DAY = 86400.0
 
@@ -87,6 +88,42 @@ def test_log_is_append_only_and_keeps_everything(tmp_path):
     types = [json.loads(l)["type"] for l in snap2.decode("utf-8").splitlines()]
     assert types == ["add", "update", "tombstone"]
     assert "secret poison text" in snap2.decode("utf-8")    # tombstoned content stays in the log
+
+
+@pytest.mark.parametrize("disk_backed", [False, True])
+@pytest.mark.parametrize("mutate_result", [False, True])
+def test_eventlog_append_detaches_nested_data(tmp_path, disk_backed, mutate_result):
+    log = EventLog(tmp_path / "log.jsonl" if disk_backed else None)
+    event = {"type": "add", "meta": {"tags": []}}
+    result = log.append(event)
+    (result if mutate_result else event)["meta"]["tags"].append("changed")
+    assert log.events[0]["meta"] == {"tags": []}
+    log.reload()
+    assert log.events[0]["meta"] == {"tags": []}
+
+
+@pytest.mark.parametrize("disk_backed", [False, True])
+def test_add_detaches_nested_metadata(tmp_path, disk_backed):
+    hc, _ = make(tmp_path / "log.jsonl" if disk_backed else None)
+    meta = {"tags": []}
+    mid = hc.add("original memory", meta=meta)
+    meta["tags"].append("changed")
+    assert hc.get(mid)["meta"] == {"tags": []}
+    assert hc.log.events[0]["meta"] == {"tags": []}
+    hc.rebuild()
+    assert hc.get(mid)["meta"] == {"tags": []}
+
+
+@pytest.mark.parametrize("disk_backed", [False, True])
+def test_get_detaches_nested_metadata_before_and_after_rebuild(tmp_path, disk_backed):
+    hc, _ = make(tmp_path / "log.jsonl" if disk_backed else None)
+    mid = hc.add("original memory", meta={"tags": []})
+    for _ in range(2):
+        hc.get(mid)["meta"]["tags"].append("changed")
+        assert hc.get(mid)["meta"] == {"tags": []}
+        assert hc.log.events[0]["meta"] == {"tags": []}
+        hc.rebuild()
+        assert hc.get(mid)["meta"] == {"tags": []}
 
 
 def test_crash_truncated_log(tmp_path):
@@ -177,6 +214,21 @@ def test_quarantine_excluded_until_released():
     hc.release("web", trust=0.8)
     assert "web" in ids(hc.recall("deploy key rotates", deep=True))
     assert "web" in ids(hc.recall("deploy key rotates", deep=False))
+
+
+@pytest.mark.parametrize("disk_backed", [False, True])
+@pytest.mark.parametrize("source,quarantine", [("forum", False), ("user", True)])
+def test_release_preserves_historical_quarantine(tmp_path, disk_backed, source, quarantine):
+    hc, _ = make(tmp_path / "log.jsonl" if disk_backed else None)
+    hc.add("deploy key rotates monthly", id="q", source=source, quarantine=quarantine, t=10)
+    hc.add("deploy key rotates yearly", id="ok", t=10)
+    assert ids(hc.recall("deploy key rotates", as_of=15)) == ["ok"]
+    hc.release("q", trust=0.9, t=20)
+    for _ in range(2):
+        assert ids(hc.recall("deploy key rotates", as_of=15)) == ["ok"]
+        assert set(ids(hc.recall("deploy key rotates", as_of=20))) == {"q", "ok"}
+        assert set(ids(hc.recall("deploy key rotates"))) == {"q", "ok"}
+        hc.rebuild()
 
 
 def test_min_trust_filter():
@@ -343,6 +395,25 @@ def test_synonym_edges_connect_similar_phrases():
 
 
 # ------------------------------------------------------------ replay supply
+@pytest.mark.parametrize("disk_backed", [False, True])
+@pytest.mark.parametrize("success", [False, True])
+def test_replay_keeps_episode_version_at_verification(tmp_path, disk_backed, success):
+    hc, _ = make(tmp_path / "log.jsonl" if disk_backed else None)
+    hc.add("2+2=4", id="e", kind="episode", t=10)
+    correction = None if success else "use addition"
+    hc.record_outcome("original", success=success, verified=True, correction=correction,
+                      episode_id="e", t=10)
+    hc.update("e", "2+2=5", t=10)                           # event order matters even at the same time
+    batch = hc.replay_batch(1)
+    assert [b.text for b in batch] == ["2+2=4"]
+    assert batch[0].correction == correction
+    hc.record_outcome("updated", success=True, verified=True, episode_id="e", t=20)
+    both = hc.replay_batch(2)
+    assert {b.task_id: b.text for b in both} == {"original": "2+2=4", "updated": "2+2=5"}
+    hc.rebuild()
+    assert hc.replay_batch(2) == both
+
+
 def test_replay_batch_filters_and_mixes_new_and_old():
     hc, clock = make()
     for i in range(20):

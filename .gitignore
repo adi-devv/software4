@@ -11,3 +11,5 @@ __pycache__/
 data/canaries/
 .codex-jobs/
 .test-tmp-*/
+.test-runs/
+.venv-local/

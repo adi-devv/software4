@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import math
 import random
+from copy import deepcopy
 
 import numpy as np
 
@@ -156,7 +157,7 @@ class Hippocampus:
         v = self._pick_version(m, version, as_of)
         return {"id": m.id, "version": v[0], "t": v[1], "text": v[2], "entities": list(v[3]),
                 "kind": m.kind, "source": m.source, "trust": m.trust, "quarantined": m.quarantined,
-                "tombstoned": m.tombstoned_at is not None, "meta": m.meta}
+                "tombstoned": m.tombstoned_at is not None, "meta": deepcopy(m.meta)}
 
     def strength(self, id: str, now=None) -> float:
         return self._plast.node(id, self._t(now))
@@ -336,7 +337,7 @@ class Hippocampus:
                 continue
             if m.tombstoned_at is not None and m.tombstoned_at <= as_of:
                 continue
-            if m.quarantined and (m.released_at is None or m.released_at > as_of):
+            if m.quarantined or (m.released_at is not None and m.released_at > as_of):
                 continue
             ver = self._pick_version(m, None, as_of)
             if ver[0] == len(m.versions):
@@ -377,7 +378,7 @@ class Hippocampus:
             if any(m is None or not m.eligible or m.trust < min_trust for m in ms):
                 continue
             ep = self._mems.get(o["episode_id"]) if o.get("episode_id") else None
-            item = ReplayItem(o["task_id"], kind, ep.versions[-1][2] if ep else "", o.get("correction"),
+            item = ReplayItem(o["task_id"], kind, ep.versions[o["episode_version"] - 1][2] if ep else "", o.get("correction"),
                               list(o["memory_ids"]), o.get("episode_id"), o["t"],
                               last is None or o["t"] > last, min((m.trust for m in ms), default=1.0))
             (new if item.new else old).append(item)
@@ -447,7 +448,7 @@ class Hippocampus:
                  trust=float(ev.get("trust", 1.0)), quarantined=bool(ev.get("quarantined", False)),
                  released_at=None, tombstoned_at=None,
                  versions=[(1, ev["t"], ev["text"], tuple(ev.get("entities", ())))],
-                 slot=slot, contrib=(), meta=ev.get("meta", {}))
+                 slot=slot, contrib=(), meta=deepcopy(ev.get("meta", {})))
         self._mems[mid] = m
         self._order.append(mid)
         self._slot_ids.append(mid)
@@ -506,6 +507,9 @@ class Hippocampus:
             self._trust[m.slot] = m.trust
 
     def _on_outcome(self, ev) -> None:
+        ev = dict(ev)
+        ep = self._mems.get(ev.get("episode_id"))
+        ev["episode_version"] = len(ep.versions) if ep else None  # bind in log order, including on rebuild
         self._outcomes.append(ev)
         self._pending.append(ev)
 

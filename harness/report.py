@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import numpy as np
 
-from .arms import OURS
+from .arms import OURS, PLAN_BASELINES
 from .results import Results, common_streams, success_check
 
 
@@ -11,8 +11,8 @@ def _fmt(x):
     return "  - " if x != x else f"{100 * x:5.1f}"
 
 
-def format_report(path, *, ours: str = OURS, baselines=None, require=("hippo_only",),
-                  n_cycles=None, last_k: int = 1) -> str:
+def format_report(path, *, ours: str = OURS, baselines=None, require=PLAN_BASELINES,
+                  n_cycles=15, last_k: int = 1) -> str:
     res = Results.from_file(path)
     arms = res.arms()
     out = ["# Evaluation report", ""]
@@ -72,11 +72,11 @@ def format_report(path, *, ours: str = OURS, baselines=None, require=("hippo_onl
         out.append("```")
         out.append(sr.summary())
         if sr.ci is not None and sr.ci.ok:
-            out.append(f"  stream-level 95% CI of ours - best baseline: {sr.ci}")
+            out.append(f"  stream-level Bonferroni-adjusted CI of ours - best baseline: {sr.ci}")
         elif sr.ci is not None:
             out.append(f"  stream-level interval: not available (n={sr.ci.n})")
         if sr.naive_ci is not None and sr.naive_ci.ok:
-            out.append(f"  naive task-level 95% CI (NOT valid, tasks are clustered): {sr.naive_ci}")
+            out.append(f"  naive task-level CI (NOT valid, tasks are clustered): {sr.naive_ci}")
         out.append("```")
     out.append("")
     out.append("## Sealed set")

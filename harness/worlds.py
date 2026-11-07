@@ -291,6 +291,7 @@ class SyntheticSource(TaskSource):
         # ---- revisions
         skill(f"revise:{revise_dom}", "revise", rev_cycle)
         table = w.domains[revise_dom]
+        revisions = {}
         for (e, a) in revised:
             old = table[e][a]
             new1 = _other_value(r, names, w, revise_dom, e, a, {old})
@@ -313,6 +314,7 @@ class SyntheticSource(TaskSource):
                           "key": key, "input_key": f"rev|{e}|{a}", "required_tokens": [e],
                           "prompt": probe_prompt(key, a, e, revise_dom), "expected": new1,
                           "history": hist, "prior": [old]})
+            revisions[(e, a)] = [(rev_cycle, new1)] + hist
 
         # ---- poison
         skill(f"poison:{poison_dom}", "poison", poison_cycle, cfg.poison_fracs)
@@ -332,6 +334,15 @@ class SyntheticSource(TaskSource):
                           "false_value": false})
 
         # ---- multi-hop (needs two facts)
+        def fact_at(dom, e, attr, cycle):
+            value = w.domains[dom][e][attr]
+            if dom == revise_dom:
+                for start, new in revisions.get((e, attr), []):
+                    if start <= cycle:
+                        value = new
+            return value
+
+        revision_cycles = sorted({c for history in revisions.values() for c, _ in history})
         for dom, hintro in hop_plan:
             skill(f"hop:{dom}", "hop", hintro)
             table = w.domains[dom]
@@ -342,10 +353,18 @@ class SyntheticSource(TaskSource):
                     h = stable_hash(seed, key)
                     prompt = (HOP_HEAD[h % 2].format(e=e) + " " + HOP_LEAF[leaf][(h >> 8) % 2]
                               + SUFFIX)
+                    expected = table[b][leaf]
+                    history, current = [], expected
+                    for cycle in revision_cycles:
+                        ally = fact_at(dom, e, "ally", cycle)
+                        value = fact_at(dom, ally, leaf, cycle)
+                        if value != current:
+                            history.append([cycle, value])
+                            current = value
                     items.append({"type": "item", "skill": f"hop:{dom}", "kind": "probe",
                                   "key": key, "input_key": f"hop|{e}|{leaf}",
                                   "required_tokens": [e], "prompt": prompt,
-                                  "expected": w.domains[dom][b][leaf]})
+                                  "expected": expected, "history": history})
 
         # ---- rules (inputs unique across all rules)
         n_rules = len(w.rules)

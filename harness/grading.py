@@ -4,8 +4,8 @@ Rules (strict on purpose; a false pass is worse than a false fail):
 * If the response has one or more lines starting "Final answer:" (also "####" lines), only those
   lines are graded; if they disagree with each other the response fails.
 * With no final-answer line the response must be a single line.
-* Numbers: thousands commas, "+", leading zeros and trailing ".0" are normalised. The graded
-  text must contain exactly one distinct number, and it must equal the expected one.
+* Numbers: thousands commas, "+", leading zeros and trailing ".0" are normalised. After a
+  short answer wrapper and outer punctuation, the entire text must be the expected number.
 * Text: case, whitespace, outer punctuation and a leading article are normalised, and a short
   wrapper like "the answer is" is stripped. Then it must EQUAL the expected text. Several
   candidates ("A or B", "A, B") therefore fail, and so does text that merely contains the answer.
@@ -92,10 +92,15 @@ def _extract(response):
 def match(expected: str, text: str) -> bool:
     """Strict comparison of already-extracted text with the expected answer."""
     if _is_number(expected):
-        want = norm_number(expected)
-        nums = {norm_number(m.group(0)) for m in _NUM.finditer(text)}
-        nums.discard(None)
-        return len(nums) == 1 and next(iter(nums)) == want
+        # Preserve a leading decimal point, including after an answer wrapper.
+        edge = _EDGE.replace(".", "")
+        t = unicodedata.normalize("NFKC", text).casefold().strip(edge)
+        for w in _WRAPPERS:
+            if t.startswith(w + " "):
+                t = t[len(w):].strip(edge)
+                break
+        t = t.removesuffix(".").strip(edge)
+        return _is_number(t) and norm_number(t) == norm_number(expected)
     return _strip_wrapper(norm_text(text)) == norm_text(expected)
 
 

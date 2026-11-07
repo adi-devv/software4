@@ -74,9 +74,9 @@
 11. **Ours with core merges,** compared with arm 5, to measure whether merging causes forgetting
 
 **Success:**
-- Ours beats the best baseline, including arm 10, by **≥ 3 points**, with the 95% CI lower bound **> 0**.
-- Old skills on the canaries drop **≤ 2 points** over all cycles, using enough canaries to measure 2 points.
-- Detecting 3 points needs about 1.7k paired tasks if tasks were independent, which is why the streams are synthetic. Non-independent tasks will need more.
+- Ours beats **every baseline (arms 1–4 and 10)** by **≥ 3 points**, with each paired stream-level CI lower bound **> 0**, using Bonferroni correction for 95% family confidence across the five comparisons (99% per CI).
+- Old skills on the canaries drop **≤ 2 points** over all cycles, using enough canaries to measure 2 points. **Harness finding:** 120 canaries cannot verify a 2-point drop; the normal approximation needs **≥ 308** (335 for 80% exact McNemar power, at 2% discordance, one-sided α=.05), so we use 400 each of GSM8K and ARC.
+- Detecting 3 points needs about 1.7k tasks, **but only in the paired design** (same tasks for both arms; ≈ 1,742 at 20% discordance, two-sided; 1,716 at 25%, one-sided; α=.05 and power=.8, before multiple-comparison correction). Unpaired it is about 4.4k per arm. Non-independent tasks will need more.
 - If the text notes win, we report that honestly as a result.
 
 ## Helpers (not part of the model)

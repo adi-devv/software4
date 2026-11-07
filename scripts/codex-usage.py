@@ -27,18 +27,19 @@ def fetch(home):
 
 
 def render():
-    now = datetime.now(IST).strftime('%I:%M:%S %p').lstrip('0')
-    lines = ['Codex  %s IST' % now, '']
+    top, bottom = [], []
     for name, home in HOMES.items():
         try:
             rl = fetch(home)['rate_limit']
             p, w = rl['primary_window'], rl['secondary_window']
             at = datetime.fromtimestamp(p['reset_at'], IST).strftime('%I:%M %p').lstrip('0')
-            lines.append('%-5s 5h %3d%%  week %3d%%   resets %s' % (
-                name, 100 - p['used_percent'], 100 - w['used_percent'], at))
-        except Exception as e:
-            lines.append('%-5s unavailable' % name)
-    return '\n'.join(lines)
+            top.append('%-4s 5h %3d%%  wk %3d%%' % (name, 100 - p['used_percent'], 100 - w['used_percent']))
+            bottom.append('resets %s' % at)
+        except Exception:
+            top.append('%-4s unavailable' % name)
+            bottom.append('')
+    width = 24
+    return '\n'.join(['|'.join(x.ljust(width) for x in row).rstrip() for row in (top, bottom)])
 
 
 if __name__ == '__main__':

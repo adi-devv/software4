@@ -87,12 +87,20 @@ class Stream:
     def audit(self):
         return audit(self)
 
+    def validate(self):
+        violations = self.audit()
+        if violations:
+            raise ValueError("stream split audit failed: " + "; ".join(violations))
+
     def digest(self) -> str:
         """Hash of everything in the stream including answers (used to test reproducibility)."""
         h = hashlib.sha256()
+        h.update(repr((self.seed, self.n_cycles,
+                       sorted((s, sorted(m.items())) for s, m in self.skills.items()))).encode("utf-8"))
         with grading_scope():
             def feed(it):
-                h.update(repr((it.id, it.skill, it.kind, it.split, it.prompt, it.cycle,
+                h.update(repr((it.id, it.skill, it.family, it.kind, it.key, it.input_key,
+                               it.split, it.prompt, it.cycle, it.required, it.lesson,
                                it.intro_cycle, it.gate_batch, it.source,
                                it._secret)).encode("utf-8"))
             for c in sorted(self._train):
@@ -202,9 +210,11 @@ def build_stream(source: TaskSource, *, seed: int, n_cycles: int, train_span: in
     for c, lst in train_by_cycle.items():
         lst.sort(key=lambda x: (x.kind != "teach", stable_hash(seed, "order", c, x.id), x.id))
 
-    return Stream(stream_id=stream_id, seed=seed, n_cycles=n_cycles, skills=skills,
-                  train_by_cycle=train_by_cycle, hidden=hidden, gate=gate_out,
-                  sealed=SealedStore(sealed_items, sealed_log_path), fingerprints=fps)
+    stream = Stream(stream_id=stream_id, seed=seed, n_cycles=n_cycles, skills=skills,
+                    train_by_cycle=train_by_cycle, hidden=hidden, gate=gate_out,
+                    sealed=SealedStore(sealed_items, sealed_log_path), fingerprints=fps)
+    stream.validate()
+    return stream
 
 
 def synthetic_stream(seed: int, cfg: StreamConfig | None = None, **kw) -> Stream:

@@ -10,20 +10,21 @@ a wider margin, so chance swings don't throw out good updates.
 Checks: gate items (accuracy must not regress), canaries (accuracy must not regress), poison
 (absorbed false claims must not increase). Poison is also reported as a count.
 
-`GateSession` is what an arm's sleep() gets from the harness: it holds the fresh gate batch and
-canaries with their answers locked inside. The arm sees only the tasks and gets back one
+`GateSession` is what an arm's sleep() gets from the harness: a facade for the fresh gate batch and
+canaries. The arm sees only the tasks and gets back one
 aggregate decision; per-item correctness is never returned (canaries are reused every cycle, so
 item-level feedback would leak them). One decision per cycle: a batch is never scored twice.
 """
 from __future__ import annotations
 
 from dataclasses import dataclass, field
+from weakref import WeakKeyDictionary
 
 import numpy as np
 
 from .grading import grade
 from .stats import t_ppf
-from .tasks import grading_scope
+from .tasks import _gate_grading_scope
 
 
 class GateReuseError(RuntimeError):
@@ -80,7 +81,26 @@ def gate_decision(*, gate, canary, poison=None, alpha: float = 0.05) -> GateDeci
     return GateDecision(not reasons, checks, reasons, pc, pu)
 
 
+_SESSION_STATE = WeakKeyDictionary()
+
+
 class GateSession:
+    __slots__ = ("cycle", "tasks", "__weakref__")
+
+    def __init__(self, cycle: int, gate_items, canary_items):
+        batch = _GateBatch(int(cycle), gate_items, canary_items)
+        self.cycle = batch.cycle
+        self.tasks = batch.tasks
+        _SESSION_STATE[self] = batch
+
+    def decide(self, candidate: dict, current: dict, alpha: float = 0.05) -> GateDecision:
+        """candidate/current: {task_id: response string} for every task in `self.tasks`."""
+        return _SESSION_STATE[self].decide(candidate, current, alpha)
+
+
+class _GateBatch:
+    """Harness-owned answer data; never handed to an arm."""
+
     def __init__(self, cycle: int, gate_items, canary_items):
         self.cycle = cycle
         self._gate = list(gate_items)
@@ -88,24 +108,26 @@ class GateSession:
         self._used = False
         self.tasks = tuple(i.task("test", cycle) for i in self._gate + self._canary)
 
-    @staticmethod
-    def _poison(it) -> bool:
-        return it.skill.startswith("poison:")
-
     def decide(self, candidate: dict, current: dict, alpha: float = 0.05) -> GateDecision:
-        """candidate/current: {task_id: response string} for every task in `self.tasks`."""
         if self._used:
             raise GateReuseError(f"gate batch for cycle {self.cycle} already scored")
         self._used = True
+        # Read arm-owned mappings before entering the trusted scope. Only plain strings
+        # may reach the grader, so custom mapping/string callbacks cannot run unlocked.
+        candidate = {t.id: candidate.get(t.id, "") for t in self.tasks}
+        current = {t.id: current.get(t.id, "") for t in self.tasks}
+        if any(type(v) is not str for v in (*candidate.values(), *current.values())):
+            raise TypeError("gate responses must be plain strings")
+        alpha = float(alpha)
         arrs = {k: ([], []) for k in ("gate", "canary", "poison")}
-        with grading_scope():
+        with _gate_grading_scope():
             for group, items in (("gate", self._gate), ("canary", self._canary)):
                 for it in items:
                     gc = grade(it, candidate.get(it.id, ""), self.cycle)
                     gu = grade(it, current.get(it.id, ""), self.cycle)
                     arrs[group][0].append(int(gc.correct))
                     arrs[group][1].append(int(gu.correct))
-                    if group == "gate" and self._poison(it):
+                    if group == "gate" and it.skill.startswith("poison:"):
                         arrs["poison"][0].append(int(gc.absorbed))
                         arrs["poison"][1].append(int(gu.absorbed))
         poison = arrs["poison"] if arrs["poison"][0] else None
