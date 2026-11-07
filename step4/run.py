@@ -28,6 +28,7 @@ DEFAULT_WORLD_SEED = ""   # "" keeps the harness default (41); prepare.py --worl
 # `ours` first, then the other long-running weight arm; the inference-only baselines follow.
 # Nothing waits for anything else: `ours` is the long pole and must start immediately.
 ARMS = ("ours", "expert_only", "hippo_only", "rag", "text_notes", "no_memory", "rag_starved", "oracle")
+AVAILABLE_ARMS = ARMS + ("ours_salient",)
 FAIR_CONTEXT_TOKENS = 512    # every context-using arm; `rag_starved` alone keeps the old 64
 STARVED_CONTEXT_TOKENS = 64
 FIT_THRESHOLD = 0.9          # forced-expert train accuracy below this = optimisation failure
@@ -77,8 +78,8 @@ def settings(root):
     steps = int(os.environ.get("S4_STEPS", "64"))
     if backend not in ("fake", "tiny", "hf") or not arms or len(set(arms)) != len(arms):
         raise ValueError("invalid backend or empty/duplicate S4_ARMS")
-    if set(arms) - set(ARMS) or cycles < 3 or steps < 1:
-        raise ValueError("S4_ARMS must use " + ",".join(ARMS) + "; cycles >= 3; steps >= 1")
+    if set(arms) - set(AVAILABLE_ARMS) or cycles < 3 or steps < 1:
+        raise ValueError("S4_ARMS must use " + ",".join(AVAILABLE_ARMS) + "; cycles >= 3; steps >= 1")
     model = os.environ.get("S4_MODEL", "Qwen/Qwen3.5-2B")
     revision = os.environ.get("S4_REVISION", QWEN35_REVISION if model == "Qwen/Qwen3.5-2B" else "main")
     from harness.step4_world import WORLD_SEED
@@ -268,6 +269,9 @@ def make_arm(name, backend, cfg, Oracle):
     sleep_cfg = SleepConfig(steps=cfg["steps"], seed=0, context_tokens=budget)
     if name == "ours":
         return SleepArm(backend, sleep_cfg, llm=backend)
+    if name == "ours_salient":
+        from baselines.salient import SalientSleepArm
+        return SalientSleepArm(backend, sleep_cfg, llm=backend)
     if name == "expert_only":
         return ExpertOnly(backend, sleep_cfg, llm=backend)
     if name == "rag_starved":
@@ -309,7 +313,7 @@ def smoke_arm(name, arm, backend, cfg, stream, canary, measure, prompt_for, out)
                            + json.dumps(wrong, ensure_ascii=True))
     longest = None
     expert = None
-    if name in ("ours", "expert_only"):
+    if name in ("ours", "ours_salient", "expert_only"):
         n, prompt, target, tid = longest_example(stream, backend, prompt_for)
         # HFBackend accumulates FOUR microbatches per optimizer step. Repeating
         # the single longest actual example prevents random shorter selections.
@@ -730,7 +734,7 @@ def report(run_dir, cfg, arms, results, smoke, wall, hardware=None):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--worker", choices=ARMS, help=argparse.SUPPRESS)
+    parser.add_argument("--worker", choices=AVAILABLE_ARMS, help=argparse.SUPPRESS)
     args = parser.parse_args()
     root = source_root()
     sys.path.insert(0, str(root))
