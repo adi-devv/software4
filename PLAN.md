@@ -86,7 +86,6 @@
 ## Hardware
 - **Kaggle (T4×2, ~30 GPU-h/week):** experiments, expert training, gates.
   - Driven from the CLI, which works, logged in as `adidevv`.
-  - One account only, per Kaggle's terms.
 - **GTX 1650 (4 GB, no bf16):** development, debugging, the hippocampus, naps, and live use later.
 
 ## Build order

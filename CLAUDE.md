@@ -41,7 +41,7 @@ Research project: a brain-inspired LLM system that keeps learning after deployme
 - Codex usage doesn't count against Claude's limits, so prefer Codex for heavy research and critic runs. Use Sonnet/Haiku subagents for cheap checks.
 
 ## Kaggle: don't waste GPU hours
-Budget is about 30 GPU-hours a week, on one Kaggle account only (never rotate accounts; it's against Kaggle's terms). Run jobs with `scripts/kaggle_run.sh <folder> [accelerator] [timeout_s]`.
+Budget is about 30 GPU-hours a week per Kaggle account; the user may use more than one account (friends' accounts included, signed in by the user, never by typing passwords). Run jobs with `scripts/kaggle_run.sh <folder> [accelerator] [timeout_s]`.
 
 **Before pushing:**
 1. **Test the code without a GPU.** Run the script locally on a tiny random-weight model, so bugs and library errors show up for free.
