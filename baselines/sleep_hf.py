@@ -45,6 +45,9 @@ class HFBackend:
     input_limit = 128
     train_cap = 112       # left-truncation for training prompts (unchanged)
     infer_cap = 1024      # left-truncation at inference, so 512-token contexts fit
+    # Optional assistant-turn prefill, identical for every arm. Matches the "Final answer: <x>" training
+    # target, so a chatty base model cannot run out of its 16 tokens before writing the gradable line.
+    answer_prefix = ""
 
     def __init__(self, model=None, tokenizer=None, *, device='cuda', directory=None, lr=2e-4):
         self.device = torch.device(device)
@@ -108,7 +111,10 @@ class HFBackend:
             return self._cache[key]
         self._activate(expert)
         self.model.eval()
-        ids = torch.tensor([self._ids(prompt, self.infer_cap)], device=self.device)
+        prompt_ids = self._ids(prompt, self.infer_cap)
+        if self.answer_prefix:
+            prompt_ids = prompt_ids + self.tokenizer.encode(self.answer_prefix, add_special_tokens=False)
+        ids = torch.tensor([prompt_ids], device=self.device)
         try:
             with torch.inference_mode(), self._autocast():
                 output = self.model.generate(
@@ -116,7 +122,7 @@ class HFBackend:
                     max_new_tokens=max_new_tokens, do_sample=False,
                     pad_token_id=self.tokenizer.eos_token_id,
                     eos_token_id=self.tokenizer.eos_token_id)
-            answer = self.tokenizer.decode(output[0, ids.shape[1]:], skip_special_tokens=True)
+            answer = self.answer_prefix + self.tokenizer.decode(output[0, ids.shape[1]:], skip_special_tokens=True)
             self._cache[key] = answer
             return answer
         finally:
@@ -161,29 +167,39 @@ class HFBackend:
         losses, skipped, completed, bad_gradients = [], 0, 0, 0
         try:
             for _ in range(steps):
-                optimizer.zero_grad(set_to_none=True)
-                finite = True
-                for _ in range(4):
-                    ids, labels = encoded[rng.randrange(len(encoded))]
-                    with self._autocast():
-                        loss = self.model(input_ids=ids, labels=labels, use_cache=False).loss
-                    if not torch.isfinite(loss):
-                        finite = False
-                        self.experts[handle]['finite'] = False
+                batch = [encoded[rng.randrange(len(encoded))] for _ in range(4)]
+                # fp16 loss-scale calibration: a nonfinite gradient at the current scale is
+                # normal AMP behaviour. Halve the scale and redo the same batch; only a
+                # nonfinite loss, or no finite gradient after every backoff, is a skipped step.
+                done = False
+                for _attempt in range(9 if scaler.is_enabled() else 1):
+                    optimizer.zero_grad(set_to_none=True)
+                    loss_ok = True
+                    for ids, labels in batch:
+                        with self._autocast():
+                            loss = self.model(input_ids=ids, labels=labels, use_cache=False).loss
+                        if not torch.isfinite(loss):
+                            loss_ok = False
+                            self.experts[handle]['finite'] = False
+                            break
+                        losses.append(float(loss.detach()))
+                        scaler.scale(loss / 4).backward()
+                    if not loss_ok:
                         break
-                    losses.append(float(loss.detach()))
-                    scaler.scale(loss / 4).backward()
-                if finite:
                     scaler.unscale_(optimizer)
-                    finite = all(p.grad is None or bool(torch.isfinite(p.grad).all()) for p in params)
-                    bad_gradients += int(not finite)
-                    if finite:
+                    grads_ok = all(p.grad is None or bool(torch.isfinite(p.grad).all()) for p in params)
+                    if grads_ok:
                         torch.nn.utils.clip_grad_norm_(params, 1.0)
-                    if finite or self.device.type == 'cuda':
-                        scaler.step(optimizer)  # CUDA scaler skips nonfinite gradients
-                    scaler.update()
-                    completed += int(finite)
-                skipped += int(not finite)
+                        scaler.step(optimizer)
+                        scaler.update()
+                        completed += 1
+                        done = True
+                        break
+                    bad_gradients += 1
+                    if scaler.is_enabled():
+                        scaler.step(optimizer)  # records the skip so update() halves the scale
+                        scaler.update()
+                skipped += int(not done)
             if self.next_broken:
                 # Finite fault injection: destroy only the new adapter, never the base.
                 with torch.no_grad():

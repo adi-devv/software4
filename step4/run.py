@@ -142,14 +142,21 @@ def verify_worker_device(expected, cuda):
     return assignment
 
 
+def bare_uuid(value):
+    """nvidia-smi prints GPU-<uuid>; torch's device properties print the bare <uuid>."""
+    value = str(value).lower()
+    return value[4:] if value.startswith("gpu-") else value
+
+
 def validate_assignment(assignment, devices):
     expected = assignment.get("scheduled", {})
     observed = assignment.get("observed", {})
     if (expected not in devices or assignment.get("cuda_visible_devices") != expected.get("uuid") or
-        observed.get("uuid", "").lower() != expected.get("uuid", "!").lower() or
+        bare_uuid(observed.get("uuid", "")) != bare_uuid(expected.get("uuid", "!")) or
         observed.get("name") != expected.get("name") or
         observed.get("compute_capability") != [7, 5] or observed.get("logical_device") != 0):
-        raise RuntimeError("worker device identity does not match the validated T4 assignment")
+        raise RuntimeError("worker device identity does not match the validated T4 assignment: "
+                           + json.dumps(assignment, sort_keys=True))
 
 
 def validate_execution(results, hardware, arms):
@@ -199,7 +206,8 @@ def setup_runtime(base, cfg, run_dir):
     from step4.hf import require_reference_kernels
     environment = require_reference_kernels(run_dir)  # refuse before downloading weights
     # No PEFT or compiled FLA dependency: HFBackend owns the fp32 LoRA branch.
-    os.environ.setdefault("HF_HOME", str(base / "hf-cache"))
+    # Outside /kaggle/working so the multi-GB weights are not saved as kernel output.
+    os.environ.setdefault("HF_HOME", "/tmp/s4-hf-cache")
     os.environ["HF_HUB_OFFLINE"] = "0"
     from huggingface_hub import snapshot_download
     snapshot_download(cfg["model"], revision=cfg["revision"],
@@ -294,7 +302,9 @@ def smoke_arm(name, arm, backend, cfg, stream, canary, measure, prompt_for, out)
     verified = measure(canary.items(), -1, lambda t: backend.generate(prompt_for(backend, t)))
     write_json(out / "canary_verification.json", verified)
     if cfg["backend"] == "hf" and not all(r["correct"] for r in verified):
-        raise RuntimeError("base failed canaries; inspect this model/world before any full run")
+        wrong = [(r["task_id"], r["answer"][:200]) for r in verified if not r["correct"]]
+        raise RuntimeError("base failed canaries; inspect this model/world before any full run: "
+                           + json.dumps(wrong, ensure_ascii=True))
     longest = None
     expert = None
     if name in ("ours", "expert_only"):
@@ -530,6 +540,14 @@ def schedule(arms, cfg, run_dir, smoke, devices, hardware=None):
             write_json(path, result)
             results[name] = result
             print(f"{name}: {result['status']} ({result['elapsed_seconds']:.2f}s)", flush=True)
+            if result["status"] != "complete":
+                # Surface the cause in the kernel log so it is readable without the output download.
+                print(f"  error: {str(result.get('error', ''))[:1500]}", flush=True)
+                try:
+                    tail = (run_dir / (name + ".log")).read_text(encoding="utf-8", errors="replace")[-2500:]
+                    print(f"  --- {name}.log tail ---\n{tail}", flush=True)
+                except OSError:
+                    pass
             del active[device]
         if active:
             time.sleep(0.05)

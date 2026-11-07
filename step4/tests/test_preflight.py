@@ -360,3 +360,10 @@ def test_smoke_receipt_accepts_new_allocation_same_profile():
         d["pci_bus_id"] = f"00000000:{i + 7:02}:00.0"
     previous = smoke_receipt(dict(backend="hf"), smoke_hw)
     run.validate_smoke_receipt(previous, dict(backend="hf"), ["ours", "rag"], now_hw)
+
+
+def test_worker_accepts_torch_bare_uuid_form():
+    expected = topology()["devices"][0]
+    run.validate_assignment(dict(scheduled=expected, cuda_visible_devices=expected["uuid"],
+        observed=dict(uuid=expected["uuid"][4:].upper(), name=expected["name"],
+                      compute_capability=[7, 5], logical_device=0)), [expected])

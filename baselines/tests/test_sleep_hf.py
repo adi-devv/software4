@@ -138,3 +138,22 @@ def test_inference_cap_is_wider_than_training_cap(backend):
     assert len(b._ids(long, b.infer_cap)) == 300  # a fair 512-token context is not cut at 112
     assert b.generate('x', max_new_tokens=2) is not None
     assert ('x', None, 2) in b._cache and ('x', None, 16) not in b._cache
+
+
+def test_answer_prefix_is_prefilled_and_returned(backend):
+    seen = []
+    real = backend.model.generate
+
+    def spy(input_ids, **kwargs):
+        seen.append(input_ids[0].tolist())
+        return real(input_ids=input_ids, **kwargs)
+
+    backend.model.generate = spy
+    plain = backend.generate('Q?')
+    backend.answer_prefix = 'Final answer:'
+    backend._cache.clear()
+    prefixed = backend.generate('Q?')
+    prefix_ids = backend.tokenizer.encode('Final answer:')
+    assert seen[1][-len(prefix_ids):] == prefix_ids
+    assert seen[1][:-len(prefix_ids)] == seen[0]
+    assert prefixed.startswith('Final answer:') and not plain.startswith('Final answer:')

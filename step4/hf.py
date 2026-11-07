@@ -128,12 +128,17 @@ def make_hf_backend(cfg, out, *, model=None, tokenizer=None):
             handle = super().train_expert(examples, steps, seed)
             call = self.train_calls[-1]
             if not call["finite"] or call["skipped_steps"] or call["optimizer_steps"] != steps:
-                raise RuntimeError("nonfinite/skipped optimizer step; dependent runs blocked")
+                detail = {k: call[k] for k in ("loss", "skipped_steps", "optimizer_steps",
+                                               "nonfinite_gradient_steps", "finite", "steps")}
+                raise RuntimeError("nonfinite/skipped optimizer step; dependent runs blocked: "
+                                   + json.dumps(detail, default=str))
             return handle
 
     backend = CheckedHFBackend(model=model, tokenizer=tokenizer, device=device,
                                directory=out / "adapters", lr=cfg["lr"])
     backend.kernel_environment = environment
+    if cfg["backend"] == "hf":
+        backend.answer_prefix = "Final answer:"  # same prefill for every arm; see HFBackend.answer_prefix
     text_cfg = getattr(model.config, "text_config", model.config)
     if getattr(text_cfg, "model_type", "") == "qwen3_5_text":
         environment["deltanet_functions"] = assert_reference_deltanet(model)
