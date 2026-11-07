@@ -103,6 +103,75 @@ def test_nonfinite_loss_skips_step_and_marks_candidate(backend, monkeypatch):
     assert all(torch.isfinite(p).all() for p in b._parameters(h))
 
 
+def test_fp16_gradient_backoff_retries_same_batch(backend, monkeypatch):
+    scalers = []
+    always_bad = False
+    batches = []
+    original_forward = backend.model.forward
+
+    class FakeScaler:
+        def __init__(self, *args, init_scale, **kwargs):
+            self.value = init_scale
+            self.attempts = 0
+            self.events = []
+            scalers.append(self)
+
+        def is_enabled(self):
+            return True
+
+        def scale(self, loss):
+            return loss
+
+        def unscale_(self, optimizer):
+            self.attempts += 1
+            self.bad = always_bad or self.attempts % 2 == 1
+            if self.bad:
+                next(p for group in optimizer.param_groups for p in group['params']
+                     if p.grad is not None).grad.fill_(float('inf'))
+
+        def step(self, optimizer):
+            self.events.append(('step', self.value, self.bad))
+
+        def update(self):
+            if self.bad:
+                self.value /= 2
+            self.events.append(('update', self.value, self.bad))
+
+    def record_forward(*args, **kwargs):
+        batches.append(kwargs['input_ids'].clone())
+        return original_forward(*args, **kwargs)
+
+    monkeypatch.setattr(torch.amp, 'GradScaler', FakeScaler)
+    monkeypatch.setattr(backend.model, 'forward', record_forward)
+    examples = [('first', 'A'), ('second', 'B'), ('third', 'C')]
+    steps = 2
+    backend.train_expert(examples, steps=steps, seed=1)
+    call = backend.train_calls[-1]
+    assert (call['optimizer_steps'], call['skipped_steps'], call['nonfinite_gradient_steps']) == (steps, 0, steps)
+    assert scalers[-1].attempts == 2 * steps
+    assert scalers[-1].events == [
+        ('step', 256, True), ('update', 128, True),
+        ('step', 128, False), ('update', 128, False),
+        ('step', 128, True), ('update', 64, True),
+        ('step', 64, False), ('update', 64, False),
+    ]
+    for offset in range(0, len(batches), 8):
+        assert all(torch.equal(a, b) for a, b in zip(batches[offset:offset + 4], batches[offset + 4:offset + 8]))
+
+    always_bad = True
+    batches.clear()
+    backend.train_expert(examples, steps=steps, seed=1)
+    call = backend.train_calls[-1]
+    assert (call['optimizer_steps'], call['skipped_steps'], call['nonfinite_gradient_steps']) == (0, steps, 9 * steps)
+    assert scalers[-1].attempts == 9 * steps
+    assert len(scalers[-1].events) == 2 * 9 * steps
+    assert scalers[-1].value == 256 / 2 ** (9 * steps)
+    for offset in range(0, len(batches), 36):
+        for attempt in range(1, 9):
+            assert all(torch.equal(a, b) for a, b in zip(
+                batches[offset:offset + 4], batches[offset + 4 * attempt:offset + 4 * (attempt + 1)]))
+
+
 def test_fingerprint_large_tensor_endpoint(backend):
     # Above float32's exact-integer range, matching the real embedding failure.
     large = torch.nn.Parameter(torch.zeros(16_777_220, dtype=torch.float16), requires_grad=False)
