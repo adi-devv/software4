@@ -1,0 +1,58 @@
+[
+  {
+    "task_id": "40229d0187",
+    "skill": "canary:smoke",
+    "prompt": "What is 1 + 1? End your reply with a line 'Final answer: <answer>'.",
+    "answer": "Final answer: 2",
+    "correct": 1
+  },
+  {
+    "task_id": "c3757f7ee7",
+    "skill": "canary:smoke",
+    "prompt": "What is 2 + 3? End your reply with a line 'Final answer: <answer>'.",
+    "answer": "Final answer: 5.",
+    "correct": 1
+  },
+  {
+    "task_id": "beea841c0e",
+    "skill": "canary:smoke",
+    "prompt": "What is 7 - 2? End your reply with a line 'Final answer: <answer>'.",
+    "answer": "Final answer: 5",
+    "correct": 1
+  },
+  {
+    "task_id": "edcd7b14c4",
+    "skill": "canary:smoke",
+    "prompt": "What is 3 * 3? End your reply with a line 'Final answer: <answer>'.",
+    "answer": "Final answer: 9",
+    "correct": 1
+  },
+  {
+    "task_id": "9c174bcd3a",
+    "skill": "canary:smoke",
+    "prompt": "What color is a clear daytime sky? Give one word. End your reply with a line 'Final answer: <answer>'.",
+    "answer": "Final answer: blue",
+    "correct": 1
+  },
+  {
+    "task_id": "6acd3c1bf0",
+    "skill": "canary:smoke",
+    "prompt": "What is the capital of France? End your reply with a line 'Final answer: <answer>'.",
+    "answer": "Final answer: Paris",
+    "correct": 1
+  },
+  {
+    "task_id": "a94cf65fd8",
+    "skill": "canary:smoke",
+    "prompt": "How many days are in a week? End your reply with a line 'Final answer: <answer>'.",
+    "answer": "Final answer: 7",
+    "correct": 1
+  },
+  {
+    "task_id": "1252b42df5",
+    "skill": "canary:smoke",
+    "prompt": "What is the chemical formula for water? End your reply with a line 'Final answer: <answer>'.",
+    "answer": "Final answer: H\u2082O",
+    "correct": 1
+  }
+]

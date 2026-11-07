@@ -114,7 +114,7 @@ ul.plain{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:6px;
 <main>
 
 <header>
-  <span class="eyebrow">Living document · last updated 2026-11-07</span>
+  <span class="eyebrow">Living document · last updated 2026-11-07 (evening)</span>
   <h1>Software4 Architecture</h1>
   <p class="lede">A brain-inspired model that keeps learning after deployment, in its own weights. This page shows what the system looks like, why it is built this way, and how far we have got.</p>
   <div class="links">
@@ -128,9 +128,9 @@ ul.plain{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:6px;
 
 <section id="milestones">
   <span class="eyebrow">Milestones</span>
-  <h2>3 of 11 steps done, baselines and review under way</h2>
-  <div class="progress" role="img" aria-label="3 of 11 steps done, 1 in progress">
-    <i class="done"></i><i class="done"></i><i class="done"></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+  <h2>6 of 11 steps done, first sleep loop being built</h2>
+  <div class="progress" role="img" aria-label="6 of 11 steps done, 1 in progress">
+    <i class="done"></i><i class="done"></i><i class="done"></i><i class="done"></i><i class="done"></i><i class="done"></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
   </div>
   <ol class="steps">
     <li class="done"><div class="rail"><span class="dot"></span></div><div class="body">
@@ -148,23 +148,25 @@ ul.plain{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:6px;
       <p>3 sleep cycles in a row with a simple gate, on small hand-made tasks. Experts kept all three new skills (91%, 70%, 48%) with GSM8K and ARC unchanged, and beat the best text peer (RAG, 7%) by 62 points. The memory-layer arm failed: the gate rejected sleeps 2 and 3.</p>
       <p class="note">Tiny tasks, one seed, a noisy 30-item gate. The oracle peer scored 0%, probably a weak 2B model on hard rules. A green light to continue, not proof of the claim.</p>
     </div></li>
-    <li class="next"><div class="rail"><span class="dot"></span></div><div class="body">
-      <div class="head"><span class="stepn">Step 2</span><h3>Add the hippocampus</h3><span class="pill now">built, 19 tests pass; not yet wired in</span></div>
-      <p>Memory graph, plastic link strengths, fast-then-deep recall, append-only log. Built separately in <code>hippocampus/</code>; integrated step by step later.</p>
+    <li class="done"><div class="rail"><span class="dot"></span></div><div class="body">
+      <div class="head"><span class="stepn">Step 2</span><h3>Add the hippocampus</h3><span class="pill done">built and retrieval-checked, 2026-11-07</span></div>
+      <p>Memory graph, plastic link strengths, fast-then-deep recall, append-only log. Built separately in <code>hippocampus/</code>.</p>
+      <p class="note">Retrieval-only check, no language model: it matches or beats plain RAG in every category (plain, revised, multi-hop, near-duplicates, poison, up to 10,000 facts). A first run exposed a weakness (confident wrong hits, multi-hop skipping the deep pass); fixed and confirmed on fresh seeds. Multi-hop recall@1 is capped at 0.5 because two facts are needed.</p>
     </div></li>
-    <li class="next"><div class="rail"><span class="dot"></span></div><div class="body">
-      <div class="head"><span class="stepn">Step 3</span><h3>Evaluation harness</h3><span class="pill now">built, 87 tests pass; review found 9 serious issues, fixes under way</span></div>
+    <li class="done"><div class="rail"><span class="dot"></span></div><div class="body">
+      <div class="head"><span class="stepn">Step 3</span><h3>Evaluation harness</h3><span class="pill done">built, reviewed, 138 tests pass</span></div>
       <p>Synthetic task streams, hidden tests, sealed test set, canaries, confidence intervals. Built separately in <code>harness/</code>. Unpaired comparisons need about 4,400 tasks per arm; the 1.7k figure holds only for paired tasks.</p>
       <p class="note">Review fixes: arms receive facades with no answer-bearing references; checkpoint saves run under the arm lock; split audits block invalid streams. Sleep can score a gate once through trusted internal grading, with other arm code still locked out.</p>
     </div></li>
-    <li class="next"><div class="rail"><span class="dot"></span></div><div class="body">
-      <div class="head"><span class="stepn">Step 4</span><h3>Baselines</h3><span class="pill now">built, 42 offline tests pass; four review findings addressed</span></div>
+    <li class="done"><div class="rail"><span class="dot"></span></div><div class="body">
+      <div class="head"><span class="stepn">Step 4</span><h3>Baselines</h3><span class="pill done">built, reviewed; hippocampus, baselines and scripts: 107 tests pass</span></div>
       <p class="note">Review fixes: HF chat templates and matching token counts, distillation batches bounded by input capacity, chronological evidence, and a shared Context/Task prompt format. Real-model quality remains unevaluated.</p>
       <p>Arms 1–4 and 10: no memory, RAG, long context, text notes, hippocampus only.</p>
     </div></li>
-    <li class="next"><div class="rail"><span class="dot"></span></div><div class="body">
-      <div class="head"><span class="stepn">Step 5</span><h3>Add the full sleep loop</h3><span class="pill next">not started</span></div>
+    <li class="now"><div class="rail"><span class="dot"></span></div><div class="body">
+      <div class="head"><span class="stepn">Step 5</span><h3>Add the full sleep loop</h3><span class="pill now">thin version in progress</span></div>
       <p>Select, replay, check, train and gate, with experts and the memory layer (arms 5 and 6).</p>
+      <p class="note">Started with a thin loop: day (answer with the hippocampus, log outcomes), night (train a tiny expert, gate, keep or roll back), next day (router). Plan: small local test on Qwen3-0.6B on the GTX 1650, then one lean Kaggle run on Qwen3.5-2B with 4 arms, and only then dreaming and ablations.</p>
     </div></li>
     <li class="next"><div class="rail"><span class="dot"></span></div><div class="body">
       <div class="head"><span class="stepn">Step 6</span><h3>Add dreaming</h3><span class="pill next">not started</span></div>

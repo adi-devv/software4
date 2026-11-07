@@ -77,11 +77,15 @@ class Rag(Base):
         self.episodes = []
 
     def context(self, task):
+        return self.retrieve(task.prompt)
+
+    def retrieve(self, query, k=None):
+        """Read-only ranked entries, without prompt construction or an LLM call."""
         if not self.episodes:
             return []
-        vecs = self.embedder.embed([task.prompt] + [e['text'] for e in self.episodes])
+        vecs = self.embedder.embed([query] + [e['text'] for e in self.episodes])
         scores = vecs[1:] @ vecs[0]
-        order = sorted(range(len(scores)), key=lambda i: (-float(scores[i]), -i))[:self.k]
+        order = sorted(range(len(scores)), key=lambda i: (-float(scores[i]), -i))[:self.k if k is None else k]
         return [(i, self.episodes[i]['text']) for i in order]
 
     def observe(self, task, answer, result, correction):
@@ -121,7 +125,13 @@ class TextNotes(Base):
         self.notes, self.episodes = [], []
 
     def context(self, task):
+        return self.retrieve(task.prompt)
+
+    def retrieve(self, query, k=None):
+        """Read-only native note order; query is unused, as in context()."""
         order = sorted(range(len(self.notes)), key=lambda i: (self.notes[i]['uses'], i), reverse=True)
+        if k is not None:
+            order = order[:k]
         return [(i, self.notes[i]['text']) for i in order]
 
     def observe(self, task, answer, result, correction):

@@ -1,0 +1,2708 @@
+{
+  "config": {
+    "seeds": [
+      0,
+      1,
+      2
+    ],
+    "queries_per_category": 40,
+    "ks": [
+      1,
+      5
+    ],
+    "mrr_k": "number of stored fact versions (same request for all systems)",
+    "embedder": "HashingEmbedder(dim=256, ngram=3, ngram_weight=0.3)",
+    "python": "3.13.5 | packaged by Anaconda, Inc. | (main, Jun 12 2025, 16:37:03) [MSC v.1929 64 bit (AMD64)]",
+    "numpy": "2.4.6",
+    "platform": "win32"
+  },
+  "summary": [
+    {
+      "category": "plain",
+      "system": "hippocampus",
+      "queries_per_seed": 40,
+      "metrics": {
+        "recall@1": {
+          "mean": 1.0,
+          "min": 1.0,
+          "max": 1.0
+        },
+        "recall@5": {
+          "mean": 1.0,
+          "min": 1.0,
+          "max": 1.0
+        },
+        "MRR": {
+          "mean": 1.0,
+          "min": 1.0,
+          "max": 1.0
+        },
+        "MRR@5": {
+          "mean": 1.0,
+          "min": 1.0,
+          "max": 1.0
+        },
+        "all_gold@1": {
+          "mean": 1.0,
+          "min": 1.0,
+          "max": 1.0
+        },
+        "all_gold@5": {
+          "mean": 1.0,
+          "min": 1.0,
+          "max": 1.0
+        },
+        "unsafe@1": {
+          "mean": 0.0,
+          "min": 0.0,
+          "max": 0.0
+        },
+        "unsafe@5": {
+          "mean": 0.0,
+          "min": 0.0,
+          "max": 0.0
+        },
+        "latency_ms@1": {
+          "mean": 0.14838333333333334,
+          "min": 0.10785,
+          "max": 0.20024999999999998
+        },
+        "latency_ms@5": {
+          "mean": 0.13313333333333333,
+          "min": 0.09695,
+          "max": 0.19469999999999998
+        }
+      },
+      "median_latency_ms@5": 0.10695,
+      "per_seed": [
+        {
+          "seed": 0,
+          "recall@1": 1.0,
+          "recall@5": 1.0,
+          "MRR": 1.0,
+          "MRR@5": 1.0,
+          "all_gold@1": 1.0,
+          "all_gold@5": 1.0,
+          "unsafe@1": 0.0,
+          "unsafe@5": 0.0,
+          "latency_ms@1": 0.10785,
+          "latency_ms@5": 0.09695
+        },
+        {
+          "seed": 1,
+          "recall@1": 1.0,
+          "recall@5": 1.0,
+          "MRR": 1.0,
+          "MRR@5": 1.0,
+          "all_gold@1": 1.0,
+          "all_gold@5": 1.0,
+          "unsafe@1": 0.0,
+          "unsafe@5": 0.0,
+          "latency_ms@1": 0.13705,
+          "latency_ms@5": 0.10775000000000001
+        },
+        {
+          "seed": 2,
+          "recall@1": 1.0,
+          "recall@5": 1.0,
+          "MRR": 1.0,
+          "MRR@5": 1.0,
+          "all_gold@1": 1.0,
+          "all_gold@5": 1.0,
+          "unsafe@1": 0.0,
+          "unsafe@5": 0.0,
+          "latency_ms@1": 0.20024999999999998,
+          "latency_ms@5": 0.19469999999999998
+        }
+      ]
+    },
+    {
+      "category": "plain",
+      "system": "rag",
+      "queries_per_seed": 40,
+      "metrics": {
+        "recall@1": {
+          "mean": 1.0,
+          "min": 1.0,
+          "max": 1.0
+        },
+        "recall@5": {
+          "mean": 1.0,
+          "min": 1.0,
+          "max": 1.0
+        },
+        "MRR": {
+          "mean": 1.0,
+          "min": 1.0,
+          "max": 1.0
+        },
+        "MRR@5": {
+          "mean": 1.0,
+          "min": 1.0,
+          "max": 1.0
+        },
+        "all_gold@1": {
+          "mean": 1.0,
+          "min": 1.0,
+          "max": 1.0
+        },
+        "all_gold@5": {
+          "mean": 1.0,
+          "min": 1.0,
+          "max": 1.0
+        },
+        "unsafe@1": {
+          "mean": 0.0,
+          "min": 0.0,
+          "max": 0.0
+        },
+        "unsafe@5": {
+          "mean": 0.0,
+          "min": 0.0,
+          "max": 0.0
+        },
+        "latency_ms@1": {
+          "mean": 1.2660166666666668,
+          "min": 0.8834500000000001,
+          "max": 1.8866
+        },
+        "latency_ms@5": {
+          "mean": 1.1734833333333334,
+          "min": 0.87,
+          "max": 1.6676000000000002
+        }
+      },
+      "median_latency_ms@5": 0.952,
+      "per_seed": [
+        {
+          "seed": 0,
+          "recall@1": 1.0,
+          "recall@5": 1.0,
+          "MRR": 1.0,
+          "MRR@5": 1.0,
+          "all_gold@1": 1.0,
+          "all_gold@5": 1.0,
+          "unsafe@1": 0.0,
+          "unsafe@5": 0.0,
+          "latency_ms@1": 0.8834500000000001,
+          "latency_ms@5": 0.87
+        },
+        {
+          "seed": 1,
+          "recall@1": 1.0,
+          "recall@5": 1.0,
+          "MRR": 1.0,
+          "MRR@5": 1.0,
+          "all_gold@1": 1.0,
+          "all_gold@5": 1.0,
+          "unsafe@1": 0.0,
+          "unsafe@5": 0.0,
+          "latency_ms@1": 1.028,
+          "latency_ms@5": 0.98285
+        },
+        {
+          "seed": 2,
+          "recall@1": 1.0,
+          "recall@5": 1.0,
+          "MRR": 1.0,
+          "MRR@5": 1.0,
+          "all_gold@1": 1.0,
+          "all_gold@5": 1.0,
+          "unsafe@1": 0.0,
+          "unsafe@5": 0.0,
+          "latency_ms@1": 1.8866,
+          "latency_ms@5": 1.6676000000000002
+        }
+      ]
+    },
+    {
+      "category": "plain",
+      "system": "text_notes",
+      "queries_per_seed": 40,
+      "metrics": {
+        "recall@1": {
+          "mean": 0.025,
+          "min": 0.025,
+          "max": 0.025
+        },
+        "recall@5": {
+          "mean": 0.125,
+          "min": 0.125,
+          "max": 0.125
+        },
+        "MRR": {
+          "mean": 0.1069635759734094,
+          "min": 0.1069635759734094,
+          "max": 0.1069635759734094
+        },
+        "MRR@5": {
+          "mean": 0.05708333333333333,
+          "min": 0.05708333333333333,
+          "max": 0.05708333333333333
+        },
+        "all_gold@1": {
+          "mean": 0.025,
+          "min": 0.025,
+          "max": 0.025
+        },
+        "all_gold@5": {
+          "mean": 0.125,
+          "min": 0.125,
+          "max": 0.125
+        },
+        "unsafe@1": {
+          "mean": 0.0,
+          "min": 0.0,
+          "max": 0.0
+        },
+        "unsafe@5": {
+          "mean": 0.0,
+          "min": 0.0,
+          "max": 0.0
+        },
+        "latency_ms@1": {
+          "mean": 0.013783333333333333,
+          "min": 0.00955,
+          "max": 0.017849999999999998
+        },
+        "latency_ms@5": {
+          "mean": 0.010516666666666667,
+          "min": 0.0083,
+          "max": 0.01455
+        }
+      },
+      "median_latency_ms@5": 0.00865,
+      "per_seed": [
+        {
+          "seed": 0,
+          "recall@1": 0.025,
+          "recall@5": 0.125,
+          "MRR": 0.1069635759734094,
+          "MRR@5": 0.05708333333333333,
+          "all_gold@1": 0.025,
+          "all_gold@5": 0.125,
+          "unsafe@1": 0.0,
+          "unsafe@5": 0.0,
+          "latency_ms@1": 0.00955,
+          "latency_ms@5": 0.0083
+        },
+        {
+          "seed": 1,
+          "recall@1": 0.025,
+          "recall@5": 0.125,
+          "MRR": 0.1069635759734094,
+          "MRR@5": 0.05708333333333333,
+          "all_gold@1": 0.025,
+          "all_gold@5": 0.125,
+          "unsafe@1": 0.0,
+          "unsafe@5": 0.0,
+          "latency_ms@1": 0.01395,
+          "latency_ms@5": 0.0087
+        },
+        {
+          "seed": 2,
+          "recall@1": 0.025,
+          "recall@5": 0.125,
+          "MRR": 0.1069635759734094,
+          "MRR@5": 0.05708333333333333,
+          "all_gold@1": 0.025,
+          "all_gold@5": 0.125,
+          "unsafe@1": 0.0,
+          "unsafe@5": 0.0,
+          "latency_ms@1": 0.017849999999999998,
+          "latency_ms@5": 0.01455
+        }
+      ]
+    },
+    {
+      "category": "revised",
+      "system": "hippocampus",
+      "queries_per_seed": 40,
+      "metrics": {
+        "recall@1": {
+          "mean": 0.9916666666666667,
+          "min": 0.975,
+          "max": 1.0
+        },
+        "recall@5": {
+          "mean": 1.0,
+          "min": 1.0,
+          "max": 1.0
+        },
+        "MRR": {
+          "mean": 0.9958333333333333,
+          "min": 0.9875,
+          "max": 1.0
+        },
+        "MRR@5": {
+          "mean": 0.9958333333333333,
+          "min": 0.9875,
+          "max": 1.0
+        },
+        "all_gold@1": {
+          "mean": 0.9916666666666667,
+          "min": 0.975,
+          "max": 1.0
+        },
+        "all_gold@5": {
+          "mean": 1.0,
+          "min": 1.0,
+          "max": 1.0
+        },
+        "unsafe@1": {
+          "mean": 0.0,
+          "min": 0.0,
+          "max": 0.0
+        },
+        "unsafe@5": {
+          "mean": 0.0,
+          "min": 0.0,
+          "max": 0.0
+        },
+        "latency_ms@1": {
+          "mean": 0.16488333333333333,
+          "min": 0.12229999999999999,
+          "max": 0.2305
+        },
+        "latency_ms@5": {
+          "mean": 0.1345,
+          "min": 0.10155,
+          "max": 0.195
+        }
+      },
+      "median_latency_ms@5": 0.11449999999999999,
+      "per_seed": [
+        {
+          "seed": 0,
+          "recall@1": 0.975,
+          "recall@5": 1.0,
+          "MRR": 0.9875,
+          "MRR@5": 0.9875,
+          "all_gold@1": 0.975,
+          "all_gold@5": 1.0,
+          "unsafe@1": 0.0,
+          "unsafe@5": 0.0,
+          "latency_ms@1": 0.12229999999999999,
+          "latency_ms@5": 0.10155
+        },
+        {
+          "seed": 1,
+          "recall@1": 1.0,
+          "recall@5": 1.0,
+          "MRR": 1.0,
+          "MRR@5": 1.0,
+          "all_gold@1": 1.0,
+          "all_gold@5": 1.0,
+          "unsafe@1": 0.0,
+          "unsafe@5": 0.0,
+          "latency_ms@1": 0.14185,
+          "latency_ms@5": 0.10695
+        },
+        {
+          "seed": 2,
+          "recall@1": 1.0,
+          "recall@5": 1.0,
+          "MRR": 1.0,
+          "MRR@5": 1.0,
+          "all_gold@1": 1.0,
+          "all_gold@5": 1.0,
+          "unsafe@1": 0.0,
+          "unsafe@5": 0.0,
+          "latency_ms@1": 0.2305,
+          "latency_ms@5": 0.195
+        }
+      ]
+    },
+    {
+      "category": "revised",
+      "system": "rag",
+      "queries_per_seed": 40,
+      "metrics": {
+        "recall@1": {
+          "mean": 0.15833333333333333,
+          "min": 0.15,
+          "max": 0.175
+        },
+        "recall@5": {
+          "mean": 0.9916666666666667,
+          "min": 0.975,
+          "max": 1.0
+        },
+        "MRR": {
+          "mean": 0.5729166666666666,
+          "min": 0.5666666666666667,
+          "max": 0.5770833333333333
+        },
+        "MRR@5": {
+          "mean": 0.5715277777777777,
+          "min": 0.5625,
+          "max": 0.5770833333333333
+        },
+        "all_gold@1": {
+          "mean": 0.15833333333333333,
+          "min": 0.15,
+          "max": 0.175
+        },
+        "all_gold@5": {
+          "mean": 0.9916666666666667,
+          "min": 0.975,
+          "max": 1.0
+        },
+        "unsafe@1": {
+          "mean": 0.0,
+          "min": 0.0,
+          "max": 0.0
+        },
+        "unsafe@5": {
+          "mean": 0.0,
+          "min": 0.0,
+          "max": 0.0
+        },
+        "latency_ms@1": {
+          "mean": 2.5408,
+          "min": 1.8094000000000001,
+          "max": 3.7695499999999997
+        },
+        "latency_ms@5": {
+          "mean": 2.6155,
+          "min": 1.7835,
+          "max": 4.0328
+        }
+      },
+      "median_latency_ms@5": 2.0678,
+      "per_seed": [
+        {
+          "seed": 0,
+          "recall@1": 0.175,
+          "recall@5": 1.0,
+          "MRR": 0.5770833333333333,
+          "MRR@5": 0.5770833333333333,
+          "all_gold@1": 0.175,
+          "all_gold@5": 1.0,
+          "unsafe@1": 0.0,
+          "unsafe@5": 0.0,
+          "latency_ms@1": 1.8094000000000001,
+          "latency_ms@5": 1.7835
+        },
+        {
+          "seed": 1,
+          "recall@1": 0.15,
+          "recall@5": 1.0,
+          "MRR": 0.575,
+          "MRR@5": 0.575,
+          "all_gold@1": 0.15,
+          "all_gold@5": 1.0,
+          "unsafe@1": 0.0,
+          "unsafe@5": 0.0,
+          "latency_ms@1": 2.04345,
+          "latency_ms@5": 2.0302
+        },
+        {
+          "seed": 2,
+          "recall@1": 0.15,
+          "recall@5": 0.975,
+          "MRR": 0.5666666666666667,
+          "MRR@5": 0.5625,
+          "all_gold@1": 0.15,
+          "all_gold@5": 0.975,
+          "unsafe@1": 0.0,
+          "unsafe@5": 0.0,
+          "latency_ms@1": 3.7695499999999997,
+          "latency_ms@5": 4.0328
+        }
+      ]
+    },
+    {
+      "category": "revised",
+      "system": "text_notes",
+      "queries_per_seed": 40,
+      "metrics": {
+        "recall@1": {
+          "mean": 0.025,
+          "min": 0.025,
+          "max": 0.025
+        },
+        "recall@5": {
+          "mean": 0.125,
+          "min": 0.125,
+          "max": 0.125
+        },
+        "MRR": {
+          "mean": 0.1069635759734094,
+          "min": 0.1069635759734094,
+          "max": 0.1069635759734094
+        },
+        "MRR@5": {
+          "mean": 0.05708333333333333,
+          "min": 0.05708333333333333,
+          "max": 0.05708333333333333
+        },
+        "all_gold@1": {
+          "mean": 0.025,
+          "min": 0.025,
+          "max": 0.025
+        },
+        "all_gold@5": {
+          "mean": 0.125,
+          "min": 0.125,
+          "max": 0.125
+        },
+        "unsafe@1": {
+          "mean": 0.0,
+          "min": 0.0,
+          "max": 0.0
+        },
+        "unsafe@5": {
+          "mean": 0.0,
+          "min": 0.0,
+          "max": 0.0
+        },
+        "latency_ms@1": {
+          "mean": 0.02595,
+          "min": 0.0195,
+          "max": 0.0364
+        },
+        "latency_ms@5": {
+          "mean": 0.017933333333333332,
+          "min": 0.0132,
+          "max": 0.027
+        }
+      },
+      "median_latency_ms@5": 0.013999999999999999,
+      "per_seed": [
+        {
+          "seed": 0,
+          "recall@1": 0.025,
+          "recall@5": 0.125,
+          "MRR": 0.1069635759734094,
+          "MRR@5": 0.05708333333333333,
+          "all_gold@1": 0.025,
+          "all_gold@5": 0.125,
+          "unsafe@1": 0.0,
+          "unsafe@5": 0.0,
+          "latency_ms@1": 0.0195,
+          "latency_ms@5": 0.0132
+        },
+        {
+          "seed": 1,
+          "recall@1": 0.025,
+          "recall@5": 0.125,
+          "MRR": 0.1069635759734094,
+          "MRR@5": 0.05708333333333333,
+          "all_gold@1": 0.025,
+          "all_gold@5": 0.125,
+          "unsafe@1": 0.0,
+          "unsafe@5": 0.0,
+          "latency_ms@1": 0.02195,
+          "latency_ms@5": 0.0136
+        },
+        {
+          "seed": 2,
+          "recall@1": 0.025,
+          "recall@5": 0.125,
+          "MRR": 0.1069635759734094,
+          "MRR@5": 0.05708333333333333,
+          "all_gold@1": 0.025,
+          "all_gold@5": 0.125,
+          "unsafe@1": 0.0,
+          "unsafe@5": 0.0,
+          "latency_ms@1": 0.0364,
+          "latency_ms@5": 0.027
+        }
+      ]
+    },
+    {
+      "category": "multihop",
+      "system": "hippocampus",
+      "queries_per_seed": 40,
+      "metrics": {
+        "recall@1": {
+          "mean": 0.5,
+          "min": 0.5,
+          "max": 0.5
+        },
+        "recall@5": {
+          "mean": 0.7,
+          "min": 0.6375,
+          "max": 0.75
+        },
+        "MRR": {
+          "mean": 1.0,
+          "min": 1.0,
+          "max": 1.0
+        },
+        "MRR@5": {
+          "mean": 1.0,
+          "min": 1.0,
+          "max": 1.0
+        },
+        "all_gold@1": {
+          "mean": 0.0,
+          "min": 0.0,
+          "max": 0.0
+        },
+        "all_gold@5": {
+          "mean": 0.4,
+          "min": 0.275,
+          "max": 0.5
+        },
+        "unsafe@1": {
+          "mean": 0.0,
+          "min": 0.0,
+          "max": 0.0
+        },
+        "unsafe@5": {
+          "mean": 0.0,
+          "min": 0.0,
+          "max": 0.0
+        },
+        "latency_ms@1": {
+          "mean": 0.21180000000000002,
+          "min": 0.16355,
+          "max": 0.30115000000000003
+        },
+        "latency_ms@5": {
+          "mean": 0.17500000000000002,
+          "min": 0.1337,
+          "max": 0.25395
+        }
+      },
+      "median_latency_ms@5": 0.20695,
+      "per_seed": [
+        {
+          "seed": 0,
+          "recall@1": 0.5,
+          "recall@5": 0.75,
+          "MRR": 1.0,
+          "MRR@5": 1.0,
+          "all_gold@1": 0.0,
+          "all_gold@5": 0.5,
+          "unsafe@1": 0.0,
+          "unsafe@5": 0.0,
+          "latency_ms@1": 0.16355,
+          "latency_ms@5": 0.13735
+        },
+        {
+          "seed": 1,
+          "recall@1": 0.5,
+          "recall@5": 0.6375,
+          "MRR": 1.0,
+          "MRR@5": 1.0,
+          "all_gold@1": 0.0,
+          "all_gold@5": 0.275,
+          "unsafe@1": 0.0,
+          "unsafe@5": 0.0,
+          "latency_ms@1": 0.1707,
+          "latency_ms@5": 0.1337
+        },
+        {
+          "seed": 2,
+          "recall@1": 0.5,
+          "recall@5": 0.7125,
+          "MRR": 1.0,
+          "MRR@5": 1.0,
+          "all_gold@1": 0.0,
+          "all_gold@5": 0.425,
+          "unsafe@1": 0.0,
+          "unsafe@5": 0.0,
+          "latency_ms@1": 0.30115000000000003,
+          "latency_ms@5": 0.25395
+        }
+      ]
+    },
+    {
+      "category": "multihop",
+      "system": "rag",
+      "queries_per_seed": 40,
+      "metrics": {
+        "recall@1": {
+          "mean": 0.5,
+          "min": 0.5,
+          "max": 0.5
+        },
+        "recall@5": {
+          "mean": 0.5375,
+          "min": 0.525,
+          "max": 0.55
+        },
+        "MRR": {
+          "mean": 1.0,
+          "min": 1.0,
+          "max": 1.0
+        },
+        "MRR@5": {
+          "mean": 1.0,
+          "min": 1.0,
+          "max": 1.0
+        },
+        "all_gold@1": {
+          "mean": 0.0,
+          "min": 0.0,
+          "max": 0.0
+        },
+        "all_gold@5": {
+          "mean": 0.075,
+          "min": 0.05,
+          "max": 0.1
+        },
+        "unsafe@1": {
+          "mean": 0.0,
+          "min": 0.0,
+          "max": 0.0
+        },
+        "unsafe@5": {
+          "mean": 0.0,
+          "min": 0.0,
+          "max": 0.0
+        },
+        "latency_ms@1": {
+          "mean": 2.299,
+          "min": 1.61385,
+          "max": 3.5239000000000003
+        },
+        "latency_ms@5": {
+          "mean": 2.2329,
+          "min": 1.58585,
+          "max": 3.37915
+        }
+      },
+      "median_latency_ms@5": 1.7238,
+      "per_seed": [
+        {
+          "seed": 0,
+          "recall@1": 0.5,
+          "recall@5": 0.55,
+          "MRR": 1.0,
+          "MRR@5": 1.0,
+          "all_gold@1": 0.0,
+          "all_gold@5": 0.1,
+          "unsafe@1": 0.0,
+          "unsafe@5": 0.0,
+          "latency_ms@1": 1.61385,
+          "latency_ms@5": 1.58585
+        },
+        {
+          "seed": 1,
+          "recall@1": 0.5,
+          "recall@5": 0.525,
+          "MRR": 1.0,
+          "MRR@5": 1.0,
+          "all_gold@1": 0.0,
+          "all_gold@5": 0.05,
+          "unsafe@1": 0.0,
+          "unsafe@5": 0.0,
+          "latency_ms@1": 1.75925,
+          "latency_ms@5": 1.7336999999999998
+        },
+        {
+          "seed": 2,
+          "recall@1": 0.5,
+          "recall@5": 0.5375,
+          "MRR": 1.0,
+          "MRR@5": 1.0,
+          "all_gold@1": 0.0,
+          "all_gold@5": 0.075,
+          "unsafe@1": 0.0,
+          "unsafe@5": 0.0,
+          "latency_ms@1": 3.5239000000000003,
+          "latency_ms@5": 3.37915
+        }
+      ]
+    },
+    {
+      "category": "multihop",
+      "system": "text_notes",
+      "queries_per_seed": 40,
+      "metrics": {
+        "recall@1": {
+          "mean": 0.0125,
+          "min": 0.0125,
+          "max": 0.0125
+        },
+        "recall@5": {
+          "mean": 0.0625,
+          "min": 0.0625,
+          "max": 0.0625
+        },
+        "MRR": {
+          "mean": 0.1012840050339906,
+          "min": 0.09943568725055844,
+          "max": 0.10254600850786369
+        },
+        "MRR@5": {
+          "mean": 0.05708333333333333,
+          "min": 0.05708333333333333,
+          "max": 0.05708333333333333
+        },
+        "all_gold@1": {
+          "mean": 0.0,
+          "min": 0.0,
+          "max": 0.0
+        },
+        "all_gold@5": {
+          "mean": 0.0,
+          "min": 0.0,
+          "max": 0.0
+        },
+        "unsafe@1": {
+          "mean": 0.0,
+          "min": 0.0,
+          "max": 0.0
+        },
+        "unsafe@5": {
+          "mean": 0.0,
+          "min": 0.0,
+          "max": 0.0
+        },
+        "latency_ms@1": {
+          "mean": 0.025849999999999998,
+          "min": 0.019200000000000002,
+          "max": 0.038099999999999995
+        },
+        "latency_ms@5": {
+          "mean": 0.017150000000000002,
+          "min": 0.0132,
+          "max": 0.024550000000000002
+        }
+      },
+      "median_latency_ms@5": 0.01375,
+      "per_seed": [
+        {
+          "seed": 0,
+          "recall@1": 0.0125,
+          "recall@5": 0.0625,
+          "MRR": 0.10254600850786369,
+          "MRR@5": 0.05708333333333333,
+          "all_gold@1": 0.0,
+          "all_gold@5": 0.0,
+          "unsafe@1": 0.0,
+          "unsafe@5": 0.0,
+          "latency_ms@1": 0.02025,
+          "latency_ms@5": 0.0132
+        },
+        {
+          "seed": 1,
+          "recall@1": 0.0125,
+          "recall@5": 0.0625,
+          "MRR": 0.09943568725055844,
+          "MRR@5": 0.05708333333333333,
+          "all_gold@1": 0.0,
+          "all_gold@5": 0.0,
+          "unsafe@1": 0.0,
+          "unsafe@5": 0.0,
+          "latency_ms@1": 0.019200000000000002,
+          "latency_ms@5": 0.0137
+        },
+        {
+          "seed": 2,
+          "recall@1": 0.0125,
+          "recall@5": 0.0625,
+          "MRR": 0.10187031934354968,
+          "MRR@5": 0.05708333333333333,
+          "all_gold@1": 0.0,
+          "all_gold@5": 0.0,
+          "unsafe@1": 0.0,
+          "unsafe@5": 0.0,
+          "latency_ms@1": 0.038099999999999995,
+          "latency_ms@5": 0.024550000000000002
+        }
+      ]
+    },
+    {
+      "category": "distractors",
+      "system": "hippocampus",
+      "queries_per_seed": 40,
+      "metrics": {
+        "recall@1": {
+          "mean": 0.9666666666666667,
+          "min": 0.925,
+          "max": 1.0
+        },
+        "recall@5": {
+          "mean": 0.9666666666666667,
+          "min": 0.925,
+          "max": 1.0
+        },
+        "MRR": {
+          "mean": 0.9666666666666667,
+          "min": 0.925,
+          "max": 1.0
+        },
+        "MRR@5": {
+          "mean": 0.9666666666666667,
+          "min": 0.925,
+          "max": 1.0
+        },
+        "all_gold@1": {
+          "mean": 0.9666666666666667,
+          "min": 0.925,
+          "max": 1.0
+        },
+        "all_gold@5": {
+          "mean": 0.9666666666666667,
+          "min": 0.925,
+          "max": 1.0
+        },
+        "unsafe@1": {
+          "mean": 0.0,
+          "min": 0.0,
+          "max": 0.0
+        },
+        "unsafe@5": {
+          "mean": 0.0,
+          "min": 0.0,
+          "max": 0.0
+        },
+        "latency_ms@1": {
+          "mean": 1.7901,
+          "min": 1.4801,
+          "max": 2.3799
+        },
+        "latency_ms@5": {
+          "mean": 1.6242333333333334,
+          "min": 1.3266,
+          "max": 2.16745
+        }
+      },
+      "median_latency_ms@5": 1.37865,
+      "per_seed": [
+        {
+          "seed": 0,
+          "recall@1": 0.925,
+          "recall@5": 0.925,
+          "MRR": 0.925,
+          "MRR@5": 0.925,
+          "all_gold@1": 0.925,
+          "all_gold@5": 0.925,
+          "unsafe@1": 0.0,
+          "unsafe@5": 0.0,
+          "latency_ms@1": 1.4801,
+          "latency_ms@5": 1.3266
+        },
+        {
+          "seed": 1,
+          "recall@1": 1.0,
+          "recall@5": 1.0,
+          "MRR": 1.0,
+          "MRR@5": 1.0,
+          "all_gold@1": 1.0,
+          "all_gold@5": 1.0,
+          "unsafe@1": 0.0,
+          "unsafe@5": 0.0,
+          "latency_ms@1": 1.5103,
+          "latency_ms@5": 1.37865
+        },
+        {
+          "seed": 2,
+          "recall@1": 0.975,
+          "recall@5": 0.975,
+          "MRR": 0.975,
+          "MRR@5": 0.975,
+          "all_gold@1": 0.975,
+          "all_gold@5": 0.975,
+          "unsafe@1": 0.0,
+          "unsafe@5": 0.0,
+          "latency_ms@1": 2.3799,
+          "latency_ms@5": 2.16745
+        }
+      ]
+    },
+    {
+      "category": "distractors",
+      "system": "rag",
+      "queries_per_seed": 40,
+      "metrics": {
+        "recall@1": {
+          "mean": 0.9833333333333333,
+          "min": 0.95,
+          "max": 1.0
+        },
+        "recall@5": {
+          "mean": 1.0,
+          "min": 1.0,
+          "max": 1.0
+        },
+        "MRR": {
+          "mean": 0.9916666666666667,
+          "min": 0.975,
+          "max": 1.0
+        },
+        "MRR@5": {
+          "mean": 0.9916666666666667,
+          "min": 0.975,
+          "max": 1.0
+        },
+        "all_gold@1": {
+          "mean": 0.9833333333333333,
+          "min": 0.95,
+          "max": 1.0
+        },
+        "all_gold@5": {
+          "mean": 1.0,
+          "min": 1.0,
+          "max": 1.0
+        },
+        "unsafe@1": {
+          "mean": 0.0,
+          "min": 0.0,
+          "max": 0.0
+        },
+        "unsafe@5": {
+          "mean": 0.0,
+          "min": 0.0,
+          "max": 0.0
+        },
+        "latency_ms@1": {
+          "mean": 12.637883333333333,
+          "min": 9.1144,
+          "max": 17.93425
+        },
+        "latency_ms@5": {
+          "mean": 12.686216666666667,
+          "min": 9.099350000000001,
+          "max": 18.3627
+        }
+      },
+      "median_latency_ms@5": 10.8589,
+      "per_seed": [
+        {
+          "seed": 0,
+          "recall@1": 1.0,
+          "recall@5": 1.0,
+          "MRR": 1.0,
+          "MRR@5": 1.0,
+          "all_gold@1": 1.0,
+          "all_gold@5": 1.0,
+          "unsafe@1": 0.0,
+          "unsafe@5": 0.0,
+          "latency_ms@1": 9.1144,
+          "latency_ms@5": 9.099350000000001
+        },
+        {
+          "seed": 1,
+          "recall@1": 0.95,
+          "recall@5": 1.0,
+          "MRR": 0.975,
+          "MRR@5": 0.975,
+          "all_gold@1": 0.95,
+          "all_gold@5": 1.0,
+          "unsafe@1": 0.0,
+          "unsafe@5": 0.0,
+          "latency_ms@1": 10.865,
+          "latency_ms@5": 10.5966
+        },
+        {
+          "seed": 2,
+          "recall@1": 1.0,
+          "recall@5": 1.0,
+          "MRR": 1.0,
+          "MRR@5": 1.0,
+          "all_gold@1": 1.0,
+          "all_gold@5": 1.0,
+          "unsafe@1": 0.0,
+          "unsafe@5": 0.0,
+          "latency_ms@1": 17.93425,
+          "latency_ms@5": 18.3627
+        }
+      ]
+    },
+    {
+      "category": "distractors",
+      "system": "text_notes",
+      "queries_per_seed": 40,
+      "metrics": {
+        "recall@1": {
+          "mean": 0.0,
+          "min": 0.0,
+          "max": 0.0
+        },
+        "recall@5": {
+          "mean": 0.0,
+          "min": 0.0,
+          "max": 0.0
+        },
+        "MRR": {
+          "mean": 0.011106884026202182,
+          "min": 0.010456494141857925,
+          "max": 0.011683966413770008
+        },
+        "MRR@5": {
+          "mean": 0.0,
+          "min": 0.0,
+          "max": 0.0
+        },
+        "all_gold@1": {
+          "mean": 0.0,
+          "min": 0.0,
+          "max": 0.0
+        },
+        "all_gold@5": {
+          "mean": 0.0,
+          "min": 0.0,
+          "max": 0.0
+        },
+        "unsafe@1": {
+          "mean": 0.0,
+          "min": 0.0,
+          "max": 0.0
+        },
+        "unsafe@5": {
+          "mean": 0.0,
+          "min": 0.0,
+          "max": 0.0
+        },
+        "latency_ms@1": {
+          "mean": 0.09601666666666667,
+          "min": 0.05745,
+          "max": 0.14495
+        },
+        "latency_ms@5": {
+          "mean": 0.06778333333333333,
+          "min": 0.051250000000000004,
+          "max": 0.09964999999999999
+        }
+      },
+      "median_latency_ms@5": 0.05335,
+      "per_seed": [
+        {
+          "seed": 0,
+          "recall@1": 0.0,
+          "recall@5": 0.0,
+          "MRR": 0.010456494141857925,
+          "MRR@5": 0.0,
+          "all_gold@1": 0.0,
+          "all_gold@5": 0.0,
+          "unsafe@1": 0.0,
+          "unsafe@5": 0.0,
+          "latency_ms@1": 0.05745,
+          "latency_ms@5": 0.051250000000000004
+        },
+        {
+          "seed": 1,
+          "recall@1": 0.0,
+          "recall@5": 0.0,
+          "MRR": 0.01118019152297861,
+          "MRR@5": 0.0,
+          "all_gold@1": 0.0,
+          "all_gold@5": 0.0,
+          "unsafe@1": 0.0,
+          "unsafe@5": 0.0,
+          "latency_ms@1": 0.08565,
+          "latency_ms@5": 0.05245
+        },
+        {
+          "seed": 2,
+          "recall@1": 0.0,
+          "recall@5": 0.0,
+          "MRR": 0.011683966413770008,
+          "MRR@5": 0.0,
+          "all_gold@1": 0.0,
+          "all_gold@5": 0.0,
+          "unsafe@1": 0.0,
+          "unsafe@5": 0.0,
+          "latency_ms@1": 0.14495,
+          "latency_ms@5": 0.09964999999999999
+        }
+      ]
+    },
+    {
+      "category": "poison",
+      "system": "hippocampus",
+      "queries_per_seed": 40,
+      "metrics": {
+        "recall@1": {
+          "mean": 1.0,
+          "min": 1.0,
+          "max": 1.0
+        },
+        "recall@5": {
+          "mean": 1.0,
+          "min": 1.0,
+          "max": 1.0
+        },
+        "MRR": {
+          "mean": 1.0,
+          "min": 1.0,
+          "max": 1.0
+        },
+        "MRR@5": {
+          "mean": 1.0,
+          "min": 1.0,
+          "max": 1.0
+        },
+        "all_gold@1": {
+          "mean": 1.0,
+          "min": 1.0,
+          "max": 1.0
+        },
+        "all_gold@5": {
+          "mean": 1.0,
+          "min": 1.0,
+          "max": 1.0
+        },
+        "unsafe@1": {
+          "mean": 0.0,
+          "min": 0.0,
+          "max": 0.0
+        },
+        "unsafe@5": {
+          "mean": 0.0,
+          "min": 0.0,
+          "max": 0.0
+        },
+        "latency_ms@1": {
+          "mean": 0.15231666666666666,
+          "min": 0.1225,
+          "max": 0.2069
+        },
+        "latency_ms@5": {
+          "mean": 0.13046666666666668,
+          "min": 0.10200000000000001,
+          "max": 0.18445
+        }
+      },
+      "median_latency_ms@5": 0.10930000000000001,
+      "per_seed": [
+        {
+          "seed": 0,
+          "recall@1": 1.0,
+          "recall@5": 1.0,
+          "MRR": 1.0,
+          "MRR@5": 1.0,
+          "all_gold@1": 1.0,
+          "all_gold@5": 1.0,
+          "unsafe@1": 0.0,
+          "unsafe@5": 0.0,
+          "latency_ms@1": 0.12755,
+          "latency_ms@5": 0.10200000000000001
+        },
+        {
+          "seed": 1,
+          "recall@1": 1.0,
+          "recall@5": 1.0,
+          "MRR": 1.0,
+          "MRR@5": 1.0,
+          "all_gold@1": 1.0,
+          "all_gold@5": 1.0,
+          "unsafe@1": 0.0,
+          "unsafe@5": 0.0,
+          "latency_ms@1": 0.1225,
+          "latency_ms@5": 0.10494999999999999
+        },
+        {
+          "seed": 2,
+          "recall@1": 1.0,
+          "recall@5": 1.0,
+          "MRR": 1.0,
+          "MRR@5": 1.0,
+          "all_gold@1": 1.0,
+          "all_gold@5": 1.0,
+          "unsafe@1": 0.0,
+          "unsafe@5": 0.0,
+          "latency_ms@1": 0.2069,
+          "latency_ms@5": 0.18445
+        }
+      ]
+    },
+    {
+      "category": "poison",
+      "system": "rag",
+      "queries_per_seed": 40,
+      "metrics": {
+        "recall@1": {
+          "mean": 0.0,
+          "min": 0.0,
+          "max": 0.0
+        },
+        "recall@5": {
+          "mean": 0.0,
+          "min": 0.0,
+          "max": 0.0
+        },
+        "MRR": {
+          "mean": 0.0,
+          "min": 0.0,
+          "max": 0.0
+        },
+        "MRR@5": {
+          "mean": 0.0,
+          "min": 0.0,
+          "max": 0.0
+        },
+        "all_gold@1": {
+          "mean": 0.0,
+          "min": 0.0,
+          "max": 0.0
+        },
+        "all_gold@5": {
+          "mean": 0.0,
+          "min": 0.0,
+          "max": 0.0
+        },
+        "unsafe@1": {
+          "mean": 1.0,
+          "min": 1.0,
+          "max": 1.0
+        },
+        "unsafe@5": {
+          "mean": 1.0,
+          "min": 1.0,
+          "max": 1.0
+        },
+        "latency_ms@1": {
+          "mean": 2.1667,
+          "min": 1.633,
+          "max": 3.1433
+        },
+        "latency_ms@5": {
+          "mean": 2.18645,
+          "min": 1.6125,
+          "max": 3.2561999999999998
+        }
+      },
+      "median_latency_ms@5": 1.7771,
+      "per_seed": [
+        {
+          "seed": 0,
+          "recall@1": 0.0,
+          "recall@5": 0.0,
+          "MRR": 0.0,
+          "MRR@5": 0.0,
+          "all_gold@1": 0.0,
+          "all_gold@5": 0.0,
+          "unsafe@1": 1.0,
+          "unsafe@5": 1.0,
+          "latency_ms@1": 1.633,
+          "latency_ms@5": 1.6125
+        },
+        {
+          "seed": 1,
+          "recall@1": 0.0,
+          "recall@5": 0.0,
+          "MRR": 0.0,
+          "MRR@5": 0.0,
+          "all_gold@1": 0.0,
+          "all_gold@5": 0.0,
+          "unsafe@1": 1.0,
+          "unsafe@5": 1.0,
+          "latency_ms@1": 1.7238,
+          "latency_ms@5": 1.69065
+        },
+        {
+          "seed": 2,
+          "recall@1": 0.0,
+          "recall@5": 0.0,
+          "MRR": 0.0,
+          "MRR@5": 0.0,
+          "all_gold@1": 0.0,
+          "all_gold@5": 0.0,
+          "unsafe@1": 1.0,
+          "unsafe@5": 1.0,
+          "latency_ms@1": 3.1433,
+          "latency_ms@5": 3.2561999999999998
+        }
+      ]
+    },
+    {
+      "category": "poison",
+      "system": "text_notes",
+      "queries_per_seed": 40,
+      "metrics": {
+        "recall@1": {
+          "mean": 0.008333333333333333,
+          "min": 0.0,
+          "max": 0.025
+        },
+        "recall@5": {
+          "mean": 0.0,
+          "min": 0.0,
+          "max": 0.0
+        },
+        "MRR": {
+          "mean": 0.0,
+          "min": 0.0,
+          "max": 0.0
+        },
+        "MRR@5": {
+          "mean": 0.0,
+          "min": 0.0,
+          "max": 0.0
+        },
+        "all_gold@1": {
+          "mean": 0.008333333333333333,
+          "min": 0.0,
+          "max": 0.025
+        },
+        "all_gold@5": {
+          "mean": 0.0,
+          "min": 0.0,
+          "max": 0.0
+        },
+        "unsafe@1": {
+          "mean": 0.6666666666666666,
+          "min": 0.0,
+          "max": 1.0
+        },
+        "unsafe@5": {
+          "mean": 1.0,
+          "min": 1.0,
+          "max": 1.0
+        },
+        "latency_ms@1": {
+          "mean": 0.02105,
+          "min": 0.0154,
+          "max": 0.032049999999999995
+        },
+        "latency_ms@5": {
+          "mean": 0.017766666666666667,
+          "min": 0.0131,
+          "max": 0.026549999999999997
+        }
+      },
+      "median_latency_ms@5": 0.0137,
+      "per_seed": [
+        {
+          "seed": 0,
+          "recall@1": 0.0,
+          "recall@5": 0.0,
+          "MRR": 0.0,
+          "MRR@5": 0.0,
+          "all_gold@1": 0.0,
+          "all_gold@5": 0.0,
+          "unsafe@1": 1.0,
+          "unsafe@5": 1.0,
+          "latency_ms@1": 0.0154,
+          "latency_ms@5": 0.0131
+        },
+        {
+          "seed": 1,
+          "recall@1": 0.025,
+          "recall@5": 0.0,
+          "MRR": 0.0,
+          "MRR@5": 0.0,
+          "all_gold@1": 0.025,
+          "all_gold@5": 0.0,
+          "unsafe@1": 0.0,
+          "unsafe@5": 1.0,
+          "latency_ms@1": 0.0157,
+          "latency_ms@5": 0.013649999999999999
+        },
+        {
+          "seed": 2,
+          "recall@1": 0.0,
+          "recall@5": 0.0,
+          "MRR": 0.0,
+          "MRR@5": 0.0,
+          "all_gold@1": 0.0,
+          "all_gold@5": 0.0,
+          "unsafe@1": 1.0,
+          "unsafe@5": 1.0,
+          "latency_ms@1": 0.032049999999999995,
+          "latency_ms@5": 0.026549999999999997
+        }
+      ]
+    },
+    {
+      "category": "scale_100",
+      "system": "hippocampus",
+      "queries_per_seed": 40,
+      "metrics": {
+        "recall@1": {
+          "mean": 0.975,
+          "min": 0.95,
+          "max": 1.0
+        },
+        "recall@5": {
+          "mean": 0.9833333333333333,
+          "min": 0.975,
+          "max": 1.0
+        },
+        "MRR": {
+          "mean": 0.9791666666666666,
+          "min": 0.9625,
+          "max": 1.0
+        },
+        "MRR@5": {
+          "mean": 0.9791666666666666,
+          "min": 0.9625,
+          "max": 1.0
+        },
+        "all_gold@1": {
+          "mean": 0.975,
+          "min": 0.95,
+          "max": 1.0
+        },
+        "all_gold@5": {
+          "mean": 0.9833333333333333,
+          "min": 0.975,
+          "max": 1.0
+        },
+        "unsafe@1": {
+          "mean": 0.0,
+          "min": 0.0,
+          "max": 0.0
+        },
+        "unsafe@5": {
+          "mean": 0.0,
+          "min": 0.0,
+          "max": 0.0
+        },
+        "latency_ms@1": {
+          "mean": 0.20478333333333334,
+          "min": 0.1765,
+          "max": 0.26080000000000003
+        },
+        "latency_ms@5": {
+          "mean": 0.16941666666666666,
+          "min": 0.13579999999999998,
+          "max": 0.23504999999999998
+        }
+      },
+      "median_latency_ms@5": 0.1927,
+      "per_seed": [
+        {
+          "seed": 0,
+          "recall@1": 0.975,
+          "recall@5": 0.975,
+          "MRR": 0.975,
+          "MRR@5": 0.975,
+          "all_gold@1": 0.975,
+          "all_gold@5": 0.975,
+          "unsafe@1": 0.0,
+          "unsafe@5": 0.0,
+          "latency_ms@1": 0.1765,
+          "latency_ms@5": 0.13579999999999998
+        },
+        {
+          "seed": 1,
+          "recall@1": 1.0,
+          "recall@5": 1.0,
+          "MRR": 1.0,
+          "MRR@5": 1.0,
+          "all_gold@1": 1.0,
+          "all_gold@5": 1.0,
+          "unsafe@1": 0.0,
+          "unsafe@5": 0.0,
+          "latency_ms@1": 0.17704999999999999,
+          "latency_ms@5": 0.1374
+        },
+        {
+          "seed": 2,
+          "recall@1": 0.95,
+          "recall@5": 0.975,
+          "MRR": 0.9625,
+          "MRR@5": 0.9625,
+          "all_gold@1": 0.95,
+          "all_gold@5": 0.975,
+          "unsafe@1": 0.0,
+          "unsafe@5": 0.0,
+          "latency_ms@1": 0.26080000000000003,
+          "latency_ms@5": 0.23504999999999998
+        }
+      ]
+    },
+    {
+      "category": "scale_100",
+      "system": "rag",
+      "queries_per_seed": 40,
+      "metrics": {
+        "recall@1": {
+          "mean": 0.9833333333333333,
+          "min": 0.975,
+          "max": 1.0
+        },
+        "recall@5": {
+          "mean": 1.0,
+          "min": 1.0,
+          "max": 1.0
+        },
+        "MRR": {
+          "mean": 0.9916666666666667,
+          "min": 0.9875,
+          "max": 1.0
+        },
+        "MRR@5": {
+          "mean": 0.9916666666666667,
+          "min": 0.9875,
+          "max": 1.0
+        },
+        "all_gold@1": {
+          "mean": 0.9833333333333333,
+          "min": 0.975,
+          "max": 1.0
+        },
+        "all_gold@5": {
+          "mean": 1.0,
+          "min": 1.0,
+          "max": 1.0
+        },
+        "unsafe@1": {
+          "mean": 0.0,
+          "min": 0.0,
+          "max": 0.0
+        },
+        "unsafe@5": {
+          "mean": 0.0,
+          "min": 0.0,
+          "max": 0.0
+        },
+        "latency_ms@1": {
+          "mean": 3.0075833333333333,
+          "min": 2.2439,
+          "max": 4.4087
+        },
+        "latency_ms@5": {
+          "mean": 2.9738666666666664,
+          "min": 2.2211499999999997,
+          "max": 4.3071
+        }
+      },
+      "median_latency_ms@5": 2.5093,
+      "per_seed": [
+        {
+          "seed": 0,
+          "recall@1": 0.975,
+          "recall@5": 1.0,
+          "MRR": 0.9875,
+          "MRR@5": 0.9875,
+          "all_gold@1": 0.975,
+          "all_gold@5": 1.0,
+          "unsafe@1": 0.0,
+          "unsafe@5": 0.0,
+          "latency_ms@1": 2.2439,
+          "latency_ms@5": 2.2211499999999997
+        },
+        {
+          "seed": 1,
+          "recall@1": 1.0,
+          "recall@5": 1.0,
+          "MRR": 1.0,
+          "MRR@5": 1.0,
+          "all_gold@1": 1.0,
+          "all_gold@5": 1.0,
+          "unsafe@1": 0.0,
+          "unsafe@5": 0.0,
+          "latency_ms@1": 2.3701499999999998,
+          "latency_ms@5": 2.39335
+        },
+        {
+          "seed": 2,
+          "recall@1": 0.975,
+          "recall@5": 1.0,
+          "MRR": 0.9875,
+          "MRR@5": 0.9875,
+          "all_gold@1": 0.975,
+          "all_gold@5": 1.0,
+          "unsafe@1": 0.0,
+          "unsafe@5": 0.0,
+          "latency_ms@1": 4.4087,
+          "latency_ms@5": 4.3071
+        }
+      ]
+    },
+    {
+      "category": "scale_100",
+      "system": "text_notes",
+      "queries_per_seed": 40,
+      "metrics": {
+        "recall@1": {
+          "mean": 0.016666666666666666,
+          "min": 0.0,
+          "max": 0.025
+        },
+        "recall@5": {
+          "mean": 0.06666666666666667,
+          "min": 0.05,
+          "max": 0.075
+        },
+        "MRR": {
+          "mean": 0.06149826816991714,
+          "min": 0.04411534403819352,
+          "max": 0.0748382721789999
+        },
+        "MRR@5": {
+          "mean": 0.032916666666666664,
+          "min": 0.014583333333333334,
+          "max": 0.04583333333333333
+        },
+        "all_gold@1": {
+          "mean": 0.016666666666666666,
+          "min": 0.0,
+          "max": 0.025
+        },
+        "all_gold@5": {
+          "mean": 0.06666666666666667,
+          "min": 0.05,
+          "max": 0.075
+        },
+        "unsafe@1": {
+          "mean": 0.0,
+          "min": 0.0,
+          "max": 0.0
+        },
+        "unsafe@5": {
+          "mean": 0.0,
+          "min": 0.0,
+          "max": 0.0
+        },
+        "latency_ms@1": {
+          "mean": 0.02895,
+          "min": 0.02085,
+          "max": 0.041550000000000004
+        },
+        "latency_ms@5": {
+          "mean": 0.0194,
+          "min": 0.0155,
+          "max": 0.0271
+        }
+      },
+      "median_latency_ms@5": 0.016,
+      "per_seed": [
+        {
+          "seed": 0,
+          "recall@1": 0.0,
+          "recall@5": 0.05,
+          "MRR": 0.04411534403819352,
+          "MRR@5": 0.014583333333333334,
+          "all_gold@1": 0.0,
+          "all_gold@5": 0.05,
+          "unsafe@1": 0.0,
+          "unsafe@5": 0.0,
+          "latency_ms@1": 0.02085,
+          "latency_ms@5": 0.0155
+        },
+        {
+          "seed": 1,
+          "recall@1": 0.025,
+          "recall@5": 0.075,
+          "MRR": 0.0748382721789999,
+          "MRR@5": 0.04583333333333333,
+          "all_gold@1": 0.025,
+          "all_gold@5": 0.075,
+          "unsafe@1": 0.0,
+          "unsafe@5": 0.0,
+          "latency_ms@1": 0.02445,
+          "latency_ms@5": 0.0156
+        },
+        {
+          "seed": 2,
+          "recall@1": 0.025,
+          "recall@5": 0.075,
+          "MRR": 0.06554118829255799,
+          "MRR@5": 0.03833333333333333,
+          "all_gold@1": 0.025,
+          "all_gold@5": 0.075,
+          "unsafe@1": 0.0,
+          "unsafe@5": 0.0,
+          "latency_ms@1": 0.041550000000000004,
+          "latency_ms@5": 0.0271
+        }
+      ]
+    },
+    {
+      "category": "scale_1000",
+      "system": "hippocampus",
+      "queries_per_seed": 40,
+      "metrics": {
+        "recall@1": {
+          "mean": 0.9583333333333334,
+          "min": 0.925,
+          "max": 1.0
+        },
+        "recall@5": {
+          "mean": 0.9583333333333334,
+          "min": 0.925,
+          "max": 1.0
+        },
+        "MRR": {
+          "mean": 0.9583333333333334,
+          "min": 0.925,
+          "max": 1.0
+        },
+        "MRR@5": {
+          "mean": 0.9583333333333334,
+          "min": 0.925,
+          "max": 1.0
+        },
+        "all_gold@1": {
+          "mean": 0.9583333333333334,
+          "min": 0.925,
+          "max": 1.0
+        },
+        "all_gold@5": {
+          "mean": 0.9583333333333334,
+          "min": 0.925,
+          "max": 1.0
+        },
+        "unsafe@1": {
+          "mean": 0.0,
+          "min": 0.0,
+          "max": 0.0
+        },
+        "unsafe@5": {
+          "mean": 0.0,
+          "min": 0.0,
+          "max": 0.0
+        },
+        "latency_ms@1": {
+          "mean": 3.509716666666667,
+          "min": 2.9089,
+          "max": 4.6018
+        },
+        "latency_ms@5": {
+          "mean": 3.1307,
+          "min": 2.53695,
+          "max": 4.2814
+        }
+      },
+      "median_latency_ms@5": 2.6826999999999996,
+      "per_seed": [
+        {
+          "seed": 0,
+          "recall@1": 1.0,
+          "recall@5": 1.0,
+          "MRR": 1.0,
+          "MRR@5": 1.0,
+          "all_gold@1": 1.0,
+          "all_gold@5": 1.0,
+          "unsafe@1": 0.0,
+          "unsafe@5": 0.0,
+          "latency_ms@1": 3.01845,
+          "latency_ms@5": 2.57375
+        },
+        {
+          "seed": 1,
+          "recall@1": 0.95,
+          "recall@5": 0.95,
+          "MRR": 0.95,
+          "MRR@5": 0.95,
+          "all_gold@1": 0.95,
+          "all_gold@5": 0.95,
+          "unsafe@1": 0.0,
+          "unsafe@5": 0.0,
+          "latency_ms@1": 2.9089,
+          "latency_ms@5": 2.53695
+        },
+        {
+          "seed": 2,
+          "recall@1": 0.925,
+          "recall@5": 0.925,
+          "MRR": 0.925,
+          "MRR@5": 0.925,
+          "all_gold@1": 0.925,
+          "all_gold@5": 0.925,
+          "unsafe@1": 0.0,
+          "unsafe@5": 0.0,
+          "latency_ms@1": 4.6018,
+          "latency_ms@5": 4.2814
+        }
+      ]
+    },
+    {
+      "category": "scale_1000",
+      "system": "rag",
+      "queries_per_seed": 40,
+      "metrics": {
+        "recall@1": {
+          "mean": 0.95,
+          "min": 0.925,
+          "max": 0.975
+        },
+        "recall@5": {
+          "mean": 1.0,
+          "min": 1.0,
+          "max": 1.0
+        },
+        "MRR": {
+          "mean": 0.9736111111111111,
+          "min": 0.9583333333333334,
+          "max": 0.9875
+        },
+        "MRR@5": {
+          "mean": 0.9736111111111111,
+          "min": 0.9583333333333334,
+          "max": 0.9875
+        },
+        "all_gold@1": {
+          "mean": 0.95,
+          "min": 0.925,
+          "max": 0.975
+        },
+        "all_gold@5": {
+          "mean": 1.0,
+          "min": 1.0,
+          "max": 1.0
+        },
+        "unsafe@1": {
+          "mean": 0.0,
+          "min": 0.0,
+          "max": 0.0
+        },
+        "unsafe@5": {
+          "mean": 0.0,
+          "min": 0.0,
+          "max": 0.0
+        },
+        "latency_ms@1": {
+          "mean": 30.585183333333333,
+          "min": 22.974,
+          "max": 43.320049999999995
+        },
+        "latency_ms@5": {
+          "mean": 31.1268,
+          "min": 23.14135,
+          "max": 44.8755
+        }
+      },
+      "median_latency_ms@5": 25.522100000000002,
+      "per_seed": [
+        {
+          "seed": 0,
+          "recall@1": 0.925,
+          "recall@5": 1.0,
+          "MRR": 0.9583333333333334,
+          "MRR@5": 0.9583333333333334,
+          "all_gold@1": 0.925,
+          "all_gold@5": 1.0,
+          "unsafe@1": 0.0,
+          "unsafe@5": 0.0,
+          "latency_ms@1": 22.974,
+          "latency_ms@5": 23.14135
+        },
+        {
+          "seed": 1,
+          "recall@1": 0.975,
+          "recall@5": 1.0,
+          "MRR": 0.9875,
+          "MRR@5": 0.9875,
+          "all_gold@1": 0.975,
+          "all_gold@5": 1.0,
+          "unsafe@1": 0.0,
+          "unsafe@5": 0.0,
+          "latency_ms@1": 25.4615,
+          "latency_ms@5": 25.36355
+        },
+        {
+          "seed": 2,
+          "recall@1": 0.95,
+          "recall@5": 1.0,
+          "MRR": 0.975,
+          "MRR@5": 0.975,
+          "all_gold@1": 0.95,
+          "all_gold@5": 1.0,
+          "unsafe@1": 0.0,
+          "unsafe@5": 0.0,
+          "latency_ms@1": 43.320049999999995,
+          "latency_ms@5": 44.8755
+        }
+      ]
+    },
+    {
+      "category": "scale_1000",
+      "system": "text_notes",
+      "queries_per_seed": 40,
+      "metrics": {
+        "recall@1": {
+          "mean": 0.0,
+          "min": 0.0,
+          "max": 0.0
+        },
+        "recall@5": {
+          "mean": 0.0,
+          "min": 0.0,
+          "max": 0.0
+        },
+        "MRR": {
+          "mean": 0.0010546707994550173,
+          "min": 0.0010539580547189106,
+          "max": 0.0010560302417745133
+        },
+        "MRR@5": {
+          "mean": 0.0,
+          "min": 0.0,
+          "max": 0.0
+        },
+        "all_gold@1": {
+          "mean": 0.0,
+          "min": 0.0,
+          "max": 0.0
+        },
+        "all_gold@5": {
+          "mean": 0.0,
+          "min": 0.0,
+          "max": 0.0
+        },
+        "unsafe@1": {
+          "mean": 0.0,
+          "min": 0.0,
+          "max": 0.0
+        },
+        "unsafe@5": {
+          "mean": 0.0,
+          "min": 0.0,
+          "max": 0.0
+        },
+        "latency_ms@1": {
+          "mean": 0.22988333333333333,
+          "min": 0.1436,
+          "max": 0.33215
+        },
+        "latency_ms@5": {
+          "mean": 0.16905,
+          "min": 0.12919999999999998,
+          "max": 0.24685
+        }
+      },
+      "median_latency_ms@5": 0.1343,
+      "per_seed": [
+        {
+          "seed": 0,
+          "recall@1": 0.0,
+          "recall@5": 0.0,
+          "MRR": 0.0010560302417745133,
+          "MRR@5": 0.0,
+          "all_gold@1": 0.0,
+          "all_gold@5": 0.0,
+          "unsafe@1": 0.0,
+          "unsafe@5": 0.0,
+          "latency_ms@1": 0.1436,
+          "latency_ms@5": 0.12919999999999998
+        },
+        {
+          "seed": 1,
+          "recall@1": 0.0,
+          "recall@5": 0.0,
+          "MRR": 0.0010539580547189106,
+          "MRR@5": 0.0,
+          "all_gold@1": 0.0,
+          "all_gold@5": 0.0,
+          "unsafe@1": 0.0,
+          "unsafe@5": 0.0,
+          "latency_ms@1": 0.21389999999999998,
+          "latency_ms@5": 0.1311
+        },
+        {
+          "seed": 2,
+          "recall@1": 0.0,
+          "recall@5": 0.0,
+          "MRR": 0.0010540241018716279,
+          "MRR@5": 0.0,
+          "all_gold@1": 0.0,
+          "all_gold@5": 0.0,
+          "unsafe@1": 0.0,
+          "unsafe@5": 0.0,
+          "latency_ms@1": 0.33215,
+          "latency_ms@5": 0.24685
+        }
+      ]
+    },
+    {
+      "category": "scale_10000",
+      "system": "hippocampus",
+      "queries_per_seed": 40,
+      "metrics": {
+        "recall@1": {
+          "mean": 0.9583333333333334,
+          "min": 0.925,
+          "max": 0.975
+        },
+        "recall@5": {
+          "mean": 0.9583333333333334,
+          "min": 0.925,
+          "max": 0.975
+        },
+        "MRR": {
+          "mean": 0.9583333333333334,
+          "min": 0.925,
+          "max": 0.975
+        },
+        "MRR@5": {
+          "mean": 0.9583333333333334,
+          "min": 0.925,
+          "max": 0.975
+        },
+        "all_gold@1": {
+          "mean": 0.9583333333333334,
+          "min": 0.925,
+          "max": 0.975
+        },
+        "all_gold@5": {
+          "mean": 0.9583333333333334,
+          "min": 0.925,
+          "max": 0.975
+        },
+        "unsafe@1": {
+          "mean": 0.0,
+          "min": 0.0,
+          "max": 0.0
+        },
+        "unsafe@5": {
+          "mean": 0.0,
+          "min": 0.0,
+          "max": 0.0
+        },
+        "latency_ms@1": {
+          "mean": 35.3925,
+          "min": 30.1495,
+          "max": 40.38525
+        },
+        "latency_ms@5": {
+          "mean": 35.21491666666667,
+          "min": 29.82745,
+          "max": 41.13175
+        }
+      },
+      "median_latency_ms@5": 34.8828,
+      "per_seed": [
+        {
+          "seed": 0,
+          "recall@1": 0.925,
+          "recall@5": 0.925,
+          "MRR": 0.925,
+          "MRR@5": 0.925,
+          "all_gold@1": 0.925,
+          "all_gold@5": 0.925,
+          "unsafe@1": 0.0,
+          "unsafe@5": 0.0,
+          "latency_ms@1": 30.1495,
+          "latency_ms@5": 29.82745
+        },
+        {
+          "seed": 1,
+          "recall@1": 0.975,
+          "recall@5": 0.975,
+          "MRR": 0.975,
+          "MRR@5": 0.975,
+          "all_gold@1": 0.975,
+          "all_gold@5": 0.975,
+          "unsafe@1": 0.0,
+          "unsafe@5": 0.0,
+          "latency_ms@1": 35.64275000000001,
+          "latency_ms@5": 34.68555
+        },
+        {
+          "seed": 2,
+          "recall@1": 0.975,
+          "recall@5": 0.975,
+          "MRR": 0.975,
+          "MRR@5": 0.975,
+          "all_gold@1": 0.975,
+          "all_gold@5": 0.975,
+          "unsafe@1": 0.0,
+          "unsafe@5": 0.0,
+          "latency_ms@1": 40.38525,
+          "latency_ms@5": 41.13175
+        }
+      ]
+    },
+    {
+      "category": "scale_10000",
+      "system": "rag",
+      "queries_per_seed": 40,
+      "metrics": {
+        "recall@1": {
+          "mean": 0.7916666666666666,
+          "min": 0.725,
+          "max": 0.825
+        },
+        "recall@5": {
+          "mean": 0.9833333333333333,
+          "min": 0.975,
+          "max": 1.0
+        },
+        "MRR": {
+          "mean": 0.8742123538011696,
+          "min": 0.8402412280701754,
+          "max": 0.9020833333333333
+        },
+        "MRR@5": {
+          "mean": 0.8734722222222222,
+          "min": 0.8395833333333333,
+          "max": 0.9020833333333333
+        },
+        "all_gold@1": {
+          "mean": 0.7916666666666666,
+          "min": 0.725,
+          "max": 0.825
+        },
+        "all_gold@5": {
+          "mean": 0.9833333333333333,
+          "min": 0.975,
+          "max": 1.0
+        },
+        "unsafe@1": {
+          "mean": 0.0,
+          "min": 0.0,
+          "max": 0.0
+        },
+        "unsafe@5": {
+          "mean": 0.0,
+          "min": 0.0,
+          "max": 0.0
+        },
+        "latency_ms@1": {
+          "mean": 301.9024,
+          "min": 238.0735,
+          "max": 429.23005
+        },
+        "latency_ms@5": {
+          "mean": 304.2115166666667,
+          "min": 242.8854,
+          "max": 425.13185
+        }
+      },
+      "median_latency_ms@5": 263.87585,
+      "per_seed": [
+        {
+          "seed": 0,
+          "recall@1": 0.725,
+          "recall@5": 0.975,
+          "MRR": 0.8402412280701754,
+          "MRR@5": 0.8395833333333333,
+          "all_gold@1": 0.725,
+          "all_gold@5": 0.975,
+          "unsafe@1": 0.0,
+          "unsafe@5": 0.0,
+          "latency_ms@1": 238.0735,
+          "latency_ms@5": 244.6173
+        },
+        {
+          "seed": 1,
+          "recall@1": 0.825,
+          "recall@5": 1.0,
+          "MRR": 0.9020833333333333,
+          "MRR@5": 0.9020833333333333,
+          "all_gold@1": 0.825,
+          "all_gold@5": 1.0,
+          "unsafe@1": 0.0,
+          "unsafe@5": 0.0,
+          "latency_ms@1": 238.40365,
+          "latency_ms@5": 242.8854
+        },
+        {
+          "seed": 2,
+          "recall@1": 0.825,
+          "recall@5": 0.975,
+          "MRR": 0.8803125,
+          "MRR@5": 0.87875,
+          "all_gold@1": 0.825,
+          "all_gold@5": 0.975,
+          "unsafe@1": 0.0,
+          "unsafe@5": 0.0,
+          "latency_ms@1": 429.23005,
+          "latency_ms@5": 425.13185
+        }
+      ]
+    },
+    {
+      "category": "scale_10000",
+      "system": "text_notes",
+      "queries_per_seed": 40,
+      "metrics": {
+        "recall@1": {
+          "mean": 0.0,
+          "min": 0.0,
+          "max": 0.0
+        },
+        "recall@5": {
+          "mean": 0.0,
+          "min": 0.0,
+          "max": 0.0
+        },
+        "MRR": {
+          "mean": 0.00010051296331954222,
+          "min": 0.00010050571719869719,
+          "max": 0.00010052579635722294
+        },
+        "MRR@5": {
+          "mean": 0.0,
+          "min": 0.0,
+          "max": 0.0
+        },
+        "all_gold@1": {
+          "mean": 0.0,
+          "min": 0.0,
+          "max": 0.0
+        },
+        "all_gold@5": {
+          "mean": 0.0,
+          "min": 0.0,
+          "max": 0.0
+        },
+        "unsafe@1": {
+          "mean": 0.0,
+          "min": 0.0,
+          "max": 0.0
+        },
+        "unsafe@5": {
+          "mean": 0.0,
+          "min": 0.0,
+          "max": 0.0
+        },
+        "latency_ms@1": {
+          "mean": 3.11395,
+          "min": 2.1155999999999997,
+          "max": 4.279
+        },
+        "latency_ms@5": {
+          "mean": 2.38055,
+          "min": 1.6679,
+          "max": 3.3721
+        }
+      },
+      "median_latency_ms@5": 2.154,
+      "per_seed": [
+        {
+          "seed": 0,
+          "recall@1": 0.0,
+          "recall@5": 0.0,
+          "MRR": 0.00010052579635722294,
+          "MRR@5": 0.0,
+          "all_gold@1": 0.0,
+          "all_gold@5": 0.0,
+          "unsafe@1": 0.0,
+          "unsafe@5": 0.0,
+          "latency_ms@1": 2.1155999999999997,
+          "latency_ms@5": 1.6679
+        },
+        {
+          "seed": 1,
+          "recall@1": 0.0,
+          "recall@5": 0.0,
+          "MRR": 0.00010050571719869719,
+          "MRR@5": 0.0,
+          "all_gold@1": 0.0,
+          "all_gold@5": 0.0,
+          "unsafe@1": 0.0,
+          "unsafe@5": 0.0,
+          "latency_ms@1": 2.94725,
+          "latency_ms@5": 2.1016500000000002
+        },
+        {
+          "seed": 2,
+          "recall@1": 0.0,
+          "recall@5": 0.0,
+          "MRR": 0.00010050737640270655,
+          "MRR@5": 0.0,
+          "all_gold@1": 0.0,
+          "all_gold@5": 0.0,
+          "unsafe@1": 0.0,
+          "unsafe@5": 0.0,
+          "latency_ms@1": 4.279,
+          "latency_ms@5": 3.3721
+        }
+      ]
+    },
+    {
+      "category": "overall",
+      "system": "hippocampus",
+      "queries_per_seed": 320,
+      "metrics": {
+        "recall@1": {
+          "mean": 0.91875,
+          "min": 0.9125,
+          "max": 0.928125
+        },
+        "recall@5": {
+          "mean": 0.9458333333333333,
+          "min": 0.9453125,
+          "max": 0.946875
+        },
+        "MRR": {
+          "mean": 0.9822916666666667,
+          "min": 0.9765625,
+          "max": 0.990625
+        },
+        "MRR@5": {
+          "mean": 0.9822916666666667,
+          "min": 0.9765625,
+          "max": 0.990625
+        },
+        "all_gold@1": {
+          "mean": 0.85625,
+          "min": 0.85,
+          "max": 0.865625
+        },
+        "all_gold@5": {
+          "mean": 0.9083333333333333,
+          "min": 0.9,
+          "max": 0.915625
+        },
+        "unsafe@1": {
+          "mean": 0.0,
+          "min": 0.0,
+          "max": 0.0
+        },
+        "unsafe@5": {
+          "mean": 0.0,
+          "min": 0.0,
+          "max": 0.0
+        },
+        "latency_ms@1": {
+          "mean": 0.2196,
+          "min": 0.17765,
+          "max": 0.2734
+        },
+        "latency_ms@5": {
+          "mean": 0.18121666666666666,
+          "min": 0.14055,
+          "max": 0.2374
+        }
+      },
+      "median_latency_ms@5": 0.21315,
+      "per_seed": [
+        {
+          "seed": 0,
+          "recall@1": 0.9125,
+          "recall@5": 0.946875,
+          "MRR": 0.9765625,
+          "MRR@5": 0.9765625,
+          "all_gold@1": 0.85,
+          "all_gold@5": 0.915625,
+          "unsafe@1": 0.0,
+          "unsafe@5": 0.0,
+          "latency_ms@1": 0.17765,
+          "latency_ms@5": 0.14055
+        },
+        {
+          "seed": 1,
+          "recall@1": 0.928125,
+          "recall@5": 0.9453125,
+          "MRR": 0.990625,
+          "MRR@5": 0.990625,
+          "all_gold@1": 0.865625,
+          "all_gold@5": 0.9,
+          "unsafe@1": 0.0,
+          "unsafe@5": 0.0,
+          "latency_ms@1": 0.20775,
+          "latency_ms@5": 0.16570000000000001
+        },
+        {
+          "seed": 2,
+          "recall@1": 0.915625,
+          "recall@5": 0.9453125,
+          "MRR": 0.9796875,
+          "MRR@5": 0.9796875,
+          "all_gold@1": 0.853125,
+          "all_gold@5": 0.909375,
+          "unsafe@1": 0.0,
+          "unsafe@5": 0.0,
+          "latency_ms@1": 0.2734,
+          "latency_ms@5": 0.2374
+        }
+      ]
+    },
+    {
+      "category": "overall",
+      "system": "rag",
+      "queries_per_seed": 320,
+      "metrics": {
+        "recall@1": {
+          "mean": 0.6708333333333334,
+          "min": 0.6625,
+          "max": 0.675
+        },
+        "recall@5": {
+          "mean": 0.8140625,
+          "min": 0.8109375,
+          "max": 0.815625
+        },
+        "MRR": {
+          "mean": 0.8005091831140351,
+          "min": 0.7953947368421053,
+          "max": 0.8049479166666667
+        },
+        "MRR@5": {
+          "mean": 0.8002430555555555,
+          "min": 0.7953125,
+          "max": 0.8049479166666667
+        },
+        "all_gold@1": {
+          "mean": 0.6083333333333334,
+          "min": 0.6,
+          "max": 0.6125
+        },
+        "all_gold@5": {
+          "mean": 0.75625,
+          "min": 0.753125,
+          "max": 0.759375
+        },
+        "unsafe@1": {
+          "mean": 0.125,
+          "min": 0.125,
+          "max": 0.125
+        },
+        "unsafe@5": {
+          "mean": 0.125,
+          "min": 0.125,
+          "max": 0.125
+        },
+        "latency_ms@1": {
+          "mean": 2.94875,
+          "min": 2.12915,
+          "max": 4.35325
+        },
+        "latency_ms@5": {
+          "mean": 2.9263166666666667,
+          "min": 2.1205999999999996,
+          "max": 4.271100000000001
+        }
+      },
+      "median_latency_ms@5": 3.31175,
+      "per_seed": [
+        {
+          "seed": 0,
+          "recall@1": 0.6625,
+          "recall@5": 0.815625,
+          "MRR": 0.7953947368421053,
+          "MRR@5": 0.7953125,
+          "all_gold@1": 0.6,
+          "all_gold@5": 0.759375,
+          "unsafe@1": 0.125,
+          "unsafe@5": 0.125,
+          "latency_ms@1": 2.12915,
+          "latency_ms@5": 2.1205999999999996
+        },
+        {
+          "seed": 1,
+          "recall@1": 0.675,
+          "recall@5": 0.815625,
+          "MRR": 0.8049479166666667,
+          "MRR@5": 0.8049479166666667,
+          "all_gold@1": 0.6125,
+          "all_gold@5": 0.75625,
+          "unsafe@1": 0.125,
+          "unsafe@5": 0.125,
+          "latency_ms@1": 2.3638500000000002,
+          "latency_ms@5": 2.38725
+        },
+        {
+          "seed": 2,
+          "recall@1": 0.675,
+          "recall@5": 0.8109375,
+          "MRR": 0.8011848958333333,
+          "MRR@5": 0.80046875,
+          "all_gold@1": 0.6125,
+          "all_gold@5": 0.753125,
+          "unsafe@1": 0.125,
+          "unsafe@5": 0.125,
+          "latency_ms@1": 4.35325,
+          "latency_ms@5": 4.271100000000001
+        }
+      ]
+    },
+    {
+      "category": "overall",
+      "system": "text_notes",
+      "queries_per_seed": 320,
+      "metrics": {
+        "recall@1": {
+          "mean": 0.0109375,
+          "min": 0.0078125,
+          "max": 0.0140625
+        },
+        "recall@5": {
+          "mean": 0.04739583333333333,
+          "min": 0.0453125,
+          "max": 0.0484375
+        },
+        "MRR": {
+          "mean": 0.04862143661746291,
+          "min": 0.046525194334108205,
+          "max": 0.050066970833909166
+        },
+        "MRR@5": {
+          "mean": 0.025520833333333333,
+          "min": 0.023229166666666665,
+          "max": 0.027135416666666665
+        },
+        "all_gold@1": {
+          "mean": 0.009375,
+          "min": 0.00625,
+          "max": 0.0125
+        },
+        "all_gold@5": {
+          "mean": 0.03958333333333333,
+          "min": 0.0375,
+          "max": 0.040625
+        },
+        "unsafe@1": {
+          "mean": 0.08333333333333333,
+          "min": 0.0,
+          "max": 0.125
+        },
+        "unsafe@5": {
+          "mean": 0.125,
+          "min": 0.125,
+          "max": 0.125
+        },
+        "latency_ms@1": {
+          "mean": 0.030050000000000004,
+          "min": 0.0218,
+          "max": 0.040400000000000005
+        },
+        "latency_ms@5": {
+          "mean": 0.019966666666666667,
+          "min": 0.0153,
+          "max": 0.0289
+        }
+      },
+      "median_latency_ms@5": 0.02445,
+      "per_seed": [
+        {
+          "seed": 0,
+          "recall@1": 0.0078125,
+          "recall@5": 0.0453125,
+          "MRR": 0.046525194334108205,
+          "MRR@5": 0.023229166666666665,
+          "all_gold@1": 0.00625,
+          "all_gold@5": 0.0375,
+          "unsafe@1": 0.125,
+          "unsafe@5": 0.125,
+          "latency_ms@1": 0.0218,
+          "latency_ms@5": 0.0153
+        },
+        {
+          "seed": 1,
+          "recall@1": 0.0140625,
+          "recall@5": 0.0484375,
+          "MRR": 0.050066970833909166,
+          "MRR@5": 0.027135416666666665,
+          "all_gold@1": 0.0125,
+          "all_gold@5": 0.040625,
+          "unsafe@1": 0.0,
+          "unsafe@5": 0.125,
+          "latency_ms@1": 0.027950000000000003,
+          "latency_ms@5": 0.0157
+        },
+        {
+          "seed": 2,
+          "recall@1": 0.0109375,
+          "recall@5": 0.0484375,
+          "MRR": 0.049272144684371355,
+          "MRR@5": 0.026197916666666668,
+          "all_gold@1": 0.009375,
+          "all_gold@5": 0.040625,
+          "unsafe@1": 0.125,
+          "unsafe@5": 0.125,
+          "latency_ms@1": 0.040400000000000005,
+          "latency_ms@5": 0.0289
+        }
+      ]
+    }
+  ],
+  "datasets": [
+    {
+      "seed": 0,
+      "sha256": "94ec832df1cb960e312119f1b41c3da6428fbb2308e09c0a50e864b32b4b2a12"
+    },
+    {
+      "seed": 1,
+      "sha256": "cf22f3aff3021ed2dc5a37c9b66a9a2e6e036f47da0b0c8839ed014d1e74dee8"
+    },
+    {
+      "seed": 2,
+      "sha256": "4fefe04dcf2fa303ca90dccd1ec247d7cf87f84344f39889159bd4e1727cba3e"
+    }
+  ]
+}

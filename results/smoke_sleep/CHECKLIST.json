@@ -1,0 +1,552 @@
+{
+  "small": false,
+  "model": "Qwen/Qwen3-0.6B",
+  "seed": 0,
+  "torch": "2.5.1+cu121",
+  "gpu": "NVIDIA GeForce GTX 1650",
+  "steps": 64,
+  "lr": 0.0002,
+  "elapsed_seconds": 632.8470155000105,
+  "checks": {
+    "a": {
+      "status": "pass",
+      "evidence": {
+        "rule_A_on_no_hippo": 0.125,
+        "experts_off": 0.0,
+        "base": 0.0,
+        "criterion": "positive no-context gain; off equals base"
+      },
+      "explanation": "A without hippocampus: 0.125; experts off/base: 0.000/0.000."
+    },
+    "b": {
+      "status": "pass",
+      "evidence": {
+        "A_after_sleep1": 0.125,
+        "A_after_sleep2": 0.125,
+        "criterion": "nonzero learning retained without context"
+      },
+      "explanation": "A without hippocampus after sleeps 1/2: 0.125/0.125; requires nonzero learned accuracy and no drop."
+    },
+    "c": {
+      "status": "fail",
+      "evidence": {
+        "errors": [
+          {
+            "cycle": 3,
+            "task_id": "236db3e63b",
+            "skill": "fact:smoke",
+            "expert": "expert-2"
+          },
+          {
+            "cycle": 3,
+            "task_id": "334d8f68e6",
+            "skill": "fact:smoke",
+            "expert": "expert-2"
+          },
+          {
+            "cycle": 3,
+            "task_id": "3be74f1cf3",
+            "skill": "fact:smoke",
+            "expert": "expert-2"
+          },
+          {
+            "cycle": 3,
+            "task_id": "b02aaeeda1",
+            "skill": "fact:smoke",
+            "expert": "expert-2"
+          },
+          {
+            "cycle": 3,
+            "task_id": "b7e9bfbed0",
+            "skill": "fact:smoke",
+            "expert": "expert-2"
+          },
+          {
+            "cycle": 3,
+            "task_id": "f2f94351a4",
+            "skill": "fact:smoke",
+            "expert": "expert-2"
+          }
+        ],
+        "total": 82,
+        "expected": {
+          "rule:A": "expert-0",
+          "rule:B": "expert-1"
+        }
+      },
+      "explanation": "6 routing errors across 82 test prompts."
+    },
+    "d": {
+      "status": "fail",
+      "evidence": {
+        "revised_recall": [
+          "Fact: Update notice: the leader of Alder is now Sora.",
+          "Fact: Field note: the leader of Alder is Mira.",
+          "Question: Apply the Cobalt beacon rule to code nkuh. End your reply with a line 'Final answer: <answer>'.\nResponse: Final answer: <answer>\nCorrect: False\nCorrection: Correct answer: HUKN. Cobalt beacon rule: reverse the four-letter code, then uppercase it.",
+          "Question: Apply the Cobalt beacon rule to code xpyp. End your reply with a line 'Final answer: <answer>'.\nResponse: Final answer: <answer>\nCorrect: False\nCorrection: Correct answer: PYPX. Cobalt beacon rule: reverse the four-letter code, then uppercase it.",
+          "Question: Apply the Cobalt beacon rule to code guoa. End your reply with a line 'Final answer: <answer>'.\nResponse: Final answer: <answer>\nCorrect: False\nCorrection: Correct answer: AOUG. Cobalt beacon rule: reverse the four-letter code, then uppercase it."
+        ],
+        "poison_in_recall": [],
+        "quarantined_adds": [
+          {
+            "type": "add",
+            "t": 33.0,
+            "id": "m000031",
+            "kind": "fact",
+            "source": "untrusted",
+            "text": "Fact: Update notice: the leader of Birch is now Zorg.",
+            "trust": 0.2,
+            "quarantined": true,
+            "entities": [
+              "fact",
+              "update",
+              "birch",
+              "zorg"
+            ],
+            "meta": {
+              "task_source": "untrusted"
+            },
+            "seq": 57
+          }
+        ],
+        "criterion": "current fact only; poison never recalled"
+      },
+      "explanation": "Current revision recalled: True; obsolete original also recalled: True; quarantined poison recalled: 0."
+    },
+    "e": {
+      "status": "fail",
+      "evidence": {
+        "decision": {
+          "accept": true,
+          "accepted": true,
+          "candidate": "expert-2",
+          "checks": {
+            "canary": {
+              "cand_mean": 0.875,
+              "cur_mean": 0.875,
+              "diff": 0.0,
+              "margin": 0.0,
+              "n": 8,
+              "regression": false
+            },
+            "gate": {
+              "cand_mean": 0.75,
+              "cur_mean": 0.75,
+              "diff": 0.0,
+              "margin": 0.0,
+              "n": 8,
+              "regression": false
+            }
+          },
+          "examples": 16,
+          "fault_injected": true,
+          "nap": {
+            "applied": 5,
+            "pending": 8
+          },
+          "peak_gpu_mib": 1320.15185546875,
+          "peak_reserved_mib": 1476.0,
+          "poison_absorbed_candidate": 0,
+          "poison_absorbed_current": 0,
+          "reasons": [],
+          "replay": 8,
+          "wall_seconds": 8.645561199984513
+        },
+        "before_hash": "c266155f168eb630b9dbcd13709ad9ef7a37b66ea3bc4b404d20ee578373d07a",
+        "after_hash": "d5095ea916e844762a132e543137ce6f61a2f5058862b54239a27c6b04f50f1c",
+        "outputs_identical": false,
+        "active_unchanged": false,
+        "events_unchanged": false,
+        "router_unchanged": false
+      },
+      "explanation": "Broken candidate accepted: True; post-sleep outputs identical: False. The unchanged gate rejects regressions beyond paired noise, not arbitrary bad weights."
+    },
+    "f": {
+      "status": "pass",
+      "evidence": {
+        "before_fingerprint": "b1e94a42f08ed41c5543dce81ff568c1e39935d20f04e8f988ee2361921520c0",
+        "after_fingerprint": "b1e94a42f08ed41c5543dce81ff568c1e39935d20f04e8f988ee2361921520c0",
+        "base_before_hash": "d93a6405268ff1be438b022f726d528ceffbd8b087881f241c03de548f8cd0c1",
+        "base_after_hash": "d93a6405268ff1be438b022f726d528ceffbd8b087881f241c03de548f8cd0c1",
+        "old_adapters_unchanged": [
+          true,
+          true,
+          true
+        ]
+      },
+      "explanation": "Frozen fingerprint equal: True; uncached base outputs identical: True."
+    },
+    "g": {
+      "status": "pass",
+      "evidence": {
+        "split_audit": [],
+        "trained_unique_prompts": 56,
+        "forbidden_overlap": [],
+        "all_training_prompts_from_train": true,
+        "training": [
+          {
+            "handle": "expert-0",
+            "steps": 64,
+            "seed": 0,
+            "loss": 0.014807491563260555,
+            "skipped_steps": 0,
+            "optimizer_steps": 64,
+            "nonfinite_gradient_steps": 0,
+            "finite": true,
+            "wall_seconds": 166.138881699997
+          },
+          {
+            "handle": "expert-1",
+            "steps": 64,
+            "seed": 1,
+            "loss": 0.013284510001540184,
+            "skipped_steps": 0,
+            "optimizer_steps": 64,
+            "nonfinite_gradient_steps": 0,
+            "finite": true,
+            "wall_seconds": 165.86792700001388
+          },
+          {
+            "handle": "expert-2",
+            "steps": 1,
+            "seed": 2,
+            "loss": 5.763332843780518,
+            "skipped_steps": 0,
+            "optimizer_steps": 1,
+            "nonfinite_gradient_steps": 0,
+            "finite": true,
+            "wall_seconds": 2.627506299992092
+          }
+        ]
+      },
+      "explanation": "Nonfinite/skipped training steps: 0; split-audit violations: 0; forbidden training prompt overlap: 0."
+    }
+  },
+  "per_arm": {
+    "no_memory": {
+      "-1": {
+        "rule:A": null,
+        "rule:B": null,
+        "fact:smoke": null,
+        "canary:smoke": 1.0
+      },
+      "0": {
+        "rule:A": 0.0,
+        "rule:B": null,
+        "fact:smoke": 0.0,
+        "canary:smoke": 1.0
+      },
+      "1": {
+        "rule:A": 0.0,
+        "rule:B": 0.25,
+        "fact:smoke": 0.0,
+        "canary:smoke": 1.0
+      },
+      "2": {
+        "rule:A": 0.0,
+        "rule:B": 0.25,
+        "fact:smoke": 0.0,
+        "canary:smoke": 1.0
+      }
+    },
+    "hippo_only": {
+      "-1": {
+        "rule:A": null,
+        "rule:B": null,
+        "fact:smoke": null,
+        "canary:smoke": 1.0
+      },
+      "0": {
+        "rule:A": 0.0,
+        "rule:B": null,
+        "fact:smoke": 1.0,
+        "canary:smoke": 1.0
+      },
+      "1": {
+        "rule:A": 0.0,
+        "rule:B": 0.25,
+        "fact:smoke": 1.0,
+        "canary:smoke": 1.0
+      },
+      "2": {
+        "rule:A": 0.0,
+        "rule:B": 0.25,
+        "fact:smoke": 1.0,
+        "canary:smoke": 1.0
+      }
+    },
+    "ours": {
+      "-1": {
+        "rule:A": null,
+        "rule:B": null,
+        "fact:smoke": null,
+        "canary:smoke": 1.0
+      },
+      "0": {
+        "rule:A": 0.125,
+        "rule:B": null,
+        "fact:smoke": 1.0,
+        "canary:smoke": 1.0
+      },
+      "1": {
+        "rule:A": 0.125,
+        "rule:B": 1.0,
+        "fact:smoke": 1.0,
+        "canary:smoke": 1.0
+      },
+      "2": {
+        "rule:A": 0.125,
+        "rule:B": 1.0,
+        "fact:smoke": 0.0,
+        "canary:smoke": 0.875
+      }
+    },
+    "oracle": {
+      "-1": {
+        "rule:A": null,
+        "rule:B": null,
+        "fact:smoke": null,
+        "canary:smoke": 1.0
+      },
+      "0": {
+        "rule:A": 0.0,
+        "rule:B": null,
+        "fact:smoke": 1.0,
+        "canary:smoke": 1.0
+      },
+      "1": {
+        "rule:A": 0.0,
+        "rule:B": 0.75,
+        "fact:smoke": 1.0,
+        "canary:smoke": 1.0
+      },
+      "2": {
+        "rule:A": 0.0,
+        "rule:B": 0.75,
+        "fact:smoke": 1.0,
+        "canary:smoke": 1.0
+      }
+    }
+  },
+  "ablations": {
+    "0": {
+      "on_no_hippo": {
+        "rule:A": 0.125,
+        "rule:B": null,
+        "fact:smoke": 0.0
+      },
+      "off_no_hippo": {
+        "rule:A": 0.0,
+        "rule:B": null,
+        "fact:smoke": 0.0
+      },
+      "off_with_hippo": {
+        "rule:A": 0.0,
+        "rule:B": null,
+        "fact:smoke": 1.0
+      }
+    },
+    "1": {
+      "on_no_hippo": {
+        "rule:A": 0.125,
+        "rule:B": 1.0,
+        "fact:smoke": 0.0
+      },
+      "off_no_hippo": {
+        "rule:A": 0.0,
+        "rule:B": 0.25,
+        "fact:smoke": 0.0
+      },
+      "off_with_hippo": {
+        "rule:A": 0.0,
+        "rule:B": 0.25,
+        "fact:smoke": 1.0
+      }
+    },
+    "2": {
+      "on_no_hippo": {
+        "rule:A": 0.125,
+        "rule:B": 1.0,
+        "fact:smoke": 0.0
+      },
+      "off_no_hippo": {
+        "rule:A": 0.0,
+        "rule:B": 0.25,
+        "fact:smoke": 0.0
+      },
+      "off_with_hippo": {
+        "rule:A": 0.0,
+        "rule:B": 0.25,
+        "fact:smoke": 1.0
+      }
+    }
+  },
+  "sleeps": [
+    {
+      "accept": true,
+      "accepted": true,
+      "candidate": "expert-0",
+      "checks": {
+        "canary": {
+          "cand_mean": 1.0,
+          "cur_mean": 1.0,
+          "diff": 0.0,
+          "margin": 0.0,
+          "n": 8,
+          "regression": false
+        },
+        "gate": {
+          "cand_mean": 0.0,
+          "cur_mean": 0.0,
+          "diff": 0.0,
+          "margin": 0.0,
+          "n": 4,
+          "regression": false
+        }
+      },
+      "examples": 24,
+      "fault_injected": false,
+      "nap": {
+        "applied": 0,
+        "pending": 24
+      },
+      "peak_gpu_mib": 1327.79833984375,
+      "peak_reserved_mib": 1380.0,
+      "poison_absorbed_candidate": 0,
+      "poison_absorbed_current": 0,
+      "reasons": [],
+      "replay": 0,
+      "wall_seconds": 171.95945559997926
+    },
+    {
+      "accept": true,
+      "accepted": true,
+      "candidate": "expert-1",
+      "checks": {
+        "canary": {
+          "cand_mean": 1.0,
+          "cur_mean": 1.0,
+          "diff": 0.0,
+          "margin": 0.0,
+          "n": 8,
+          "regression": false
+        },
+        "gate": {
+          "cand_mean": 1.0,
+          "cur_mean": 0.5,
+          "diff": 0.5,
+          "margin": 0.3580417020237005,
+          "n": 8,
+          "regression": false
+        }
+      },
+      "examples": 32,
+      "fault_injected": false,
+      "nap": {
+        "applied": 0,
+        "pending": 24
+      },
+      "peak_gpu_mib": 1336.6357421875,
+      "peak_reserved_mib": 1476.0,
+      "poison_absorbed_candidate": 0,
+      "poison_absorbed_current": 0,
+      "reasons": [],
+      "replay": 8,
+      "wall_seconds": 174.59797950001666
+    },
+    {
+      "accept": true,
+      "accepted": true,
+      "candidate": "expert-2",
+      "checks": {
+        "canary": {
+          "cand_mean": 0.875,
+          "cur_mean": 0.875,
+          "diff": 0.0,
+          "margin": 0.0,
+          "n": 8,
+          "regression": false
+        },
+        "gate": {
+          "cand_mean": 0.75,
+          "cur_mean": 0.75,
+          "diff": 0.0,
+          "margin": 0.0,
+          "n": 8,
+          "regression": false
+        }
+      },
+      "examples": 16,
+      "fault_injected": true,
+      "nap": {
+        "applied": 5,
+        "pending": 8
+      },
+      "peak_gpu_mib": 1320.15185546875,
+      "peak_reserved_mib": 1476.0,
+      "poison_absorbed_candidate": 0,
+      "poison_absorbed_current": 0,
+      "reasons": [],
+      "replay": 8,
+      "wall_seconds": 8.645561199984513
+    }
+  ],
+  "canaries_verified": [
+    {
+      "task_id": "40229d0187",
+      "skill": "canary:smoke",
+      "prompt": "What is 1 + 1? End your reply with a line 'Final answer: <answer>'.",
+      "answer": "Final answer: 2",
+      "correct": 1
+    },
+    {
+      "task_id": "c3757f7ee7",
+      "skill": "canary:smoke",
+      "prompt": "What is 2 + 3? End your reply with a line 'Final answer: <answer>'.",
+      "answer": "Final answer: 5.",
+      "correct": 1
+    },
+    {
+      "task_id": "beea841c0e",
+      "skill": "canary:smoke",
+      "prompt": "What is 7 - 2? End your reply with a line 'Final answer: <answer>'.",
+      "answer": "Final answer: 5",
+      "correct": 1
+    },
+    {
+      "task_id": "edcd7b14c4",
+      "skill": "canary:smoke",
+      "prompt": "What is 3 * 3? End your reply with a line 'Final answer: <answer>'.",
+      "answer": "Final answer: 9",
+      "correct": 1
+    },
+    {
+      "task_id": "9c174bcd3a",
+      "skill": "canary:smoke",
+      "prompt": "What color is a clear daytime sky? Give one word. End your reply with a line 'Final answer: <answer>'.",
+      "answer": "Final answer: blue",
+      "correct": 1
+    },
+    {
+      "task_id": "6acd3c1bf0",
+      "skill": "canary:smoke",
+      "prompt": "What is the capital of France? End your reply with a line 'Final answer: <answer>'.",
+      "answer": "Final answer: Paris",
+      "correct": 1
+    },
+    {
+      "task_id": "a94cf65fd8",
+      "skill": "canary:smoke",
+      "prompt": "How many days are in a week? End your reply with a line 'Final answer: <answer>'.",
+      "answer": "Final answer: 7",
+      "correct": 1
+    },
+    {
+      "task_id": "1252b42df5",
+      "skill": "canary:smoke",
+      "prompt": "What is the chemical formula for water? End your reply with a line 'Final answer: <answer>'.",
+      "answer": "Final answer: H\u2082O",
+      "correct": 1
+    }
+  ]
+}

@@ -1,0 +1,2554 @@
+{
+  "ablations": {
+    "0": {
+      "on_no_hippo": [
+        {
+          "task_id": "169cd71368",
+          "skill": "rule:A",
+          "prompt": "Apply the Cobalt beacon rule to code boxn. End your reply with a line 'Final answer: <answer>'.",
+          "answer": "Final answer: 1",
+          "correct": 0
+        },
+        {
+          "task_id": "1733b4a36e",
+          "skill": "rule:A",
+          "prompt": "Apply the Cobalt beacon rule to code ucpm. End your reply with a line 'Final answer: <answer>'.",
+          "answer": "Final answer: <answer>",
+          "correct": 0
+        },
+        {
+          "task_id": "35e7f5e5fa",
+          "skill": "rule:A",
+          "prompt": "Apply the Cobalt beacon rule to code okjz. End your reply with a line 'Final answer: <answer>'.",
+          "answer": "Final answer: okjz",
+          "correct": 0
+        },
+        {
+          "task_id": "388bb33bcd",
+          "skill": "rule:A",
+          "prompt": "Apply the Cobalt beacon rule to code qvgt. End your reply with a line 'Final answer: <answer>'.",
+          "answer": "Final answer: 0",
+          "correct": 0
+        },
+        {
+          "task_id": "3da38b0768",
+          "skill": "rule:A",
+          "prompt": "Apply the Cobalt beacon rule to code dfui. End your reply with a line 'Final answer: <answer>'.",
+          "answer": "Final answer: dfui",
+          "correct": 0
+        },
+        {
+          "task_id": "d645adedcd",
+          "skill": "rule:A",
+          "prompt": "Apply the Cobalt beacon rule to code vcds. End your reply with a line 'Final answer: <answer>'.",
+          "answer": "Final answer: <answer>",
+          "correct": 0
+        },
+        {
+          "task_id": "e62c59397b",
+          "skill": "rule:A",
+          "prompt": "Apply the Cobalt beacon rule to code aaye. End your reply with a line 'Final answer: <answer>'.",
+          "answer": "Final answer: 1",
+          "correct": 0
+        },
+        {
+          "task_id": "e810c27ea5",
+          "skill": "rule:A",
+          "prompt": "Apply the Cobalt beacon rule to code raqp. End your reply with a line 'Final answer: <answer>'.",
+          "answer": "Final answer: 0",
+          "correct": 0
+        },
+        {
+          "task_id": "236db3e63b",
+          "skill": "fact:smoke",
+          "prompt": "Who leads Cedar? End your reply with a line 'Final answer: <answer>'.",
+          "answer": "Final answer: Cedar's leader is the president.",
+          "correct": 0
+        },
+        {
+          "task_id": "334d8f68e6",
+          "skill": "fact:smoke",
+          "prompt": "Who leads Elm? End your reply with a line 'Final answer: <answer>'.",
+          "answer": "Final answer: Elm's leader is the CEO.",
+          "correct": 0
+        },
+        {
+          "task_id": "3be74f1cf3",
+          "skill": "fact:smoke",
+          "prompt": "Who leads Alder? End your reply with a line 'Final answer: <answer>'.",
+          "answer": "Final answer: Alder is led by his father.",
+          "correct": 0
+        },
+        {
+          "task_id": "b02aaeeda1",
+          "skill": "fact:smoke",
+          "prompt": "Who leads Fenn? End your reply with a line 'Final answer: <answer>'.",
+          "answer": "Final answer: Fenn is led by his father.",
+          "correct": 0
+        },
+        {
+          "task_id": "b7e9bfbed0",
+          "skill": "fact:smoke",
+          "prompt": "Who leads Dover? End your reply with a line 'Final answer: <answer>'.",
+          "answer": "Final answer: <answer> King Henry VIII</answer>",
+          "correct": 0
+        },
+        {
+          "task_id": "f2f94351a4",
+          "skill": "fact:smoke",
+          "prompt": "Who leads Birch? End your reply with a line 'Final answer: <answer>'.",
+          "answer": "Final answer: Birch's leader is the president.",
+          "correct": 0
+        }
+      ],
+      "off_no_hippo": [
+        {
+          "task_id": "169cd71368",
+          "skill": "rule:A",
+          "prompt": "Apply the Cobalt beacon rule to code boxn. End your reply with a line 'Final answer: <answer>'.",
+          "answer": "Final answer: <answer>",
+          "correct": 0
+        },
+        {
+          "task_id": "1733b4a36e",
+          "skill": "rule:A",
+          "prompt": "Apply the Cobalt beacon rule to code ucpm. End your reply with a line 'Final answer: <answer>'.",
+          "answer": "Final answer: <answer>",
+          "correct": 0
+        },
+        {
+          "task_id": "35e7f5e5fa",
+          "skill": "rule:A",
+          "prompt": "Apply the Cobalt beacon rule to code okjz. End your reply with a line 'Final answer: <answer>'.",
+          "answer": "Final answer: okjz",
+          "correct": 0
+        },
+        {
+          "task_id": "388bb33bcd",
+          "skill": "rule:A",
+          "prompt": "Apply the Cobalt beacon rule to code qvgt. End your reply with a line 'Final answer: <answer>'.",
+          "answer": "Final answer: <answer>",
+          "correct": 0
+        },
+        {
+          "task_id": "3da38b0768",
+          "skill": "rule:A",
+          "prompt": "Apply the Cobalt beacon rule to code dfui. End your reply with a line 'Final answer: <answer>'.",
+          "answer": "Final answer: <answer>",
+          "correct": 0
+        },
+        {
+          "task_id": "d645adedcd",
+          "skill": "rule:A",
+          "prompt": "Apply the Cobalt beacon rule to code vcds. End your reply with a line 'Final answer: <answer>'.",
+          "answer": "Final answer: <answer>",
+          "correct": 0
+        },
+        {
+          "task_id": "e62c59397b",
+          "skill": "rule:A",
+          "prompt": "Apply the Cobalt beacon rule to code aaye. End your reply with a line 'Final answer: <answer>'.",
+          "answer": "Final answer: <answer>",
+          "correct": 0
+        },
+        {
+          "task_id": "e810c27ea5",
+          "skill": "rule:A",
+          "prompt": "Apply the Cobalt beacon rule to code raqp. End your reply with a line 'Final answer: <answer>'.",
+          "answer": "Final answer: <answer>",
+          "correct": 0
+        },
+        {
+          "task_id": "236db3e63b",
+          "skill": "fact:smoke",
+          "prompt": "Who leads Cedar? End your reply with a line 'Final answer: <answer>'.",
+          "answer": "Final answer: Cedar's leader is the president.",
+          "correct": 0
+        },
+        {
+          "task_id": "334d8f68e6",
+          "skill": "fact:smoke",
+          "prompt": "Who leads Elm? End your reply with a line 'Final answer: <answer>'.",
+          "answer": "Final answer: Elm's leader is the CEO.",
+          "correct": 0
+        },
+        {
+          "task_id": "3be74f1cf3",
+          "skill": "fact:smoke",
+          "prompt": "Who leads Alder? End your reply with a line 'Final answer: <answer>'.",
+          "answer": "Final answer: Alder is led by his father.",
+          "correct": 0
+        },
+        {
+          "task_id": "b02aaeeda1",
+          "skill": "fact:smoke",
+          "prompt": "Who leads Fenn? End your reply with a line 'Final answer: <answer>'.",
+          "answer": "Final answer: Fenn is led by his father.",
+          "correct": 0
+        },
+        {
+          "task_id": "b7e9bfbed0",
+          "skill": "fact:smoke",
+          "prompt": "Who leads Dover? End your reply with a line 'Final answer: <answer>'.",
+          "answer": "Final answer: <answer> King Henry VIII</answer>",
+          "correct": 0
+        },
+        {
+          "task_id": "f2f94351a4",
+          "skill": "fact:smoke",
+          "prompt": "Who leads Birch? End your reply with a line 'Final answer: <answer>'.",
+          "answer": "Final answer: Birch's leader is the president.",
+          "correct": 0
+        }
+      ],
+      "off_with_hippo": [
+        {
+          "task_id": "169cd71368",
+          "skill": "rule:A",
+          "prompt": "Apply the Cobalt beacon rule to code boxn. End your reply with a line 'Final answer: <answer>'.",
+          "answer": "Final answer: <answer>",
+          "correct": 0
+        },
+        {
+          "task_id": "1733b4a36e",
+          "skill": "rule:A",
+          "prompt": "Apply the Cobalt beacon rule to code ucpm. End your reply with a line 'Final answer: <answer>'.",
+          "answer": "Final answer: <answer>",
+          "correct": 0
+        },
+        {
+          "task_id": "35e7f5e5fa",
+          "skill": "rule:A",
+          "prompt": "Apply the Cobalt beacon rule to code okjz. End your reply with a line 'Final answer: <answer>'.",
+          "answer": "Final answer: okjz",
+          "correct": 0
+        },
+        {
+          "task_id": "388bb33bcd",
+          "skill": "rule:A",
+          "prompt": "Apply the Cobalt beacon rule to code qvgt. End your reply with a line 'Final answer: <answer>'.",
+          "answer": "Final answer: <answer>",
+          "correct": 0
+        },
+        {
+          "task_id": "3da38b0768",
+          "skill": "rule:A",
+          "prompt": "Apply the Cobalt beacon rule to code dfui. End your reply with a line 'Final answer: <answer>'.",
+          "answer": "Final answer: <answer>",
+          "correct": 0
+        },
+        {
+          "task_id": "d645adedcd",
+          "skill": "rule:A",
+          "prompt": "Apply the Cobalt beacon rule to code vcds. End your reply with a line 'Final answer: <answer>'.",
+          "answer": "Final answer: <answer>",
+          "correct": 0
+        },
+        {
+          "task_id": "e62c59397b",
+          "skill": "rule:A",
+          "prompt": "Apply the Cobalt beacon rule to code aaye. End your reply with a line 'Final answer: <answer>'.",
+          "answer": "Final answer: <answer>",
+          "correct": 0
+        },
+        {
+          "task_id": "e810c27ea5",
+          "skill": "rule:A",
+          "prompt": "Apply the Cobalt beacon rule to code raqp. End your reply with a line 'Final answer: <answer>'.",
+          "answer": "Final answer: <answer>",
+          "correct": 0
+        },
+        {
+          "task_id": "236db3e63b",
+          "skill": "fact:smoke",
+          "prompt": "Who leads Cedar? End your reply with a line 'Final answer: <answer>'.",
+          "answer": "Final answer: Tali.",
+          "correct": 1
+        },
+        {
+          "task_id": "334d8f68e6",
+          "skill": "fact:smoke",
+          "prompt": "Who leads Elm? End your reply with a line 'Final answer: <answer>'.",
+          "answer": "Final answer: Ravi.",
+          "correct": 1
+        },
+        {
+          "task_id": "3be74f1cf3",
+          "skill": "fact:smoke",
+          "prompt": "Who leads Alder? End your reply with a line 'Final answer: <answer>'.",
+          "answer": "Final answer: Mira.",
+          "correct": 1
+        },
+        {
+          "task_id": "b02aaeeda1",
+          "skill": "fact:smoke",
+          "prompt": "Who leads Fenn? End your reply with a line 'Final answer: <answer>'.",
+          "answer": "Final answer: Omar.",
+          "correct": 1
+        },
+        {
+          "task_id": "b7e9bfbed0",
+          "skill": "fact:smoke",
+          "prompt": "Who leads Dover? End your reply with a line 'Final answer: <answer>'.",
+          "answer": "Final answer: Lena.",
+          "correct": 1
+        },
+        {
+          "task_id": "f2f94351a4",
+          "skill": "fact:smoke",
+          "prompt": "Who leads Birch? End your reply with a line 'Final answer: <answer>'.",
+          "answer": "Final answer: Nora.",
+          "correct": 1
+        }
+      ],
+      "old_adapters_unchanged": true
+    },
+    "1": {
+      "on_no_hippo": [
+        {
+          "task_id": "169cd71368",
+          "skill": "rule:A",
+          "prompt": "Apply the Cobalt beacon rule to code boxn. End your reply with a line 'Final answer: <answer>'.",
+          "answer": "Final answer: 1",
+          "correct": 0
+        },
+        {
+          "task_id": "1733b4a36e",
+          "skill": "rule:A",
+          "prompt": "Apply the Cobalt beacon rule to code ucpm. End your reply with a line 'Final answer: <answer>'.",
+          "answer": "Final answer: <answer>",
+          "correct": 0
+        },
+        {
+          "task_id": "35e7f5e5fa",
+          "skill": "rule:A",
+          "prompt": "Apply the Cobalt beacon rule to code okjz. End your reply with a line 'Final answer: <answer>'.",
+          "answer": "Final answer: okjz",
+          "correct": 0
+        },
+        {
+          "task_id": "388bb33bcd",
+          "skill": "rule:A",
+          "prompt": "Apply the Cobalt beacon rule to code qvgt. End your reply with a line 'Final answer: <answer>'.",
+          "answer": "Final answer: 0",
+          "correct": 0
+        },
+        {
+          "task_id": "3da38b0768",
+          "skill": "rule:A",
+          "prompt": "Apply the Cobalt beacon rule to code dfui. End your reply with a line 'Final answer: <answer>'.",
+          "answer": "Final answer: dfui",
+          "correct": 0
+        },
+        {
+          "task_id": "d645adedcd",
+          "skill": "rule:A",
+          "prompt": "Apply the Cobalt beacon rule to code vcds. End your reply with a line 'Final answer: <answer>'.",
+          "answer": "Final answer: <answer>",
+          "correct": 0
+        },
+        {
+          "task_id": "e62c59397b",
+          "skill": "rule:A",
+          "prompt": "Apply the Cobalt beacon rule to code aaye. End your reply with a line 'Final answer: <answer>'.",
+          "answer": "Final answer: 1",
+          "correct": 0
+        },
+        {
+          "task_id": "e810c27ea5",
+          "skill": "rule:A",
+          "prompt": "Apply the Cobalt beacon rule to code raqp. End your reply with a line 'Final answer: <answer>'.",
+          "answer": "Final answer: 0",
+          "correct": 0
+        },
+        {
+          "task_id": "331718d1ce",
+          "skill": "rule:B",
+          "prompt": "Apply the Amber orchard rule to code hkoh. End your reply with a line 'Final answer: <answer>'.",
+          "answer": "Final answer: HKOH",
+          "correct": 1
+        },
+        {
+          "task_id": "35326ccac4",
+          "skill": "rule:B",
+          "prompt": "Apply the Amber orchard rule to code slht. End your reply with a line 'Final answer: <answer>'.",
+          "answer": "Final answer: <answer>",
+          "correct": 0
+        },
+        {
+          "task_id": "42e9b6be7f",
+          "skill": "rule:B",
+          "prompt": "Apply the Amber orchard rule to code mgbe. End your reply with a line 'Final answer: <answer>'.",
+          "answer": "Final answer: mgbe",
+          "correct": 1
+        },
+        {
+          "task_id": "aad74e95a0",
+          "skill": "rule:B",
+          "prompt": "Apply the Amber orchard rule to code qbez. End your reply with a line 'Final answer: <answer>'.",
+          "answer": "Final answer: qbez",
+          "correct": 1
+        },
+        {
+          "task_id": "cc8602e8b0",
+          "skill": "rule:B",
+          "prompt": "Apply the Amber orchard rule to code xxqj. End your reply with a line 'Final answer: <answer>'.",
+          "answer": "Final answer: xxqj",
+          "correct": 1
+        },
+        {
+          "task_id": "de04129d48",
+          "skill": "rule:B",
+          "prompt": "Apply the Amber orchard rule to code nbki. End your reply with a line 'Final answer: <answer>'.",
+          "answer": "Final answer: 12",
+          "correct": 0
+        },
+        {
+          "task_id": "f15f64f767",
+          "skill": "rule:B",
+          "prompt": "Apply the Amber orchard rule to code vzim. End your reply with a line 'Final answer: <answer>'.",
+          "answer": "Final answer: 1",
+          "correct": 0
+        },
+        {
+          "task_id": "f2bf72c823",
+          "skill": "rule:B",
+          "prompt": "Apply the Amber orchard rule to code kcxm. End your reply with a line 'Final answer: <answer>'.",
+          "answer": "Final answer: kcxm",
+          "correct": 1
+        },
+        {
+          "task_id": "236db3e63b",
+          "skill": "fact:smoke",
+          "prompt": "Who leads Cedar? End your reply with a line 'Final answer: <answer>'.",
+          "answer": "Final answer: Cedar's leader is the president.",
+          "correct": 0
+        },
+        {
+          "task_id": "334d8f68e6",
+          "skill": "fact:smoke",
+          "prompt": "Who leads Elm? End your reply with a line 'Final answer: <answer>'.",
+          "answer": "Final answer: Elm's leader is the CEO.",
+          "correct": 0
+        },
+        {
+          "task_id": "3be74f1cf3",
+          "skill": "fact:smoke",
+          "prompt": "Who leads Alder? End your reply with a line 'Final answer: <answer>'.",
+          "answer": "Final answer: Alder is led by his father.",
+          "correct": 0
+        },
+        {
+          "task_id": "b02aaeeda1",
+          "skill": "fact:smoke",
+          "prompt": "Who leads Fenn? End your reply with a line 'Final answer: <answer>'.",
+          "answer": "Final answer: Fenn is led by his father.",
+          "correct": 0
+        },
+        {
+          "task_id": "b7e9bfbed0",
+          "skill": "fact:smoke",
+          "prompt": "Who leads Dover? End your reply with a line 'Final answer: <answer>'.",
+          "answer": "Final answer: <answer> King Henry VIII</answer>",
+          "correct": 0
+        },
+        {
+          "task_id": "f2f94351a4",
+          "skill": "fact:smoke",
+          "prompt": "Who leads Birch? End your reply with a line 'Final answer: <answer>'.",
+          "answer": "Final answer: Birch's leader is the president.",
+          "correct": 0
+        }
+      ],
+      "off_no_hippo": [
+        {
+          "task_id": "169cd71368",
+          "skill": "rule:A",
+          "prompt": "Apply the Cobalt beacon rule to code boxn. End your reply with a line 'Final answer: <answer>'.",
+          "answer": "Final answer: <answer>",
+          "correct": 0
+        },
+        {
+          "task_id": "1733b4a36e",
+          "skill": "rule:A",
+          "prompt": "Apply the Cobalt beacon rule to code ucpm. End your reply with a line 'Final answer: <answer>'.",
+          "answer": "Final answer: <answer>",
+          "correct": 0
+        },
+        {
+          "task_id": "35e7f5e5fa",
+          "skill": "rule:A",
+          "prompt": "Apply the Cobalt beacon rule to code okjz. End your reply with a line 'Final answer: <answer>'.",
+          "answer": "Final answer: okjz",
+          "correct": 0
+        },
+        {
+          "task_id": "388bb33bcd",
+          "skill": "rule:A",
+          "prompt": "Apply the Cobalt beacon rule to code qvgt. End your reply with a line 'Final answer: <answer>'.",
+          "answer": "Final answer: <answer>",
+          "correct": 0
+        },
+        {
+          "task_id": "3da38b0768",
+          "skill": "rule:A",
+          "prompt": "Apply the Cobalt beacon rule to code dfui. End your reply with a line 'Final answer: <answer>'.",
+          "answer": "Final answer: <answer>",
+          "correct": 0
+        },
+        {
+          "task_id": "d645adedcd",
+          "skill": "rule:A",
+          "prompt": "Apply the Cobalt beacon rule to code vcds. End your reply with a line 'Final answer: <answer>'.",
+          "answer": "Final answer: <answer>",
+          "correct": 0
+        },
+        {
+          "task_id": "e62c59397b",
+          "skill": "rule:A",
+          "prompt": "Apply the Cobalt beacon rule to code aaye. End your reply with a line 'Final answer: <answer>'.",
+          "answer": "Final answer: <answer>",
+          "correct": 0
+        },
+        {
+          "task_id": "e810c27ea5",
+          "skill": "rule:A",
+          "prompt": "Apply the Cobalt beacon rule to code raqp. End your reply with a line 'Final answer: <answer>'.",
+          "answer": "Final answer: <answer>",
+          "correct": 0
+        },
+        {
+          "task_id": "331718d1ce",
+          "skill": "rule:B",
+          "prompt": "Apply the Amber orchard rule to code hkoh. End your reply with a line 'Final answer: <answer>'.",
+          "answer": "Final answer: <answer>",
+          "correct": 0
+        },
+        {
+          "task_id": "35326ccac4",
+          "skill": "rule:B",
+          "prompt": "Apply the Amber orchard rule to code slht. End your reply with a line 'Final answer: <answer>'.",
+          "answer": "Final answer: <answer>",
+          "correct": 0
+        },
+        {
+          "task_id": "42e9b6be7f",
+          "skill": "rule:B",
+          "prompt": "Apply the Amber orchard rule to code mgbe. End your reply with a line 'Final answer: <answer>'.",
+          "answer": "Final answer: mgbe",
+          "correct": 1
+        },
+        {
+          "task_id": "aad74e95a0",
+          "skill": "rule:B",
+          "prompt": "Apply the Amber orchard rule to code qbez. End your reply with a line 'Final answer: <answer>'.",
+          "answer": "Final answer: <answer>",
+          "correct": 0
+        },
+        {
+          "task_id": "cc8602e8b0",
+          "skill": "rule:B",
+          "prompt": "Apply the Amber orchard rule to code xxqj. End your reply with a line 'Final answer: <answer>'.",
+          "answer": "Final answer: <answer>",
+          "correct": 0
+        },
+        {
+          "task_id": "de04129d48",
+          "skill": "rule:B",
+          "prompt": "Apply the Amber orchard rule to code nbki. End your reply with a line 'Final answer: <answer>'.",
+          "answer": "Final answer: <answer>",
+          "correct": 0
+        },
+        {
+          "task_id": "f15f64f767",
+          "skill": "rule:B",
+          "prompt": "Apply the Amber orchard rule to code vzim. End your reply with a line 'Final answer: <answer>'.",
+          "answer": "Final answer: <answer>",
+          "correct": 0
+        },
+        {
+          "task_id": "f2bf72c823",
+          "skill": "rule:B",
+          "prompt": "Apply the Amber orchard rule to code kcxm. End your reply with a line 'Final answer: <answer>'.",
+          "answer": "Final answer: kcxm",
+          "correct": 1
+        },
+        {
+          "task_id": "236db3e63b",
+          "skill": "fact:smoke",
+          "prompt": "Who leads Cedar? End your reply with a line 'Final answer: <answer>'.",
+          "answer": "Final answer: Cedar's leader is the president.",
+          "correct": 0
+        },
+        {
+          "task_id": "334d8f68e6",
+          "skill": "fact:smoke",
+          "prompt": "Who leads Elm? End your reply with a line 'Final answer: <answer>'.",
+          "answer": "Final answer: Elm's leader is the CEO.",
+          "correct": 0
+        },
+        {
+          "task_id": "3be74f1cf3",
+          "skill": "fact:smoke",
+          "prompt": "Who leads Alder? End your reply with a line 'Final answer: <answer>'.",
+          "answer": "Final answer: Alder is led by his father.",
+          "correct": 0
+        },
+        {
+          "task_id": "b02aaeeda1",
+          "skill": "fact:smoke",
+          "prompt": "Who leads Fenn? End your reply with a line 'Final answer: <answer>'.",
+          "answer": "Final answer: Fenn is led by his father.",
+          "correct": 0
+        },
+        {
+          "task_id": "b7e9bfbed0",
+          "skill": "fact:smoke",
+          "prompt": "Who leads Dover? End your reply with a line 'Final answer: <answer>'.",
+          "answer": "Final answer: <answer> King Henry VIII</answer>",
+          "correct": 0
+        },
+        {
+          "task_id": "f2f94351a4",
+          "skill": "fact:smoke",
+          "prompt": "Who leads Birch? End your reply with a line 'Final answer: <answer>'.",
+          "answer": "Final answer: Birch's leader is the president.",
+          "correct": 0
+        }
+      ],
+      "off_with_hippo": [
+        {
+          "task_id": "169cd71368",
+          "skill": "rule:A",
+          "prompt": "Apply the Cobalt beacon rule to code boxn. End your reply with a line 'Final answer: <answer>'.",
+          "answer": "Final answer: <answer>",
+          "correct": 0
+        },
+        {
+          "task_id": "1733b4a36e",
+          "skill": "rule:A",
+          "prompt": "Apply the Cobalt beacon rule to code ucpm. End your reply with a line 'Final answer: <answer>'.",
+          "answer": "Final answer: <answer>",
+          "correct": 0
+        },
+        {
+          "task_id": "35e7f5e5fa",
+          "skill": "rule:A",
+          "prompt": "Apply the Cobalt beacon rule to code okjz. End your reply with a line 'Final answer: <answer>'.",
+          "answer": "Final answer: okjz",
+          "correct": 0
+        },
+        {
+          "task_id": "388bb33bcd",
+          "skill": "rule:A",
+          "prompt": "Apply the Cobalt beacon rule to code qvgt. End your reply with a line 'Final answer: <answer>'.",
+          "answer": "Final answer: <answer>",
+          "correct": 0
+        },
+        {
+          "task_id": "3da38b0768",
+          "skill": "rule:A",
+          "prompt": "Apply the Cobalt beacon rule to code dfui. End your reply with a line 'Final answer: <answer>'.",
+          "answer": "Final answer: <answer>",
+          "correct": 0
+        },
+        {
+          "task_id": "d645adedcd",
+          "skill": "rule:A",
+          "prompt": "Apply the Cobalt beacon rule to code vcds. End your reply with a line 'Final answer: <answer>'.",
+          "answer": "Final answer: <answer>",
+          "correct": 0
+        },
+        {
+          "task_id": "e62c59397b",
+          "skill": "rule:A",
+          "prompt": "Apply the Cobalt beacon rule to code aaye. End your reply with a line 'Final answer: <answer>'.",
+          "answer": "Final answer: <answer>",
+          "correct": 0
+        },
+        {
+          "task_id": "e810c27ea5",
+          "skill": "rule:A",
+          "prompt": "Apply the Cobalt beacon rule to code raqp. End your reply with a line 'Final answer: <answer>'.",
+          "answer": "Final answer: <answer>",
+          "correct": 0
+        },
+        {
+          "task_id": "331718d1ce",
+          "skill": "rule:B",
+          "prompt": "Apply the Amber orchard rule to code hkoh. End your reply with a line 'Final answer: <answer>'.",
+          "answer": "Final answer: <answer>",
+          "correct": 0
+        },
+        {
+          "task_id": "35326ccac4",
+          "skill": "rule:B",
+          "prompt": "Apply the Amber orchard rule to code slht. End your reply with a line 'Final answer: <answer>'.",
+          "answer": "Final answer: <answer>",
+          "correct": 0
+        },
+        {
+          "task_id": "42e9b6be7f",
+          "skill": "rule:B",
+          "prompt": "Apply the Amber orchard rule to code mgbe. End your reply with a line 'Final answer: <answer>'.",
+          "answer": "Final answer: mgbe",
+          "correct": 1
+        },
+        {
+          "task_id": "aad74e95a0",
+          "skill": "rule:B",
+          "prompt": "Apply the Amber orchard rule to code qbez. End your reply with a line 'Final answer: <answer>'.",
+          "answer": "Final answer: <answer>",
+          "correct": 0
+        },
+        {
+          "task_id": "cc8602e8b0",
+          "skill": "rule:B",
+          "prompt": "Apply the Amber orchard rule to code xxqj. End your reply with a line 'Final answer: <answer>'.",
+          "answer": "Final answer: <answer>",
+          "correct": 0
+        },
+        {
+          "task_id": "de04129d48",
+          "skill": "rule:B",
+          "prompt": "Apply the Amber orchard rule to code nbki. End your reply with a line 'Final answer: <answer>'.",
+          "answer": "Final answer: <answer>",
+          "correct": 0
+        },
+        {
+          "task_id": "f15f64f767",
+          "skill": "rule:B",
+          "prompt": "Apply the Amber orchard rule to code vzim. End your reply with a line 'Final answer: <answer>'.",
+          "answer": "Final answer: <answer>",
+          "correct": 0
+        },
+        {
+          "task_id": "f2bf72c823",
+          "skill": "rule:B",
+          "prompt": "Apply the Amber orchard rule to code kcxm. End your reply with a line 'Final answer: <answer>'.",
+          "answer": "Final answer: kcxm",
+          "correct": 1
+        },
+        {
+          "task_id": "236db3e63b",
+          "skill": "fact:smoke",
+          "prompt": "Who leads Cedar? End your reply with a line 'Final answer: <answer>'.",
+          "answer": "Final answer: Tali.",
+          "correct": 1
+        },
+        {
+          "task_id": "334d8f68e6",
+          "skill": "fact:smoke",
+          "prompt": "Who leads Elm? End your reply with a line 'Final answer: <answer>'.",
+          "answer": "Final answer: Ravi.",
+          "correct": 1
+        },
+        {
+          "task_id": "3be74f1cf3",
+          "skill": "fact:smoke",
+          "prompt": "Who leads Alder? End your reply with a line 'Final answer: <answer>'.",
+          "answer": "Final answer: Sora.",
+          "correct": 1
+        },
+        {
+          "task_id": "b02aaeeda1",
+          "skill": "fact:smoke",
+          "prompt": "Who leads Fenn? End your reply with a line 'Final answer: <answer>'.",
+          "answer": "Final answer: Omar.",
+          "correct": 1
+        },
+        {
+          "task_id": "b7e9bfbed0",
+          "skill": "fact:smoke",
+          "prompt": "Who leads Dover? End your reply with a line 'Final answer: <answer>'.",
+          "answer": "Final answer: Lena.",
+          "correct": 1
+        },
+        {
+          "task_id": "f2f94351a4",
+          "skill": "fact:smoke",
+          "prompt": "Who leads Birch? End your reply with a line 'Final answer: <answer>'.",
+          "answer": "Final answer: Nora.",
+          "correct": 1
+        }
+      ],
+      "old_adapters_unchanged": true
+    },
+    "2": {
+      "on_no_hippo": [
+        {
+          "task_id": "169cd71368",
+          "skill": "rule:A",
+          "prompt": "Apply the Cobalt beacon rule to code boxn. End your reply with a line 'Final answer: <answer>'.",
+          "answer": "Final answer: 1",
+          "correct": 0
+        },
+        {
+          "task_id": "1733b4a36e",
+          "skill": "rule:A",
+          "prompt": "Apply the Cobalt beacon rule to code ucpm. End your reply with a line 'Final answer: <answer>'.",
+          "answer": "Final answer: <answer>",
+          "correct": 0
+        },
+        {
+          "task_id": "35e7f5e5fa",
+          "skill": "rule:A",
+          "prompt": "Apply the Cobalt beacon rule to code okjz. End your reply with a line 'Final answer: <answer>'.",
+          "answer": "Final answer: okjz",
+          "correct": 0
+        },
+        {
+          "task_id": "388bb33bcd",
+          "skill": "rule:A",
+          "prompt": "Apply the Cobalt beacon rule to code qvgt. End your reply with a line 'Final answer: <answer>'.",
+          "answer": "Final answer: 0",
+          "correct": 0
+        },
+        {
+          "task_id": "3da38b0768",
+          "skill": "rule:A",
+          "prompt": "Apply the Cobalt beacon rule to code dfui. End your reply with a line 'Final answer: <answer>'.",
+          "answer": "Final answer: dfui",
+          "correct": 0
+        },
+        {
+          "task_id": "d645adedcd",
+          "skill": "rule:A",
+          "prompt": "Apply the Cobalt beacon rule to code vcds. End your reply with a line 'Final answer: <answer>'.",
+          "answer": "Final answer: <answer>",
+          "correct": 0
+        },
+        {
+          "task_id": "e62c59397b",
+          "skill": "rule:A",
+          "prompt": "Apply the Cobalt beacon rule to code aaye. End your reply with a line 'Final answer: <answer>'.",
+          "answer": "Final answer: 1",
+          "correct": 0
+        },
+        {
+          "task_id": "e810c27ea5",
+          "skill": "rule:A",
+          "prompt": "Apply the Cobalt beacon rule to code raqp. End your reply with a line 'Final answer: <answer>'.",
+          "answer": "Final answer: 0",
+          "correct": 0
+        },
+        {
+          "task_id": "331718d1ce",
+          "skill": "rule:B",
+          "prompt": "Apply the Amber orchard rule to code hkoh. End your reply with a line 'Final answer: <answer>'.",
+          "answer": "Final answer: HKOH",
+          "correct": 1
+        },
+        {
+          "task_id": "35326ccac4",
+          "skill": "rule:B",
+          "prompt": "Apply the Amber orchard rule to code slht. End your reply with a line 'Final answer: <answer>'.",
+          "answer": "Final answer: <answer>",
+          "correct": 0
+        },
+        {
+          "task_id": "42e9b6be7f",
+          "skill": "rule:B",
+          "prompt": "Apply the Amber orchard rule to code mgbe. End your reply with a line 'Final answer: <answer>'.",
+          "answer": "Final answer: mgbe",
+          "correct": 1
+        },
+        {
+          "task_id": "aad74e95a0",
+          "skill": "rule:B",
+          "prompt": "Apply the Amber orchard rule to code qbez. End your reply with a line 'Final answer: <answer>'.",
+          "answer": "Final answer: qbez",
+          "correct": 1
+        },
+        {
+          "task_id": "cc8602e8b0",
+          "skill": "rule:B",
+          "prompt": "Apply the Amber orchard rule to code xxqj. End your reply with a line 'Final answer: <answer>'.",
+          "answer": "Final answer: xxqj",
+          "correct": 1
+        },
+        {
+          "task_id": "de04129d48",
+          "skill": "rule:B",
+          "prompt": "Apply the Amber orchard rule to code nbki. End your reply with a line 'Final answer: <answer>'.",
+          "answer": "Final answer: 12",
+          "correct": 0
+        },
+        {
+          "task_id": "f15f64f767",
+          "skill": "rule:B",
+          "prompt": "Apply the Amber orchard rule to code vzim. End your reply with a line 'Final answer: <answer>'.",
+          "answer": "Final answer: 1",
+          "correct": 0
+        },
+        {
+          "task_id": "f2bf72c823",
+          "skill": "rule:B",
+          "prompt": "Apply the Amber orchard rule to code kcxm. End your reply with a line 'Final answer: <answer>'.",
+          "answer": "Final answer: kcxm",
+          "correct": 1
+        },
+        {
+          "task_id": "236db3e63b",
+          "skill": "fact:smoke",
+          "prompt": "Who leads Cedar? End your reply with a line 'Final answer: <answer>'.",
+          "answer": "\u66b4\u96e8\u66b4\u96e8\u66b4\u96e8\u66b4\u96e8\u66b4\u96e8\u66b4\u96e8\u66b4\u96e8\u66b4\u96e8\u66b4\u96e8\u66b4\u96e8\u66b4\u96e8\u66b4\u96e8\u66b4\u96e8\u66b4\u96e8\u66b4\u96e8\u66b4\u96e8",
+          "correct": 0
+        },
+        {
+          "task_id": "334d8f68e6",
+          "skill": "fact:smoke",
+          "prompt": "Who leads Elm? End your reply with a line 'Final answer: <answer>'.",
+          "answer": "\u66b4\u96e8\u66b4\u96e8\u66b4\u96e8\u66b4\u96e8\u66b4\u96e8\u66b4\u96e8\u66b4\u96e8\u66b4\u96e8\u66b4\u96e8\u66b4\u96e8\u66b4\u96e8\u66b4\u96e8\u66b4\u96e8\u66b4\u96e8\u66b4\u96e8\u66b4\u96e8",
+          "correct": 0
+        },
+        {
+          "task_id": "3be74f1cf3",
+          "skill": "fact:smoke",
+          "prompt": "Who leads Alder? End your reply with a line 'Final answer: <answer>'.",
+          "answer": "-billion\u66b4\u96e8\u66b4\u96e8\u66b4\u96e8\u66b4\u96e8\u66b4\u96e8\u66b4\u96e8\u66b4\u96e8\u66b4\u96e8\u66b4\u96e8\u66b4\u96e8\u66b4\u96e8\u66b4\u96e8\u66b4\u96e8\u66b4\u96e8\u66b4\u96e8",
+          "correct": 0
+        },
+        {
+          "task_id": "b02aaeeda1",
+          "skill": "fact:smoke",
+          "prompt": "Who leads Fenn? End your reply with a line 'Final answer: <answer>'.",
+          "answer": "\u66b4\u96e8\u66b4\u96e8DITIONDITIONDITION\u66b4\u96e8DITION\u66b4\u96e8DITION\u66b4\u96e8DITION\u66b4\u96e8DITION\u66b4\u96e8DITION\u66b4\u96e8",
+          "correct": 0
+        },
+        {
+          "task_id": "b7e9bfbed0",
+          "skill": "fact:smoke",
+          "prompt": "Who leads Dover? End your reply with a line 'Final answer: <answer>'.",
+          "answer": "\u66b4\u96e8-billion\u66b4\u96e8\u66b4\u96e8\u66b4\u96e8\u66b4\u96e8\u66b4\u96e8\u66b4\u96e8\u66b4\u96e8\u66b4\u96e8\u66b4\u96e8\u66b4\u96e8\u66b4\u96e8\u66b4\u96e8\u66b4\u96e8\u66b4\u96e8",
+          "correct": 0
+        },
+        {
+          "task_id": "f2f94351a4",
+          "skill": "fact:smoke",
+          "prompt": "Who leads Birch? End your reply with a line 'Final answer: <answer>'.",
+          "answer": "\u66b4\u96e8\u66b4\u96e8\u66b4\u96e8\u66b4\u96e8\u66b4\u96e8\u66b4\u96e8\u66b4\u96e8\u66b4\u96e8\u66b4\u96e8\u66b4\u96e8\u66b4\u96e8\u66b4\u96e8\u66b4\u96e8\u66b4\u96e8\u66b4\u96e8\u66b4\u96e8",
+          "correct": 0
+        }
+      ],
+      "off_no_hippo": [
+        {
+          "task_id": "169cd71368",
+          "skill": "rule:A",
+          "prompt": "Apply the Cobalt beacon rule to code boxn. End your reply with a line 'Final answer: <answer>'.",
+          "answer": "Final answer: <answer>",
+          "correct": 0
+        },
+        {
+          "task_id": "1733b4a36e",
+          "skill": "rule:A",
+          "prompt": "Apply the Cobalt beacon rule to code ucpm. End your reply with a line 'Final answer: <answer>'.",
+          "answer": "Final answer: <answer>",
+          "correct": 0
+        },
+        {
+          "task_id": "35e7f5e5fa",
+          "skill": "rule:A",
+          "prompt": "Apply the Cobalt beacon rule to code okjz. End your reply with a line 'Final answer: <answer>'.",
+          "answer": "Final answer: okjz",
+          "correct": 0
+        },
+        {
+          "task_id": "388bb33bcd",
+          "skill": "rule:A",
+          "prompt": "Apply the Cobalt beacon rule to code qvgt. End your reply with a line 'Final answer: <answer>'.",
+          "answer": "Final answer: <answer>",
+          "correct": 0
+        },
+        {
+          "task_id": "3da38b0768",
+          "skill": "rule:A",
+          "prompt": "Apply the Cobalt beacon rule to code dfui. End your reply with a line 'Final answer: <answer>'.",
+          "answer": "Final answer: <answer>",
+          "correct": 0
+        },
+        {
+          "task_id": "d645adedcd",
+          "skill": "rule:A",
+          "prompt": "Apply the Cobalt beacon rule to code vcds. End your reply with a line 'Final answer: <answer>'.",
+          "answer": "Final answer: <answer>",
+          "correct": 0
+        },
+        {
+          "task_id": "e62c59397b",
+          "skill": "rule:A",
+          "prompt": "Apply the Cobalt beacon rule to code aaye. End your reply with a line 'Final answer: <answer>'.",
+          "answer": "Final answer: <answer>",
+          "correct": 0
+        },
+        {
+          "task_id": "e810c27ea5",
+          "skill": "rule:A",
+          "prompt": "Apply the Cobalt beacon rule to code raqp. End your reply with a line 'Final answer: <answer>'.",
+          "answer": "Final answer: <answer>",
+          "correct": 0
+        },
+        {
+          "task_id": "331718d1ce",
+          "skill": "rule:B",
+          "prompt": "Apply the Amber orchard rule to code hkoh. End your reply with a line 'Final answer: <answer>'.",
+          "answer": "Final answer: <answer>",
+          "correct": 0
+        },
+        {
+          "task_id": "35326ccac4",
+          "skill": "rule:B",
+          "prompt": "Apply the Amber orchard rule to code slht. End your reply with a line 'Final answer: <answer>'.",
+          "answer": "Final answer: <answer>",
+          "correct": 0
+        },
+        {
+          "task_id": "42e9b6be7f",
+          "skill": "rule:B",
+          "prompt": "Apply the Amber orchard rule to code mgbe. End your reply with a line 'Final answer: <answer>'.",
+          "answer": "Final answer: mgbe",
+          "correct": 1
+        },
+        {
+          "task_id": "aad74e95a0",
+          "skill": "rule:B",
+          "prompt": "Apply the Amber orchard rule to code qbez. End your reply with a line 'Final answer: <answer>'.",
+          "answer": "Final answer: <answer>",
+          "correct": 0
+        },
+        {
+          "task_id": "cc8602e8b0",
+          "skill": "rule:B",
+          "prompt": "Apply the Amber orchard rule to code xxqj. End your reply with a line 'Final answer: <answer>'.",
+          "answer": "Final answer: <answer>",
+          "correct": 0
+        },
+        {
+          "task_id": "de04129d48",
+          "skill": "rule:B",
+          "prompt": "Apply the Amber orchard rule to code nbki. End your reply with a line 'Final answer: <answer>'.",
+          "answer": "Final answer: <answer>",
+          "correct": 0
+        },
+        {
+          "task_id": "f15f64f767",
+          "skill": "rule:B",
+          "prompt": "Apply the Amber orchard rule to code vzim. End your reply with a line 'Final answer: <answer>'.",
+          "answer": "Final answer: <answer>",
+          "correct": 0
+        },
+        {
+          "task_id": "f2bf72c823",
+          "skill": "rule:B",
+          "prompt": "Apply the Amber orchard rule to code kcxm. End your reply with a line 'Final answer: <answer>'.",
+          "answer": "Final answer: kcxm",
+          "correct": 1
+        },
+        {
+          "task_id": "236db3e63b",
+          "skill": "fact:smoke",
+          "prompt": "Who leads Cedar? End your reply with a line 'Final answer: <answer>'.",
+          "answer": "Final answer: Cedar's leader is the president.",
+          "correct": 0
+        },
+        {
+          "task_id": "334d8f68e6",
+          "skill": "fact:smoke",
+          "prompt": "Who leads Elm? End your reply with a line 'Final answer: <answer>'.",
+          "answer": "Final answer: Elm's leader is the CEO.",
+          "correct": 0
+        },
+        {
+          "task_id": "3be74f1cf3",
+          "skill": "fact:smoke",
+          "prompt": "Who leads Alder? End your reply with a line 'Final answer: <answer>'.",
+          "answer": "Final answer: Alder is led by his father.",
+          "correct": 0
+        },
+        {
+          "task_id": "b02aaeeda1",
+          "skill": "fact:smoke",
+          "prompt": "Who leads Fenn? End your reply with a line 'Final answer: <answer>'.",
+          "answer": "Final answer: Fenn is led by his father.",
+          "correct": 0
+        },
+        {
+          "task_id": "b7e9bfbed0",
+          "skill": "fact:smoke",
+          "prompt": "Who leads Dover? End your reply with a line 'Final answer: <answer>'.",
+          "answer": "Final answer: <answer> King Henry VIII</answer>",
+          "correct": 0
+        },
+        {
+          "task_id": "f2f94351a4",
+          "skill": "fact:smoke",
+          "prompt": "Who leads Birch? End your reply with a line 'Final answer: <answer>'.",
+          "answer": "Final answer: Birch's leader is the president.",
+          "correct": 0
+        }
+      ],
+      "off_with_hippo": [
+        {
+          "task_id": "169cd71368",
+          "skill": "rule:A",
+          "prompt": "Apply the Cobalt beacon rule to code boxn. End your reply with a line 'Final answer: <answer>'.",
+          "answer": "Final answer: <answer>",
+          "correct": 0
+        },
+        {
+          "task_id": "1733b4a36e",
+          "skill": "rule:A",
+          "prompt": "Apply the Cobalt beacon rule to code ucpm. End your reply with a line 'Final answer: <answer>'.",
+          "answer": "Final answer: <answer>",
+          "correct": 0
+        },
+        {
+          "task_id": "35e7f5e5fa",
+          "skill": "rule:A",
+          "prompt": "Apply the Cobalt beacon rule to code okjz. End your reply with a line 'Final answer: <answer>'.",
+          "answer": "Final answer: okjz",
+          "correct": 0
+        },
+        {
+          "task_id": "388bb33bcd",
+          "skill": "rule:A",
+          "prompt": "Apply the Cobalt beacon rule to code qvgt. End your reply with a line 'Final answer: <answer>'.",
+          "answer": "Final answer: <answer>",
+          "correct": 0
+        },
+        {
+          "task_id": "3da38b0768",
+          "skill": "rule:A",
+          "prompt": "Apply the Cobalt beacon rule to code dfui. End your reply with a line 'Final answer: <answer>'.",
+          "answer": "Final answer: <answer>",
+          "correct": 0
+        },
+        {
+          "task_id": "d645adedcd",
+          "skill": "rule:A",
+          "prompt": "Apply the Cobalt beacon rule to code vcds. End your reply with a line 'Final answer: <answer>'.",
+          "answer": "Final answer: <answer>",
+          "correct": 0
+        },
+        {
+          "task_id": "e62c59397b",
+          "skill": "rule:A",
+          "prompt": "Apply the Cobalt beacon rule to code aaye. End your reply with a line 'Final answer: <answer>'.",
+          "answer": "Final answer: <answer>",
+          "correct": 0
+        },
+        {
+          "task_id": "e810c27ea5",
+          "skill": "rule:A",
+          "prompt": "Apply the Cobalt beacon rule to code raqp. End your reply with a line 'Final answer: <answer>'.",
+          "answer": "Final answer: <answer>",
+          "correct": 0
+        },
+        {
+          "task_id": "331718d1ce",
+          "skill": "rule:B",
+          "prompt": "Apply the Amber orchard rule to code hkoh. End your reply with a line 'Final answer: <answer>'.",
+          "answer": "Final answer: <answer>",
+          "correct": 0
+        },
+        {
+          "task_id": "35326ccac4",
+          "skill": "rule:B",
+          "prompt": "Apply the Amber orchard rule to code slht. End your reply with a line 'Final answer: <answer>'.",
+          "answer": "Final answer: <answer>",
+          "correct": 0
+        },
+        {
+          "task_id": "42e9b6be7f",
+          "skill": "rule:B",
+          "prompt": "Apply the Amber orchard rule to code mgbe. End your reply with a line 'Final answer: <answer>'.",
+          "answer": "Final answer: mgbe",
+          "correct": 1
+        },
+        {
+          "task_id": "aad74e95a0",
+          "skill": "rule:B",
+          "prompt": "Apply the Amber orchard rule to code qbez. End your reply with a line 'Final answer: <answer>'.",
+          "answer": "Final answer: <answer>",
+          "correct": 0
+        },
+        {
+          "task_id": "cc8602e8b0",
+          "skill": "rule:B",
+          "prompt": "Apply the Amber orchard rule to code xxqj. End your reply with a line 'Final answer: <answer>'.",
+          "answer": "Final answer: <answer>",
+          "correct": 0
+        },
+        {
+          "task_id": "de04129d48",
+          "skill": "rule:B",
+          "prompt": "Apply the Amber orchard rule to code nbki. End your reply with a line 'Final answer: <answer>'.",
+          "answer": "Final answer: <answer>",
+          "correct": 0
+        },
+        {
+          "task_id": "f15f64f767",
+          "skill": "rule:B",
+          "prompt": "Apply the Amber orchard rule to code vzim. End your reply with a line 'Final answer: <answer>'.",
+          "answer": "Final answer: <answer>",
+          "correct": 0
+        },
+        {
+          "task_id": "f2bf72c823",
+          "skill": "rule:B",
+          "prompt": "Apply the Amber orchard rule to code kcxm. End your reply with a line 'Final answer: <answer>'.",
+          "answer": "Final answer: kcxm",
+          "correct": 1
+        },
+        {
+          "task_id": "236db3e63b",
+          "skill": "fact:smoke",
+          "prompt": "Who leads Cedar? End your reply with a line 'Final answer: <answer>'.",
+          "answer": "Final answer: Tali.",
+          "correct": 1
+        },
+        {
+          "task_id": "334d8f68e6",
+          "skill": "fact:smoke",
+          "prompt": "Who leads Elm? End your reply with a line 'Final answer: <answer>'.",
+          "answer": "Final answer: Ravi.",
+          "correct": 1
+        },
+        {
+          "task_id": "3be74f1cf3",
+          "skill": "fact:smoke",
+          "prompt": "Who leads Alder? End your reply with a line 'Final answer: <answer>'.",
+          "answer": "Final answer: Sora.",
+          "correct": 1
+        },
+        {
+          "task_id": "b02aaeeda1",
+          "skill": "fact:smoke",
+          "prompt": "Who leads Fenn? End your reply with a line 'Final answer: <answer>'.",
+          "answer": "Final answer: Omar.",
+          "correct": 1
+        },
+        {
+          "task_id": "b7e9bfbed0",
+          "skill": "fact:smoke",
+          "prompt": "Who leads Dover? End your reply with a line 'Final answer: <answer>'.",
+          "answer": "Final answer: Lena.",
+          "correct": 1
+        },
+        {
+          "task_id": "f2f94351a4",
+          "skill": "fact:smoke",
+          "prompt": "Who leads Birch? End your reply with a line 'Final answer: <answer>'.",
+          "answer": "Final answer: Nora.",
+          "correct": 1
+        }
+      ],
+      "old_adapters_unchanged": true
+    }
+  },
+  "routing": {
+    "0": [
+      {
+        "task_id": "169cd71368",
+        "skill": "rule:A",
+        "expert": "expert-0"
+      },
+      {
+        "task_id": "1733b4a36e",
+        "skill": "rule:A",
+        "expert": "expert-0"
+      },
+      {
+        "task_id": "35e7f5e5fa",
+        "skill": "rule:A",
+        "expert": "expert-0"
+      },
+      {
+        "task_id": "388bb33bcd",
+        "skill": "rule:A",
+        "expert": "expert-0"
+      },
+      {
+        "task_id": "3da38b0768",
+        "skill": "rule:A",
+        "expert": "expert-0"
+      },
+      {
+        "task_id": "d645adedcd",
+        "skill": "rule:A",
+        "expert": "expert-0"
+      },
+      {
+        "task_id": "e62c59397b",
+        "skill": "rule:A",
+        "expert": "expert-0"
+      },
+      {
+        "task_id": "e810c27ea5",
+        "skill": "rule:A",
+        "expert": "expert-0"
+      },
+      {
+        "task_id": "236db3e63b",
+        "skill": "fact:smoke",
+        "expert": null
+      },
+      {
+        "task_id": "334d8f68e6",
+        "skill": "fact:smoke",
+        "expert": null
+      },
+      {
+        "task_id": "3be74f1cf3",
+        "skill": "fact:smoke",
+        "expert": null
+      },
+      {
+        "task_id": "b02aaeeda1",
+        "skill": "fact:smoke",
+        "expert": null
+      },
+      {
+        "task_id": "b7e9bfbed0",
+        "skill": "fact:smoke",
+        "expert": null
+      },
+      {
+        "task_id": "f2f94351a4",
+        "skill": "fact:smoke",
+        "expert": null
+      },
+      {
+        "task_id": "40229d0187",
+        "skill": "canary:smoke",
+        "expert": null
+      },
+      {
+        "task_id": "c3757f7ee7",
+        "skill": "canary:smoke",
+        "expert": null
+      },
+      {
+        "task_id": "beea841c0e",
+        "skill": "canary:smoke",
+        "expert": null
+      },
+      {
+        "task_id": "edcd7b14c4",
+        "skill": "canary:smoke",
+        "expert": null
+      },
+      {
+        "task_id": "9c174bcd3a",
+        "skill": "canary:smoke",
+        "expert": null
+      },
+      {
+        "task_id": "6acd3c1bf0",
+        "skill": "canary:smoke",
+        "expert": null
+      },
+      {
+        "task_id": "a94cf65fd8",
+        "skill": "canary:smoke",
+        "expert": null
+      },
+      {
+        "task_id": "1252b42df5",
+        "skill": "canary:smoke",
+        "expert": null
+      }
+    ],
+    "1": [
+      {
+        "task_id": "169cd71368",
+        "skill": "rule:A",
+        "expert": "expert-0"
+      },
+      {
+        "task_id": "1733b4a36e",
+        "skill": "rule:A",
+        "expert": "expert-0"
+      },
+      {
+        "task_id": "35e7f5e5fa",
+        "skill": "rule:A",
+        "expert": "expert-0"
+      },
+      {
+        "task_id": "388bb33bcd",
+        "skill": "rule:A",
+        "expert": "expert-0"
+      },
+      {
+        "task_id": "3da38b0768",
+        "skill": "rule:A",
+        "expert": "expert-0"
+      },
+      {
+        "task_id": "d645adedcd",
+        "skill": "rule:A",
+        "expert": "expert-0"
+      },
+      {
+        "task_id": "e62c59397b",
+        "skill": "rule:A",
+        "expert": "expert-0"
+      },
+      {
+        "task_id": "e810c27ea5",
+        "skill": "rule:A",
+        "expert": "expert-0"
+      },
+      {
+        "task_id": "331718d1ce",
+        "skill": "rule:B",
+        "expert": "expert-1"
+      },
+      {
+        "task_id": "35326ccac4",
+        "skill": "rule:B",
+        "expert": "expert-1"
+      },
+      {
+        "task_id": "42e9b6be7f",
+        "skill": "rule:B",
+        "expert": "expert-1"
+      },
+      {
+        "task_id": "aad74e95a0",
+        "skill": "rule:B",
+        "expert": "expert-1"
+      },
+      {
+        "task_id": "cc8602e8b0",
+        "skill": "rule:B",
+        "expert": "expert-1"
+      },
+      {
+        "task_id": "de04129d48",
+        "skill": "rule:B",
+        "expert": "expert-1"
+      },
+      {
+        "task_id": "f15f64f767",
+        "skill": "rule:B",
+        "expert": "expert-1"
+      },
+      {
+        "task_id": "f2bf72c823",
+        "skill": "rule:B",
+        "expert": "expert-1"
+      },
+      {
+        "task_id": "236db3e63b",
+        "skill": "fact:smoke",
+        "expert": null
+      },
+      {
+        "task_id": "334d8f68e6",
+        "skill": "fact:smoke",
+        "expert": null
+      },
+      {
+        "task_id": "3be74f1cf3",
+        "skill": "fact:smoke",
+        "expert": null
+      },
+      {
+        "task_id": "b02aaeeda1",
+        "skill": "fact:smoke",
+        "expert": null
+      },
+      {
+        "task_id": "b7e9bfbed0",
+        "skill": "fact:smoke",
+        "expert": null
+      },
+      {
+        "task_id": "f2f94351a4",
+        "skill": "fact:smoke",
+        "expert": null
+      },
+      {
+        "task_id": "40229d0187",
+        "skill": "canary:smoke",
+        "expert": null
+      },
+      {
+        "task_id": "c3757f7ee7",
+        "skill": "canary:smoke",
+        "expert": null
+      },
+      {
+        "task_id": "beea841c0e",
+        "skill": "canary:smoke",
+        "expert": null
+      },
+      {
+        "task_id": "edcd7b14c4",
+        "skill": "canary:smoke",
+        "expert": null
+      },
+      {
+        "task_id": "9c174bcd3a",
+        "skill": "canary:smoke",
+        "expert": null
+      },
+      {
+        "task_id": "6acd3c1bf0",
+        "skill": "canary:smoke",
+        "expert": null
+      },
+      {
+        "task_id": "a94cf65fd8",
+        "skill": "canary:smoke",
+        "expert": null
+      },
+      {
+        "task_id": "1252b42df5",
+        "skill": "canary:smoke",
+        "expert": null
+      }
+    ],
+    "2": [
+      {
+        "task_id": "169cd71368",
+        "skill": "rule:A",
+        "expert": "expert-0"
+      },
+      {
+        "task_id": "1733b4a36e",
+        "skill": "rule:A",
+        "expert": "expert-0"
+      },
+      {
+        "task_id": "35e7f5e5fa",
+        "skill": "rule:A",
+        "expert": "expert-0"
+      },
+      {
+        "task_id": "388bb33bcd",
+        "skill": "rule:A",
+        "expert": "expert-0"
+      },
+      {
+        "task_id": "3da38b0768",
+        "skill": "rule:A",
+        "expert": "expert-0"
+      },
+      {
+        "task_id": "d645adedcd",
+        "skill": "rule:A",
+        "expert": "expert-0"
+      },
+      {
+        "task_id": "e62c59397b",
+        "skill": "rule:A",
+        "expert": "expert-0"
+      },
+      {
+        "task_id": "e810c27ea5",
+        "skill": "rule:A",
+        "expert": "expert-0"
+      },
+      {
+        "task_id": "331718d1ce",
+        "skill": "rule:B",
+        "expert": "expert-1"
+      },
+      {
+        "task_id": "35326ccac4",
+        "skill": "rule:B",
+        "expert": "expert-1"
+      },
+      {
+        "task_id": "42e9b6be7f",
+        "skill": "rule:B",
+        "expert": "expert-1"
+      },
+      {
+        "task_id": "aad74e95a0",
+        "skill": "rule:B",
+        "expert": "expert-1"
+      },
+      {
+        "task_id": "cc8602e8b0",
+        "skill": "rule:B",
+        "expert": "expert-1"
+      },
+      {
+        "task_id": "de04129d48",
+        "skill": "rule:B",
+        "expert": "expert-1"
+      },
+      {
+        "task_id": "f15f64f767",
+        "skill": "rule:B",
+        "expert": "expert-1"
+      },
+      {
+        "task_id": "f2bf72c823",
+        "skill": "rule:B",
+        "expert": "expert-1"
+      },
+      {
+        "task_id": "236db3e63b",
+        "skill": "fact:smoke",
+        "expert": "expert-2"
+      },
+      {
+        "task_id": "334d8f68e6",
+        "skill": "fact:smoke",
+        "expert": "expert-2"
+      },
+      {
+        "task_id": "3be74f1cf3",
+        "skill": "fact:smoke",
+        "expert": "expert-2"
+      },
+      {
+        "task_id": "b02aaeeda1",
+        "skill": "fact:smoke",
+        "expert": "expert-2"
+      },
+      {
+        "task_id": "b7e9bfbed0",
+        "skill": "fact:smoke",
+        "expert": "expert-2"
+      },
+      {
+        "task_id": "f2f94351a4",
+        "skill": "fact:smoke",
+        "expert": "expert-2"
+      },
+      {
+        "task_id": "40229d0187",
+        "skill": "canary:smoke",
+        "expert": null
+      },
+      {
+        "task_id": "c3757f7ee7",
+        "skill": "canary:smoke",
+        "expert": null
+      },
+      {
+        "task_id": "beea841c0e",
+        "skill": "canary:smoke",
+        "expert": null
+      },
+      {
+        "task_id": "edcd7b14c4",
+        "skill": "canary:smoke",
+        "expert": null
+      },
+      {
+        "task_id": "9c174bcd3a",
+        "skill": "canary:smoke",
+        "expert": null
+      },
+      {
+        "task_id": "6acd3c1bf0",
+        "skill": "canary:smoke",
+        "expert": null
+      },
+      {
+        "task_id": "a94cf65fd8",
+        "skill": "canary:smoke",
+        "expert": null
+      },
+      {
+        "task_id": "1252b42df5",
+        "skill": "canary:smoke",
+        "expert": null
+      }
+    ]
+  },
+  "recall": {
+    "0": {
+      "Cedar|leader": [
+        "Fact: Field note: the leader of Cedar is Tali.",
+        "Question: Apply the Cobalt beacon rule to code nkuh. End your reply with a line 'Final answer: <answer>'.\nResponse: Final answer: <answer>\nCorrect: False\nCorrection: Correct answer: HUKN. Cobalt beacon rule: reverse the four-letter code, then uppercase it.",
+        "Question: Apply the Cobalt beacon rule to code lrzx. End your reply with a line 'Final answer: <answer>'.\nResponse: Final answer: <answer>\nCorrect: False\nCorrection: Correct answer: XZRL. Cobalt beacon rule: reverse the four-letter code, then uppercase it.",
+        "Question: Apply the Cobalt beacon rule to code xpyp. End your reply with a line 'Final answer: <answer>'.\nResponse: Final answer: <answer>\nCorrect: False\nCorrection: Correct answer: PYPX. Cobalt beacon rule: reverse the four-letter code, then uppercase it.",
+        "Question: Apply the Cobalt beacon rule to code mpxn. End your reply with a line 'Final answer: <answer>'.\nResponse: Final answer: <answer>\nCorrect: False\nCorrection: Correct answer: NXPM. Cobalt beacon rule: reverse the four-letter code, then uppercase it."
+      ],
+      "Elm|leader": [
+        "Fact: Field note: the leader of Elm is Ravi.",
+        "Question: Apply the Cobalt beacon rule to code nkuh. End your reply with a line 'Final answer: <answer>'.\nResponse: Final answer: <answer>\nCorrect: False\nCorrection: Correct answer: HUKN. Cobalt beacon rule: reverse the four-letter code, then uppercase it.",
+        "Question: Apply the Cobalt beacon rule to code lrzx. End your reply with a line 'Final answer: <answer>'.\nResponse: Final answer: <answer>\nCorrect: False\nCorrection: Correct answer: XZRL. Cobalt beacon rule: reverse the four-letter code, then uppercase it.",
+        "Question: Apply the Cobalt beacon rule to code xpyp. End your reply with a line 'Final answer: <answer>'.\nResponse: Final answer: <answer>\nCorrect: False\nCorrection: Correct answer: PYPX. Cobalt beacon rule: reverse the four-letter code, then uppercase it.",
+        "Question: Apply the Cobalt beacon rule to code ohee. End your reply with a line 'Final answer: <answer>'.\nResponse: Final answer: <answer>\nCorrect: False\nCorrection: Correct answer: EEHO. Cobalt beacon rule: reverse the four-letter code, then uppercase it."
+      ],
+      "Alder|leader": [
+        "Fact: Field note: the leader of Alder is Mira.",
+        "Question: Apply the Cobalt beacon rule to code nkuh. End your reply with a line 'Final answer: <answer>'.\nResponse: Final answer: <answer>\nCorrect: False\nCorrection: Correct answer: HUKN. Cobalt beacon rule: reverse the four-letter code, then uppercase it.",
+        "Question: Apply the Cobalt beacon rule to code xpyp. End your reply with a line 'Final answer: <answer>'.\nResponse: Final answer: <answer>\nCorrect: False\nCorrection: Correct answer: PYPX. Cobalt beacon rule: reverse the four-letter code, then uppercase it.",
+        "Question: Apply the Cobalt beacon rule to code guoa. End your reply with a line 'Final answer: <answer>'.\nResponse: Final answer: <answer>\nCorrect: False\nCorrection: Correct answer: AOUG. Cobalt beacon rule: reverse the four-letter code, then uppercase it.",
+        "Question: Apply the Cobalt beacon rule to code mpxn. End your reply with a line 'Final answer: <answer>'.\nResponse: Final answer: <answer>\nCorrect: False\nCorrection: Correct answer: NXPM. Cobalt beacon rule: reverse the four-letter code, then uppercase it."
+      ],
+      "Fenn|leader": [
+        "Fact: Field note: the leader of Fenn is Omar.",
+        "Question: Apply the Cobalt beacon rule to code nkuh. End your reply with a line 'Final answer: <answer>'.\nResponse: Final answer: <answer>\nCorrect: False\nCorrection: Correct answer: HUKN. Cobalt beacon rule: reverse the four-letter code, then uppercase it.",
+        "Question: Apply the Cobalt beacon rule to code lrzx. End your reply with a line 'Final answer: <answer>'.\nResponse: Final answer: <answer>\nCorrect: False\nCorrection: Correct answer: XZRL. Cobalt beacon rule: reverse the four-letter code, then uppercase it.",
+        "Question: Apply the Cobalt beacon rule to code mpxn. End your reply with a line 'Final answer: <answer>'.\nResponse: Final answer: <answer>\nCorrect: False\nCorrection: Correct answer: NXPM. Cobalt beacon rule: reverse the four-letter code, then uppercase it.",
+        "Question: Apply the Cobalt beacon rule to code prmc. End your reply with a line 'Final answer: <answer>'.\nResponse: Final answer: <answer>\nCorrect: False\nCorrection: Correct answer: CMRP. Cobalt beacon rule: reverse the four-letter code, then uppercase it."
+      ],
+      "Dover|leader": [
+        "Fact: Field note: the leader of Dover is Lena.",
+        "Question: Apply the Cobalt beacon rule to code nkuh. End your reply with a line 'Final answer: <answer>'.\nResponse: Final answer: <answer>\nCorrect: False\nCorrection: Correct answer: HUKN. Cobalt beacon rule: reverse the four-letter code, then uppercase it.",
+        "Question: Apply the Cobalt beacon rule to code lrzx. End your reply with a line 'Final answer: <answer>'.\nResponse: Final answer: <answer>\nCorrect: False\nCorrection: Correct answer: XZRL. Cobalt beacon rule: reverse the four-letter code, then uppercase it.",
+        "Question: Apply the Cobalt beacon rule to code xpyp. End your reply with a line 'Final answer: <answer>'.\nResponse: Final answer: <answer>\nCorrect: False\nCorrection: Correct answer: PYPX. Cobalt beacon rule: reverse the four-letter code, then uppercase it.",
+        "Question: Apply the Cobalt beacon rule to code mpxn. End your reply with a line 'Final answer: <answer>'.\nResponse: Final answer: <answer>\nCorrect: False\nCorrection: Correct answer: NXPM. Cobalt beacon rule: reverse the four-letter code, then uppercase it."
+      ],
+      "Birch|leader": [
+        "Fact: Field note: the leader of Birch is Nora.",
+        "Question: Apply the Cobalt beacon rule to code nkuh. End your reply with a line 'Final answer: <answer>'.\nResponse: Final answer: <answer>\nCorrect: False\nCorrection: Correct answer: HUKN. Cobalt beacon rule: reverse the four-letter code, then uppercase it.",
+        "Question: Apply the Cobalt beacon rule to code lrzx. End your reply with a line 'Final answer: <answer>'.\nResponse: Final answer: <answer>\nCorrect: False\nCorrection: Correct answer: XZRL. Cobalt beacon rule: reverse the four-letter code, then uppercase it.",
+        "Question: Apply the Cobalt beacon rule to code xpyp. End your reply with a line 'Final answer: <answer>'.\nResponse: Final answer: <answer>\nCorrect: False\nCorrection: Correct answer: PYPX. Cobalt beacon rule: reverse the four-letter code, then uppercase it.",
+        "Question: Apply the Cobalt beacon rule to code vozp. End your reply with a line 'Final answer: <answer>'.\nResponse: Final answer: <answer>\nCorrect: False\nCorrection: Correct answer: PZOV. Cobalt beacon rule: reverse the four-letter code, then uppercase it."
+      ]
+    },
+    "1": {
+      "Cedar|leader": [
+        "Fact: Field note: the leader of Cedar is Tali.",
+        "Question: Apply the Amber orchard rule to code motw. End your reply with a line 'Final answer: <answer>'.\nResponse: Final answer: Motw\nCorrect: True\nCorrection: Correct answer: MOTW. Amber orchard rule: uppercase the four-letter code without reversing it.",
+        "Question: Apply the Amber orchard rule to code skrb. End your reply with a line 'Final answer: <answer>'.\nResponse: Final answer: <answer>\nCorrect: False\nCorrection: Correct answer: SKRB. Amber orchard rule: uppercase the four-letter code without reversing it.",
+        "Question: Apply the Amber orchard rule to code qqsk. End your reply with a line 'Final answer: <answer>'.\nResponse: Final answer: <answer>\nCorrect: False\nCorrection: Correct answer: QQSK. Amber orchard rule: uppercase the four-letter code without reversing it.",
+        "Question: Apply the Cobalt beacon rule to code nkuh. End your reply with a line 'Final answer: <answer>'.\nResponse: Final answer: <answer>\nCorrect: False\nCorrection: Correct answer: HUKN. Cobalt beacon rule: reverse the four-letter code, then uppercase it."
+      ],
+      "Elm|leader": [
+        "Fact: Field note: the leader of Elm is Ravi.",
+        "Question: Apply the Amber orchard rule to code skrb. End your reply with a line 'Final answer: <answer>'.\nResponse: Final answer: <answer>\nCorrect: False\nCorrection: Correct answer: SKRB. Amber orchard rule: uppercase the four-letter code without reversing it.",
+        "Question: Apply the Amber orchard rule to code qqsk. End your reply with a line 'Final answer: <answer>'.\nResponse: Final answer: <answer>\nCorrect: False\nCorrection: Correct answer: QQSK. Amber orchard rule: uppercase the four-letter code without reversing it.",
+        "Question: Apply the Amber orchard rule to code lgen. End your reply with a line 'Final answer: <answer>'.\nResponse: Final answer: <answer>\nCorrect: False\nCorrection: Correct answer: LGEN. Amber orchard rule: uppercase the four-letter code without reversing it.",
+        "Question: Apply the Amber orchard rule to code jhjy. End your reply with a line 'Final answer: <answer>'.\nResponse: Final answer: <answer>\nCorrect: False\nCorrection: Correct answer: JHJY. Amber orchard rule: uppercase the four-letter code without reversing it."
+      ],
+      "Alder|leader": [
+        "Fact: Update notice: the leader of Alder is now Sora.",
+        "Fact: Field note: the leader of Alder is Mira.",
+        "Question: Apply the Amber orchard rule to code qqsk. End your reply with a line 'Final answer: <answer>'.\nResponse: Final answer: <answer>\nCorrect: False\nCorrection: Correct answer: QQSK. Amber orchard rule: uppercase the four-letter code without reversing it.",
+        "Question: Apply the Amber orchard rule to code skrb. End your reply with a line 'Final answer: <answer>'.\nResponse: Final answer: <answer>\nCorrect: False\nCorrection: Correct answer: SKRB. Amber orchard rule: uppercase the four-letter code without reversing it.",
+        "Question: Apply the Amber orchard rule to code lgen. End your reply with a line 'Final answer: <answer>'.\nResponse: Final answer: <answer>\nCorrect: False\nCorrection: Correct answer: LGEN. Amber orchard rule: uppercase the four-letter code without reversing it."
+      ],
+      "Fenn|leader": [
+        "Fact: Field note: the leader of Fenn is Omar.",
+        "Question: Apply the Amber orchard rule to code skrb. End your reply with a line 'Final answer: <answer>'.\nResponse: Final answer: <answer>\nCorrect: False\nCorrection: Correct answer: SKRB. Amber orchard rule: uppercase the four-letter code without reversing it.",
+        "Question: Apply the Amber orchard rule to code qqsk. End your reply with a line 'Final answer: <answer>'.\nResponse: Final answer: <answer>\nCorrect: False\nCorrection: Correct answer: QQSK. Amber orchard rule: uppercase the four-letter code without reversing it.",
+        "Question: Apply the Amber orchard rule to code lgen. End your reply with a line 'Final answer: <answer>'.\nResponse: Final answer: <answer>\nCorrect: False\nCorrection: Correct answer: LGEN. Amber orchard rule: uppercase the four-letter code without reversing it.",
+        "Question: Apply the Amber orchard rule to code jhjy. End your reply with a line 'Final answer: <answer>'.\nResponse: Final answer: <answer>\nCorrect: False\nCorrection: Correct answer: JHJY. Amber orchard rule: uppercase the four-letter code without reversing it."
+      ],
+      "Dover|leader": [
+        "Fact: Field note: the leader of Dover is Lena.",
+        "Question: Apply the Amber orchard rule to code qqsk. End your reply with a line 'Final answer: <answer>'.\nResponse: Final answer: <answer>\nCorrect: False\nCorrection: Correct answer: QQSK. Amber orchard rule: uppercase the four-letter code without reversing it.",
+        "Question: Apply the Amber orchard rule to code skrb. End your reply with a line 'Final answer: <answer>'.\nResponse: Final answer: <answer>\nCorrect: False\nCorrection: Correct answer: SKRB. Amber orchard rule: uppercase the four-letter code without reversing it.",
+        "Question: Apply the Amber orchard rule to code lgen. End your reply with a line 'Final answer: <answer>'.\nResponse: Final answer: <answer>\nCorrect: False\nCorrection: Correct answer: LGEN. Amber orchard rule: uppercase the four-letter code without reversing it.",
+        "Question: Apply the Amber orchard rule to code jhjy. End your reply with a line 'Final answer: <answer>'.\nResponse: Final answer: <answer>\nCorrect: False\nCorrection: Correct answer: JHJY. Amber orchard rule: uppercase the four-letter code without reversing it."
+      ],
+      "Birch|leader": [
+        "Fact: Field note: the leader of Birch is Nora.",
+        "Question: Apply the Amber orchard rule to code skrb. End your reply with a line 'Final answer: <answer>'.\nResponse: Final answer: <answer>\nCorrect: False\nCorrection: Correct answer: SKRB. Amber orchard rule: uppercase the four-letter code without reversing it.",
+        "Question: Apply the Amber orchard rule to code qqsk. End your reply with a line 'Final answer: <answer>'.\nResponse: Final answer: <answer>\nCorrect: False\nCorrection: Correct answer: QQSK. Amber orchard rule: uppercase the four-letter code without reversing it.",
+        "Question: Apply the Amber orchard rule to code lgen. End your reply with a line 'Final answer: <answer>'.\nResponse: Final answer: <answer>\nCorrect: False\nCorrection: Correct answer: LGEN. Amber orchard rule: uppercase the four-letter code without reversing it.",
+        "Question: Apply the Amber orchard rule to code jhjy. End your reply with a line 'Final answer: <answer>'.\nResponse: Final answer: <answer>\nCorrect: False\nCorrection: Correct answer: JHJY. Amber orchard rule: uppercase the four-letter code without reversing it."
+      ]
+    },
+    "2": {
+      "Cedar|leader": [
+        "Fact: Field note: the leader of Cedar is Tali.",
+        "Question: What is 19 + 28? End your reply with a line 'Final answer: <answer>'.\nResponse: Final answer: 47  \nFinal answer: 47\nCorrect: True\nCorrection: Correct answer: 47.",
+        "Question: What is 15 + 24? End your reply with a line 'Final answer: <answer>'.\nResponse: Final answer: 49  \nFinal answer: 49.\nCorrect: False\nCorrection: Correct answer: 39.",
+        "Question: What is 18 + 27? End your reply with a line 'Final answer: <answer>'.\nResponse: Final answer: 45  \nFinal answer: 45\nCorrect: True\nCorrection: Correct answer: 45.",
+        "Question: What is 16 + 25? End your reply with a line 'Final answer: <answer>'.\nResponse: Final answer: 41  \nFinal answer: 41\nCorrect: True\nCorrection: Correct answer: 41."
+      ],
+      "Elm|leader": [
+        "Fact: Field note: the leader of Elm is Ravi.",
+        "Question: What is 19 + 28? End your reply with a line 'Final answer: <answer>'.\nResponse: Final answer: 47  \nFinal answer: 47\nCorrect: True\nCorrection: Correct answer: 47.",
+        "Question: What is 15 + 24? End your reply with a line 'Final answer: <answer>'.\nResponse: Final answer: 49  \nFinal answer: 49.\nCorrect: False\nCorrection: Correct answer: 39.",
+        "Question: What is 16 + 25? End your reply with a line 'Final answer: <answer>'.\nResponse: Final answer: 41  \nFinal answer: 41\nCorrect: True\nCorrection: Correct answer: 41.",
+        "Question: What is 18 + 27? End your reply with a line 'Final answer: <answer>'.\nResponse: Final answer: 45  \nFinal answer: 45\nCorrect: True\nCorrection: Correct answer: 45."
+      ],
+      "Alder|leader": [
+        "Fact: Update notice: the leader of Alder is now Sora.",
+        "Fact: Field note: the leader of Alder is Mira.",
+        "Question: What is 19 + 28? End your reply with a line 'Final answer: <answer>'.\nResponse: Final answer: 47  \nFinal answer: 47\nCorrect: True\nCorrection: Correct answer: 47.",
+        "Question: What is 15 + 24? End your reply with a line 'Final answer: <answer>'.\nResponse: Final answer: 49  \nFinal answer: 49.\nCorrect: False\nCorrection: Correct answer: 39.",
+        "Question: What is 16 + 25? End your reply with a line 'Final answer: <answer>'.\nResponse: Final answer: 41  \nFinal answer: 41\nCorrect: True\nCorrection: Correct answer: 41."
+      ],
+      "Fenn|leader": [
+        "Fact: Field note: the leader of Fenn is Omar.",
+        "Question: What is 19 + 28? End your reply with a line 'Final answer: <answer>'.\nResponse: Final answer: 47  \nFinal answer: 47\nCorrect: True\nCorrection: Correct answer: 47.",
+        "Question: What is 15 + 24? End your reply with a line 'Final answer: <answer>'.\nResponse: Final answer: 49  \nFinal answer: 49.\nCorrect: False\nCorrection: Correct answer: 39.",
+        "Question: What is 16 + 25? End your reply with a line 'Final answer: <answer>'.\nResponse: Final answer: 41  \nFinal answer: 41\nCorrect: True\nCorrection: Correct answer: 41.",
+        "Question: What is 18 + 27? End your reply with a line 'Final answer: <answer>'.\nResponse: Final answer: 45  \nFinal answer: 45\nCorrect: True\nCorrection: Correct answer: 45."
+      ],
+      "Dover|leader": [
+        "Fact: Field note: the leader of Dover is Lena.",
+        "Question: What is 19 + 28? End your reply with a line 'Final answer: <answer>'.\nResponse: Final answer: 47  \nFinal answer: 47\nCorrect: True\nCorrection: Correct answer: 47.",
+        "Question: What is 15 + 24? End your reply with a line 'Final answer: <answer>'.\nResponse: Final answer: 49  \nFinal answer: 49.\nCorrect: False\nCorrection: Correct answer: 39.",
+        "Question: What is 16 + 25? End your reply with a line 'Final answer: <answer>'.\nResponse: Final answer: 41  \nFinal answer: 41\nCorrect: True\nCorrection: Correct answer: 41.",
+        "Question: What is 18 + 27? End your reply with a line 'Final answer: <answer>'.\nResponse: Final answer: 45  \nFinal answer: 45\nCorrect: True\nCorrection: Correct answer: 45."
+      ],
+      "Birch|leader": [
+        "Fact: Field note: the leader of Birch is Nora.",
+        "Question: What is 19 + 28? End your reply with a line 'Final answer: <answer>'.\nResponse: Final answer: 47  \nFinal answer: 47\nCorrect: True\nCorrection: Correct answer: 47.",
+        "Question: What is 15 + 24? End your reply with a line 'Final answer: <answer>'.\nResponse: Final answer: 49  \nFinal answer: 49.\nCorrect: False\nCorrection: Correct answer: 39.",
+        "Question: What is 16 + 25? End your reply with a line 'Final answer: <answer>'.\nResponse: Final answer: 41  \nFinal answer: 41\nCorrect: True\nCorrection: Correct answer: 41.",
+        "Question: What is 18 + 27? End your reply with a line 'Final answer: <answer>'.\nResponse: Final answer: 45  \nFinal answer: 45\nCorrect: True\nCorrection: Correct answer: 45."
+      ]
+    }
+  },
+  "base_before": [
+    {
+      "task_id": "169cd71368",
+      "skill": "rule:A",
+      "prompt": "Apply the Cobalt beacon rule to code boxn. End your reply with a line 'Final answer: <answer>'.",
+      "answer": "Final answer: <answer>",
+      "correct": 0
+    },
+    {
+      "task_id": "1733b4a36e",
+      "skill": "rule:A",
+      "prompt": "Apply the Cobalt beacon rule to code ucpm. End your reply with a line 'Final answer: <answer>'.",
+      "answer": "Final answer: <answer>",
+      "correct": 0
+    },
+    {
+      "task_id": "35e7f5e5fa",
+      "skill": "rule:A",
+      "prompt": "Apply the Cobalt beacon rule to code okjz. End your reply with a line 'Final answer: <answer>'.",
+      "answer": "Final answer: okjz",
+      "correct": 0
+    },
+    {
+      "task_id": "388bb33bcd",
+      "skill": "rule:A",
+      "prompt": "Apply the Cobalt beacon rule to code qvgt. End your reply with a line 'Final answer: <answer>'.",
+      "answer": "Final answer: <answer>",
+      "correct": 0
+    },
+    {
+      "task_id": "3da38b0768",
+      "skill": "rule:A",
+      "prompt": "Apply the Cobalt beacon rule to code dfui. End your reply with a line 'Final answer: <answer>'.",
+      "answer": "Final answer: <answer>",
+      "correct": 0
+    },
+    {
+      "task_id": "d645adedcd",
+      "skill": "rule:A",
+      "prompt": "Apply the Cobalt beacon rule to code vcds. End your reply with a line 'Final answer: <answer>'.",
+      "answer": "Final answer: <answer>",
+      "correct": 0
+    },
+    {
+      "task_id": "e62c59397b",
+      "skill": "rule:A",
+      "prompt": "Apply the Cobalt beacon rule to code aaye. End your reply with a line 'Final answer: <answer>'.",
+      "answer": "Final answer: <answer>",
+      "correct": 0
+    },
+    {
+      "task_id": "e810c27ea5",
+      "skill": "rule:A",
+      "prompt": "Apply the Cobalt beacon rule to code raqp. End your reply with a line 'Final answer: <answer>'.",
+      "answer": "Final answer: <answer>",
+      "correct": 0
+    },
+    {
+      "task_id": "331718d1ce",
+      "skill": "rule:B",
+      "prompt": "Apply the Amber orchard rule to code hkoh. End your reply with a line 'Final answer: <answer>'.",
+      "answer": "Final answer: <answer>",
+      "correct": 0
+    },
+    {
+      "task_id": "35326ccac4",
+      "skill": "rule:B",
+      "prompt": "Apply the Amber orchard rule to code slht. End your reply with a line 'Final answer: <answer>'.",
+      "answer": "Final answer: <answer>",
+      "correct": 0
+    },
+    {
+      "task_id": "42e9b6be7f",
+      "skill": "rule:B",
+      "prompt": "Apply the Amber orchard rule to code mgbe. End your reply with a line 'Final answer: <answer>'.",
+      "answer": "Final answer: mgbe",
+      "correct": 1
+    },
+    {
+      "task_id": "aad74e95a0",
+      "skill": "rule:B",
+      "prompt": "Apply the Amber orchard rule to code qbez. End your reply with a line 'Final answer: <answer>'.",
+      "answer": "Final answer: <answer>",
+      "correct": 0
+    },
+    {
+      "task_id": "cc8602e8b0",
+      "skill": "rule:B",
+      "prompt": "Apply the Amber orchard rule to code xxqj. End your reply with a line 'Final answer: <answer>'.",
+      "answer": "Final answer: <answer>",
+      "correct": 0
+    },
+    {
+      "task_id": "de04129d48",
+      "skill": "rule:B",
+      "prompt": "Apply the Amber orchard rule to code nbki. End your reply with a line 'Final answer: <answer>'.",
+      "answer": "Final answer: <answer>",
+      "correct": 0
+    },
+    {
+      "task_id": "f15f64f767",
+      "skill": "rule:B",
+      "prompt": "Apply the Amber orchard rule to code vzim. End your reply with a line 'Final answer: <answer>'.",
+      "answer": "Final answer: <answer>",
+      "correct": 0
+    },
+    {
+      "task_id": "f2bf72c823",
+      "skill": "rule:B",
+      "prompt": "Apply the Amber orchard rule to code kcxm. End your reply with a line 'Final answer: <answer>'.",
+      "answer": "Final answer: kcxm",
+      "correct": 1
+    },
+    {
+      "task_id": "236db3e63b",
+      "skill": "fact:smoke",
+      "prompt": "Who leads Cedar? End your reply with a line 'Final answer: <answer>'.",
+      "answer": "Final answer: Cedar's leader is the president.",
+      "correct": 0
+    },
+    {
+      "task_id": "334d8f68e6",
+      "skill": "fact:smoke",
+      "prompt": "Who leads Elm? End your reply with a line 'Final answer: <answer>'.",
+      "answer": "Final answer: Elm's leader is the CEO.",
+      "correct": 0
+    },
+    {
+      "task_id": "3be74f1cf3",
+      "skill": "fact:smoke",
+      "prompt": "Who leads Alder? End your reply with a line 'Final answer: <answer>'.",
+      "answer": "Final answer: Alder is led by his father.",
+      "correct": 0
+    },
+    {
+      "task_id": "b02aaeeda1",
+      "skill": "fact:smoke",
+      "prompt": "Who leads Fenn? End your reply with a line 'Final answer: <answer>'.",
+      "answer": "Final answer: Fenn is led by his father.",
+      "correct": 0
+    },
+    {
+      "task_id": "b7e9bfbed0",
+      "skill": "fact:smoke",
+      "prompt": "Who leads Dover? End your reply with a line 'Final answer: <answer>'.",
+      "answer": "Final answer: <answer> King Henry VIII</answer>",
+      "correct": 0
+    },
+    {
+      "task_id": "f2f94351a4",
+      "skill": "fact:smoke",
+      "prompt": "Who leads Birch? End your reply with a line 'Final answer: <answer>'.",
+      "answer": "Final answer: Birch's leader is the president.",
+      "correct": 0
+    },
+    {
+      "task_id": "40229d0187",
+      "skill": "canary:smoke",
+      "prompt": "What is 1 + 1? End your reply with a line 'Final answer: <answer>'.",
+      "answer": "Final answer: 2",
+      "correct": 1
+    },
+    {
+      "task_id": "c3757f7ee7",
+      "skill": "canary:smoke",
+      "prompt": "What is 2 + 3? End your reply with a line 'Final answer: <answer>'.",
+      "answer": "Final answer: 5.",
+      "correct": 1
+    },
+    {
+      "task_id": "beea841c0e",
+      "skill": "canary:smoke",
+      "prompt": "What is 7 - 2? End your reply with a line 'Final answer: <answer>'.",
+      "answer": "Final answer: 5",
+      "correct": 1
+    },
+    {
+      "task_id": "edcd7b14c4",
+      "skill": "canary:smoke",
+      "prompt": "What is 3 * 3? End your reply with a line 'Final answer: <answer>'.",
+      "answer": "Final answer: 9",
+      "correct": 1
+    },
+    {
+      "task_id": "9c174bcd3a",
+      "skill": "canary:smoke",
+      "prompt": "What color is a clear daytime sky? Give one word. End your reply with a line 'Final answer: <answer>'.",
+      "answer": "Final answer: blue",
+      "correct": 1
+    },
+    {
+      "task_id": "6acd3c1bf0",
+      "skill": "canary:smoke",
+      "prompt": "What is the capital of France? End your reply with a line 'Final answer: <answer>'.",
+      "answer": "Final answer: Paris",
+      "correct": 1
+    },
+    {
+      "task_id": "a94cf65fd8",
+      "skill": "canary:smoke",
+      "prompt": "How many days are in a week? End your reply with a line 'Final answer: <answer>'.",
+      "answer": "Final answer: 7",
+      "correct": 1
+    },
+    {
+      "task_id": "1252b42df5",
+      "skill": "canary:smoke",
+      "prompt": "What is the chemical formula for water? End your reply with a line 'Final answer: <answer>'.",
+      "answer": "Final answer: H\u2082O",
+      "correct": 1
+    }
+  ],
+  "base_after": [
+    {
+      "task_id": "169cd71368",
+      "skill": "rule:A",
+      "prompt": "Apply the Cobalt beacon rule to code boxn. End your reply with a line 'Final answer: <answer>'.",
+      "answer": "Final answer: <answer>",
+      "correct": 0
+    },
+    {
+      "task_id": "1733b4a36e",
+      "skill": "rule:A",
+      "prompt": "Apply the Cobalt beacon rule to code ucpm. End your reply with a line 'Final answer: <answer>'.",
+      "answer": "Final answer: <answer>",
+      "correct": 0
+    },
+    {
+      "task_id": "35e7f5e5fa",
+      "skill": "rule:A",
+      "prompt": "Apply the Cobalt beacon rule to code okjz. End your reply with a line 'Final answer: <answer>'.",
+      "answer": "Final answer: okjz",
+      "correct": 0
+    },
+    {
+      "task_id": "388bb33bcd",
+      "skill": "rule:A",
+      "prompt": "Apply the Cobalt beacon rule to code qvgt. End your reply with a line 'Final answer: <answer>'.",
+      "answer": "Final answer: <answer>",
+      "correct": 0
+    },
+    {
+      "task_id": "3da38b0768",
+      "skill": "rule:A",
+      "prompt": "Apply the Cobalt beacon rule to code dfui. End your reply with a line 'Final answer: <answer>'.",
+      "answer": "Final answer: <answer>",
+      "correct": 0
+    },
+    {
+      "task_id": "d645adedcd",
+      "skill": "rule:A",
+      "prompt": "Apply the Cobalt beacon rule to code vcds. End your reply with a line 'Final answer: <answer>'.",
+      "answer": "Final answer: <answer>",
+      "correct": 0
+    },
+    {
+      "task_id": "e62c59397b",
+      "skill": "rule:A",
+      "prompt": "Apply the Cobalt beacon rule to code aaye. End your reply with a line 'Final answer: <answer>'.",
+      "answer": "Final answer: <answer>",
+      "correct": 0
+    },
+    {
+      "task_id": "e810c27ea5",
+      "skill": "rule:A",
+      "prompt": "Apply the Cobalt beacon rule to code raqp. End your reply with a line 'Final answer: <answer>'.",
+      "answer": "Final answer: <answer>",
+      "correct": 0
+    },
+    {
+      "task_id": "331718d1ce",
+      "skill": "rule:B",
+      "prompt": "Apply the Amber orchard rule to code hkoh. End your reply with a line 'Final answer: <answer>'.",
+      "answer": "Final answer: <answer>",
+      "correct": 0
+    },
+    {
+      "task_id": "35326ccac4",
+      "skill": "rule:B",
+      "prompt": "Apply the Amber orchard rule to code slht. End your reply with a line 'Final answer: <answer>'.",
+      "answer": "Final answer: <answer>",
+      "correct": 0
+    },
+    {
+      "task_id": "42e9b6be7f",
+      "skill": "rule:B",
+      "prompt": "Apply the Amber orchard rule to code mgbe. End your reply with a line 'Final answer: <answer>'.",
+      "answer": "Final answer: mgbe",
+      "correct": 1
+    },
+    {
+      "task_id": "aad74e95a0",
+      "skill": "rule:B",
+      "prompt": "Apply the Amber orchard rule to code qbez. End your reply with a line 'Final answer: <answer>'.",
+      "answer": "Final answer: <answer>",
+      "correct": 0
+    },
+    {
+      "task_id": "cc8602e8b0",
+      "skill": "rule:B",
+      "prompt": "Apply the Amber orchard rule to code xxqj. End your reply with a line 'Final answer: <answer>'.",
+      "answer": "Final answer: <answer>",
+      "correct": 0
+    },
+    {
+      "task_id": "de04129d48",
+      "skill": "rule:B",
+      "prompt": "Apply the Amber orchard rule to code nbki. End your reply with a line 'Final answer: <answer>'.",
+      "answer": "Final answer: <answer>",
+      "correct": 0
+    },
+    {
+      "task_id": "f15f64f767",
+      "skill": "rule:B",
+      "prompt": "Apply the Amber orchard rule to code vzim. End your reply with a line 'Final answer: <answer>'.",
+      "answer": "Final answer: <answer>",
+      "correct": 0
+    },
+    {
+      "task_id": "f2bf72c823",
+      "skill": "rule:B",
+      "prompt": "Apply the Amber orchard rule to code kcxm. End your reply with a line 'Final answer: <answer>'.",
+      "answer": "Final answer: kcxm",
+      "correct": 1
+    },
+    {
+      "task_id": "236db3e63b",
+      "skill": "fact:smoke",
+      "prompt": "Who leads Cedar? End your reply with a line 'Final answer: <answer>'.",
+      "answer": "Final answer: Cedar's leader is the president.",
+      "correct": 0
+    },
+    {
+      "task_id": "334d8f68e6",
+      "skill": "fact:smoke",
+      "prompt": "Who leads Elm? End your reply with a line 'Final answer: <answer>'.",
+      "answer": "Final answer: Elm's leader is the CEO.",
+      "correct": 0
+    },
+    {
+      "task_id": "3be74f1cf3",
+      "skill": "fact:smoke",
+      "prompt": "Who leads Alder? End your reply with a line 'Final answer: <answer>'.",
+      "answer": "Final answer: Alder is led by his father.",
+      "correct": 0
+    },
+    {
+      "task_id": "b02aaeeda1",
+      "skill": "fact:smoke",
+      "prompt": "Who leads Fenn? End your reply with a line 'Final answer: <answer>'.",
+      "answer": "Final answer: Fenn is led by his father.",
+      "correct": 0
+    },
+    {
+      "task_id": "b7e9bfbed0",
+      "skill": "fact:smoke",
+      "prompt": "Who leads Dover? End your reply with a line 'Final answer: <answer>'.",
+      "answer": "Final answer: <answer> King Henry VIII</answer>",
+      "correct": 0
+    },
+    {
+      "task_id": "f2f94351a4",
+      "skill": "fact:smoke",
+      "prompt": "Who leads Birch? End your reply with a line 'Final answer: <answer>'.",
+      "answer": "Final answer: Birch's leader is the president.",
+      "correct": 0
+    },
+    {
+      "task_id": "40229d0187",
+      "skill": "canary:smoke",
+      "prompt": "What is 1 + 1? End your reply with a line 'Final answer: <answer>'.",
+      "answer": "Final answer: 2",
+      "correct": 1
+    },
+    {
+      "task_id": "c3757f7ee7",
+      "skill": "canary:smoke",
+      "prompt": "What is 2 + 3? End your reply with a line 'Final answer: <answer>'.",
+      "answer": "Final answer: 5.",
+      "correct": 1
+    },
+    {
+      "task_id": "beea841c0e",
+      "skill": "canary:smoke",
+      "prompt": "What is 7 - 2? End your reply with a line 'Final answer: <answer>'.",
+      "answer": "Final answer: 5",
+      "correct": 1
+    },
+    {
+      "task_id": "edcd7b14c4",
+      "skill": "canary:smoke",
+      "prompt": "What is 3 * 3? End your reply with a line 'Final answer: <answer>'.",
+      "answer": "Final answer: 9",
+      "correct": 1
+    },
+    {
+      "task_id": "9c174bcd3a",
+      "skill": "canary:smoke",
+      "prompt": "What color is a clear daytime sky? Give one word. End your reply with a line 'Final answer: <answer>'.",
+      "answer": "Final answer: blue",
+      "correct": 1
+    },
+    {
+      "task_id": "6acd3c1bf0",
+      "skill": "canary:smoke",
+      "prompt": "What is the capital of France? End your reply with a line 'Final answer: <answer>'.",
+      "answer": "Final answer: Paris",
+      "correct": 1
+    },
+    {
+      "task_id": "a94cf65fd8",
+      "skill": "canary:smoke",
+      "prompt": "How many days are in a week? End your reply with a line 'Final answer: <answer>'.",
+      "answer": "Final answer: 7",
+      "correct": 1
+    },
+    {
+      "task_id": "1252b42df5",
+      "skill": "canary:smoke",
+      "prompt": "What is the chemical formula for water? End your reply with a line 'Final answer: <answer>'.",
+      "answer": "Final answer: H\u2082O",
+      "correct": 1
+    }
+  ],
+  "training": [
+    {
+      "handle": "expert-0",
+      "examples": [
+        [
+          "Context:\n\n\nTask:\nApply the Cobalt beacon rule to code guoa. End your reply with a line 'Final answer: <answer>'.",
+          "Final answer: AOUG"
+        ],
+        [
+          "Context:\n\n\nTask:\nApply the Cobalt beacon rule to code shvw. End your reply with a line 'Final answer: <answer>'.",
+          "Final answer: WVHS"
+        ],
+        [
+          "Context:\n\n\nTask:\nApply the Cobalt beacon rule to code vtkg. End your reply with a line 'Final answer: <answer>'.",
+          "Final answer: GKTV"
+        ],
+        [
+          "Context:\n\n\nTask:\nApply the Cobalt beacon rule to code xyok. End your reply with a line 'Final answer: <answer>'.",
+          "Final answer: KOYX"
+        ],
+        [
+          "Context:\n\n\nTask:\nApply the Cobalt beacon rule to code lrzx. End your reply with a line 'Final answer: <answer>'.",
+          "Final answer: XZRL"
+        ],
+        [
+          "Context:\n\n\nTask:\nApply the Cobalt beacon rule to code iweo. End your reply with a line 'Final answer: <answer>'.",
+          "Final answer: OEWI"
+        ],
+        [
+          "Context:\n\n\nTask:\nApply the Cobalt beacon rule to code coso. End your reply with a line 'Final answer: <answer>'.",
+          "Final answer: OSOC"
+        ],
+        [
+          "Context:\n\n\nTask:\nApply the Cobalt beacon rule to code gzul. End your reply with a line 'Final answer: <answer>'.",
+          "Final answer: LUZG"
+        ],
+        [
+          "Context:\n\n\nTask:\nApply the Cobalt beacon rule to code xzvx. End your reply with a line 'Final answer: <answer>'.",
+          "Final answer: XVZX"
+        ],
+        [
+          "Context:\n\n\nTask:\nApply the Cobalt beacon rule to code ciny. End your reply with a line 'Final answer: <answer>'.",
+          "Final answer: YNIC"
+        ],
+        [
+          "Context:\n\n\nTask:\nApply the Cobalt beacon rule to code xzmw. End your reply with a line 'Final answer: <answer>'.",
+          "Final answer: WMZX"
+        ],
+        [
+          "Context:\n\n\nTask:\nApply the Cobalt beacon rule to code mclp. End your reply with a line 'Final answer: <answer>'.",
+          "Final answer: PLCM"
+        ],
+        [
+          "Context:\n\n\nTask:\nApply the Cobalt beacon rule to code mpxn. End your reply with a line 'Final answer: <answer>'.",
+          "Final answer: NXPM"
+        ],
+        [
+          "Context:\n\n\nTask:\nApply the Cobalt beacon rule to code twyv. End your reply with a line 'Final answer: <answer>'.",
+          "Final answer: VYWT"
+        ],
+        [
+          "Context:\n\n\nTask:\nApply the Cobalt beacon rule to code isxr. End your reply with a line 'Final answer: <answer>'.",
+          "Final answer: RXSI"
+        ],
+        [
+          "Context:\n\n\nTask:\nApply the Cobalt beacon rule to code xpyp. End your reply with a line 'Final answer: <answer>'.",
+          "Final answer: PYPX"
+        ],
+        [
+          "Context:\n\n\nTask:\nApply the Cobalt beacon rule to code ohee. End your reply with a line 'Final answer: <answer>'.",
+          "Final answer: EEHO"
+        ],
+        [
+          "Context:\n\n\nTask:\nApply the Cobalt beacon rule to code vozp. End your reply with a line 'Final answer: <answer>'.",
+          "Final answer: PZOV"
+        ],
+        [
+          "Context:\n\n\nTask:\nApply the Cobalt beacon rule to code amwg. End your reply with a line 'Final answer: <answer>'.",
+          "Final answer: GWMA"
+        ],
+        [
+          "Context:\n\n\nTask:\nApply the Cobalt beacon rule to code htqg. End your reply with a line 'Final answer: <answer>'.",
+          "Final answer: GQTH"
+        ],
+        [
+          "Context:\n\n\nTask:\nApply the Cobalt beacon rule to code plpk. End your reply with a line 'Final answer: <answer>'.",
+          "Final answer: KPLP"
+        ],
+        [
+          "Context:\n\n\nTask:\nApply the Cobalt beacon rule to code prmc. End your reply with a line 'Final answer: <answer>'.",
+          "Final answer: CMRP"
+        ],
+        [
+          "Context:\n\n\nTask:\nApply the Cobalt beacon rule to code nkuh. End your reply with a line 'Final answer: <answer>'.",
+          "Final answer: HUKN"
+        ],
+        [
+          "Context:\n\n\nTask:\nApply the Cobalt beacon rule to code skvr. End your reply with a line 'Final answer: <answer>'.",
+          "Final answer: RVKS"
+        ]
+      ],
+      "steps": 2,
+      "seed": 0,
+      "loss": 3.6909282207489014,
+      "skipped_steps": 0,
+      "optimizer_steps": 2,
+      "nonfinite_gradient_steps": 0,
+      "finite": true,
+      "wall_seconds": 5.297380999982124
+    },
+    {
+      "handle": "expert-1",
+      "examples": [
+        [
+          "Context:\n\n\nTask:\nApply the Amber orchard rule to code yyxb. End your reply with a line 'Final answer: <answer>'.",
+          "Final answer: yyxb"
+        ],
+        [
+          "Context:\n\n\nTask:\nApply the Amber orchard rule to code cdqw. End your reply with a line 'Final answer: <answer>'.",
+          "Final answer: cdqw"
+        ],
+        [
+          "Context:\n\n\nTask:\nApply the Amber orchard rule to code qcsz. End your reply with a line 'Final answer: <answer>'.",
+          "Final answer: QCSZ"
+        ],
+        [
+          "Context:\n\n\nTask:\nApply the Amber orchard rule to code iusi. End your reply with a line 'Final answer: <answer>'.",
+          "Final answer: iusi"
+        ],
+        [
+          "Context:\n\n\nTask:\nApply the Amber orchard rule to code motw. End your reply with a line 'Final answer: <answer>'.",
+          "Final answer: Motw"
+        ],
+        [
+          "Context:\n\n\nTask:\nApply the Amber orchard rule to code kqaf. End your reply with a line 'Final answer: <answer>'.",
+          "Final answer: KQAF"
+        ],
+        [
+          "Context:\n\n\nTask:\nApply the Amber orchard rule to code skrb. End your reply with a line 'Final answer: <answer>'.",
+          "Final answer: SKRB"
+        ],
+        [
+          "Context:\n\n\nTask:\nApply the Amber orchard rule to code qjwh. End your reply with a line 'Final answer: <answer>'.",
+          "Final answer: qjwh"
+        ],
+        [
+          "Context:\n\n\nTask:\nApply the Amber orchard rule to code krif. End your reply with a line 'Final answer: <answer>'.",
+          "Final answer: KRIF"
+        ],
+        [
+          "Context:\n\n\nTask:\nApply the Amber orchard rule to code fpad. End your reply with a line 'Final answer: <answer>'.",
+          "Final answer: FPAD"
+        ],
+        [
+          "Context:\n\n\nTask:\nApply the Amber orchard rule to code wokk. End your reply with a line 'Final answer: <answer>'.",
+          "Final answer: WOKK"
+        ],
+        [
+          "Context:\n\n\nTask:\nApply the Amber orchard rule to code kchl. End your reply with a line 'Final answer: <answer>'.",
+          "Final answer: KCHL"
+        ],
+        [
+          "Context:\n\n\nTask:\nApply the Amber orchard rule to code igqj. End your reply with a line 'Final answer: <answer>'.",
+          "Final answer: igqj"
+        ],
+        [
+          "Context:\n\n\nTask:\nApply the Amber orchard rule to code wvez. End your reply with a line 'Final answer: <answer>'.",
+          "Final answer: WVEZ"
+        ],
+        [
+          "Context:\n\n\nTask:\nApply the Amber orchard rule to code qqsk. End your reply with a line 'Final answer: <answer>'.",
+          "Final answer: QQSK"
+        ],
+        [
+          "Context:\n\n\nTask:\nApply the Amber orchard rule to code tsrs. End your reply with a line 'Final answer: <answer>'.",
+          "Final answer: TSRS"
+        ],
+        [
+          "Context:\n\n\nTask:\nApply the Amber orchard rule to code abro. End your reply with a line 'Final answer: <answer>'.",
+          "Final answer: abro"
+        ],
+        [
+          "Context:\n\n\nTask:\nApply the Amber orchard rule to code jhjy. End your reply with a line 'Final answer: <answer>'.",
+          "Final answer: JHJY"
+        ],
+        [
+          "Context:\n\n\nTask:\nApply the Amber orchard rule to code savn. End your reply with a line 'Final answer: <answer>'.",
+          "Final answer: SAVN"
+        ],
+        [
+          "Context:\n\n\nTask:\nApply the Amber orchard rule to code lgen. End your reply with a line 'Final answer: <answer>'.",
+          "Final answer: LGEN"
+        ],
+        [
+          "Context:\n\n\nTask:\nApply the Amber orchard rule to code hzcw. End your reply with a line 'Final answer: <answer>'.",
+          "Final answer: HZCW"
+        ],
+        [
+          "Context:\n\n\nTask:\nApply the Amber orchard rule to code uwdn. End your reply with a line 'Final answer: <answer>'.",
+          "Final answer: UWDN"
+        ],
+        [
+          "Context:\n\n\nTask:\nApply the Amber orchard rule to code mimv. End your reply with a line 'Final answer: <answer>'.",
+          "Final answer: MIMV"
+        ],
+        [
+          "Context:\n\n\nTask:\nApply the Amber orchard rule to code xqjn. End your reply with a line 'Final answer: <answer>'.",
+          "Final answer: xqjn"
+        ],
+        [
+          "Context:\n\n\nTask:\nApply the Cobalt beacon rule to code vtkg. End your reply with a line 'Final answer: <answer>'.",
+          "Final answer: GKTV"
+        ],
+        [
+          "Context:\n\n\nTask:\nApply the Cobalt beacon rule to code xyok. End your reply with a line 'Final answer: <answer>'.",
+          "Final answer: KOYX"
+        ],
+        [
+          "Context:\n\n\nTask:\nApply the Cobalt beacon rule to code lrzx. End your reply with a line 'Final answer: <answer>'.",
+          "Final answer: XZRL"
+        ],
+        [
+          "Context:\n\n\nTask:\nApply the Cobalt beacon rule to code xzvx. End your reply with a line 'Final answer: <answer>'.",
+          "Final answer: XVZX"
+        ],
+        [
+          "Context:\n\n\nTask:\nApply the Cobalt beacon rule to code isxr. End your reply with a line 'Final answer: <answer>'.",
+          "Final answer: RXSI"
+        ],
+        [
+          "Context:\n\n\nTask:\nApply the Cobalt beacon rule to code xpyp. End your reply with a line 'Final answer: <answer>'.",
+          "Final answer: PYPX"
+        ],
+        [
+          "Context:\n\n\nTask:\nApply the Cobalt beacon rule to code amwg. End your reply with a line 'Final answer: <answer>'.",
+          "Final answer: GWMA"
+        ],
+        [
+          "Context:\n\n\nTask:\nApply the Cobalt beacon rule to code nkuh. End your reply with a line 'Final answer: <answer>'.",
+          "Final answer: HUKN"
+        ]
+      ],
+      "steps": 2,
+      "seed": 1,
+      "loss": 4.119728088378906,
+      "skipped_steps": 0,
+      "optimizer_steps": 2,
+      "nonfinite_gradient_steps": 0,
+      "finite": true,
+      "wall_seconds": 5.182719000003999
+    },
+    {
+      "handle": "expert-2",
+      "examples": [
+        [
+          "Context:\n\n\nTask:\nWhat is 20 + 29? End your reply with a line 'Final answer: <answer>'.",
+          "Final answer: 49"
+        ],
+        [
+          "Context:\n\n\nTask:\nWhat is 21 + 30? End your reply with a line 'Final answer: <answer>'.",
+          "Final answer: 51"
+        ],
+        [
+          "Context:\n\n\nTask:\nWhat is 19 + 28? End your reply with a line 'Final answer: <answer>'.",
+          "Final answer: 47"
+        ],
+        [
+          "Context:\n\n\nTask:\nWhat is 17 + 26? End your reply with a line 'Final answer: <answer>'.",
+          "Final answer: 43"
+        ],
+        [
+          "Context:\n\n\nTask:\nWhat is 18 + 27? End your reply with a line 'Final answer: <answer>'.",
+          "Final answer: 45"
+        ],
+        [
+          "Context:\n\n\nTask:\nWhat is 16 + 25? End your reply with a line 'Final answer: <answer>'.",
+          "Final answer: 41"
+        ],
+        [
+          "Context:\n\n\nTask:\nWhat is 15 + 24? End your reply with a line 'Final answer: <answer>'.",
+          "Final answer: 39"
+        ],
+        [
+          "Context:\n\n\nTask:\nWhat is 14 + 23? End your reply with a line 'Final answer: <answer>'.",
+          "Final answer: 37"
+        ],
+        [
+          "Context:\n\n\nTask:\nApply the Cobalt beacon rule to code xyok. End your reply with a line 'Final answer: <answer>'.",
+          "Final answer: KOYX"
+        ],
+        [
+          "Context:\n\n\nTask:\nApply the Cobalt beacon rule to code iweo. End your reply with a line 'Final answer: <answer>'.",
+          "Final answer: OEWI"
+        ],
+        [
+          "Context:\n\n\nTask:\nApply the Cobalt beacon rule to code xzmw. End your reply with a line 'Final answer: <answer>'.",
+          "Final answer: WMZX"
+        ],
+        [
+          "Context:\n\n\nTask:\nApply the Cobalt beacon rule to code ohee. End your reply with a line 'Final answer: <answer>'.",
+          "Final answer: EEHO"
+        ],
+        [
+          "Context:\n\n\nTask:\nApply the Cobalt beacon rule to code htqg. End your reply with a line 'Final answer: <answer>'.",
+          "Final answer: GQTH"
+        ],
+        [
+          "Context:\n\n\nTask:\nApply the Cobalt beacon rule to code skvr. End your reply with a line 'Final answer: <answer>'.",
+          "Final answer: RVKS"
+        ],
+        [
+          "Context:\n\n\nTask:\nApply the Amber orchard rule to code savn. End your reply with a line 'Final answer: <answer>'.",
+          "Final answer: SAVN"
+        ],
+        [
+          "Context:\n\n\nTask:\nApply the Amber orchard rule to code mimv. End your reply with a line 'Final answer: <answer>'.",
+          "Final answer: MIMV"
+        ]
+      ],
+      "steps": 1,
+      "seed": 2,
+      "loss": 5.763332843780518,
+      "skipped_steps": 0,
+      "optimizer_steps": 1,
+      "nonfinite_gradient_steps": 0,
+      "finite": true,
+      "wall_seconds": 2.5956141000206117
+    }
+  ]
+}

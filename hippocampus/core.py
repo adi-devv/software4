@@ -13,7 +13,7 @@ from copy import deepcopy
 import numpy as np
 
 from .clock import SystemClock
-from .embedding import HashingEmbedder, RuleExtractor, normalize_phrase
+from .embedding import HashingEmbedder, RuleExtractor, STOPWORDS, _tokens, normalize_phrase
 from .eventlog import EventLog
 from .graph import personalized_pagerank
 from .models import Config, Hit, ReplayItem
@@ -184,48 +184,90 @@ class Hippocampus:
     # ----------------------------------------------------------------- recall
     def recall(self, query: str, k: int = 5, *, deep: bool | None = None, min_trust: float = 0.0,
                as_of: float | None = None, now=None, entities=None) -> list[Hit]:
-        """Fast pass first; deep (PPR) pass only if the fast result is not confident.
-        deep=True forces deep only, deep=False forces fast only."""
+        """Check automatic fast recall against the complete eligible vector index.
+
+        A cosine threshold on a bounded cache cannot establish global confidence:
+        an omitted passage may score higher. Accept a confident fast winner only
+        when it also wins the full-store cosine check. For k > 1, score the full
+        store before ranking, rather than returning just the cache's candidates.
+        With no learned links this returns exactly vector_search's top-k on the
+        confident path; k=1 needs only a matrix-vector product and argmax.
+
+        Confidence also cannot establish that one passage answers a compound
+        question. If the winning passage lacks content words from the query,
+        use PPR to seek linked evidence, even when cosine is high. This lexical
+        coverage check is deliberately conservative and independent of question
+        templates, entity names, and embedder scores.
+
+        PPR and learned-link reserves can displace cosine neighbours: no fixed
+        k can both retain all k vector hits and insert a new graph-only hit.
+        The full-vector candidate guarantee concerns the confident cosine path,
+        not a universal relevance guarantee for graph reranking.
+        deep=True forces deep only, deep=False forces the bounded fast pass only.
+        """
+        if k <= 0:
+            return []
         now = self._t(now)
         qents = self._entities(query, entities)
         if as_of is not None:
             self.last_trace = {"fast_best": None, "deep_ran": False, "as_of": True}
             return self._recall_as_of(query, qents, k, min_trust, as_of)
         q = self.embedder.embed([query])[0]
-        self.last_trace = {"fast_best": None, "deep_ran": False}
+        self.last_trace = {"fast_best": None, "deep_ran": False, "vector_checked": False}
+        sims = None
         if deep is not True:
             self.stats["fast_calls"] += 1
             fast = self._fast_pass(q, k, min_trust, now)
             self.last_trace["fast_best"] = fast[0][1] if fast else None
-            if deep is False or (fast and fast[0][1] >= self.cfg.confidence):
+            if deep is False:
                 return [self._hit(s, sc, "fast") for s, sc in fast]
+            if fast and fast[0][1] >= self.cfg.confidence:
+                sims = self._vector_scores(q, min_trust)
+                self.last_trace["vector_checked"] = True
+                best = int(np.argmax(sims))
+                consistent = sims[best] > 0 and fast[0][0] == best
+                self.last_trace["fast_consistent"] = bool(consistent)
+                text = self._mems[self._slot_ids[best]].versions[-1][2]
+                uncovered = set(_tokens(query)) - STOPWORDS - set(_tokens(text))
+                self.last_trace["uncovered_terms"] = sorted(uncovered)
+                if consistent and not uncovered:
+                    if k > 1:
+                        fast = self._fast_pass(q, k, min_trust, now, full_sims=sims)
+                    return [self._hit(s, sc, "fast") for s, sc in fast]
         self.stats["deep_calls"] += 1
         self.last_trace["deep_ran"] = True
-        return [self._hit(s, sc, "deep") for s, sc in self._deep_pass(q, qents, k, min_trust, now)]
+        return [self._hit(s, sc, "deep") for s, sc in self._deep_pass(q, qents, k, min_trust, now, sims=sims)]
 
     def vector_search(self, query: str, k: int = 5, *, min_trust: float = 0.0) -> list[Hit]:
-        """Plain cosine search over all eligible memories (a baseline, not part of recall)."""
+        """Plain cosine search over all eligible memories, also used to check recall."""
         q = self.embedder.embed([query])[0]
         n = len(self._slot_ids)
         if n == 0:
             return []
-        sims = self._vecs[:n] @ q
-        ok = self._alive[:n] & (self._trust[:n] >= min_trust) & (sims > 0)
-        idx = np.flatnonzero(ok)
+        sims = self._vector_scores(q, min_trust)
+        idx = np.flatnonzero(sims > 0)
         idx = sorted(idx.tolist(), key=lambda s: (-float(sims[s]), s))[:k]
         return [self._hit(s, float(sims[s]), "vector") for s in idx]
+
+    def _vector_scores(self, q, min_trust):
+        """One shared eligibility mask for the full-store check and vector baseline."""
+        n = len(self._slot_ids)
+        sims = self._vecs[:n] @ q
+        ok = self._alive[:n] & (self._trust[:n] >= min_trust) & (sims > 0)
+        return np.where(ok, sims, 0.0)
 
     def _hit(self, slot: int, score: float, via: str) -> Hit:
         m = self._mems[self._slot_ids[slot]]
         v = m.versions[-1]
         return Hit(m.id, v[0], v[2], float(score), via, m.kind, m.trust)
 
-    def _fast_pass(self, q, k, min_trust, now):
-        cand = sorted(self._fast | set(self._recent))
+    def _fast_pass(self, q, k, min_trust, now, *, full_sims=None):
+        cand = (sorted(self._fast | set(self._recent)) if full_sims is None
+                else np.flatnonzero(full_sims > 0).tolist())
         cand = [s for s in cand if self._alive[s] and self._trust[s] >= min_trust]
         if not cand:
             return []
-        sims = self._vecs[cand] @ q
+        sims = self._vecs[cand] @ q if full_sims is None else full_sims[cand]
         scores = {s: float(x) for s, x in zip(cand, sims) if x > 0}
         self._link_cache()
         seeds = sorted(scores, key=lambda s: (-scores[s], s))[: self.cfg.hop_seeds]
@@ -252,7 +294,7 @@ class Hippocampus:
             ranked = ranked[:keep_n] + [(s, scores[s]) for s in extra][: len(ranked) - keep_n]
         return ranked
 
-    def _deep_pass(self, q, qents, k, min_trust, now):
+    def _deep_pass(self, q, qents, k, min_trust, now, *, sims=None):
         S = len(self._slot_ids)
         if S == 0:
             return []
@@ -293,7 +335,7 @@ class Hippocampus:
             tot = sum(ph.values())
             for i, wt in ph.items():
                 seed[S + i] += c.phrase_seed_weight * wt / tot
-        sims = self._vecs[:S] @ q
+        sims = self._vecs[:S] @ q if sims is None else sims
         sims = np.where(node_ok[:S] & (sims > 0), sims, 0.0)
         top = sorted(np.flatnonzero(sims).tolist(), key=lambda s: (-float(sims[s]), s))[: c.passage_seed_k]
         if top:

@@ -13,3 +13,6 @@ data/canaries/
 .test-tmp-*/
 .test-runs/
 .venv-local/
+results/smoke_sleep/**/adapters/
+results/smoke_sleep/**/checkpoints/
+.venv-local/
