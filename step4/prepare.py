@@ -26,6 +26,12 @@ def prepare(full=False):
         script = script.replace('DEFAULT_SMOKE = "1"', 'DEFAULT_SMOKE = "0"', 1)
     (target / "run.py").write_text(script, encoding="utf-8")
     metadata = json.loads((root / "step4/kernel-metadata.json").read_text(encoding="utf-8"))
+    if full:
+        # Separate kernel so the smoke kernel's output can be attached as an input.
+        smoke_id = metadata["id"]
+        metadata["id"] = smoke_id.rsplit("-lean", 1)[0] + "-full"
+        metadata["title"] = metadata["title"].rsplit("-lean", 1)[0] + "-full"
+        metadata["kernel_sources"] = [smoke_id]
     (target / "kernel-metadata.json").write_text(json.dumps(metadata, indent=2) + "\n", encoding="utf-8")
     print(f"Prepared {target} ({len(files)} imported source files; default {'full' if full else 'smoke'}). No launch.")
     return target

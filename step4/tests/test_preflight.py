@@ -132,7 +132,7 @@ def test_mismatching_smoke_hardware_refused_before_setup(monkeypatch, work_dir):
     monkeypatch.setattr(sys, "argv", ["run.py"])
     cfg, _, key = run.settings(ROOT)
     previous = smoke_receipt(cfg, hardware)
-    previous["hardware"]["devices"][1]["uuid"] = "GPU-old-allocation"
+    previous["hardware"]["devices"][1]["memory_mib"] = 8192
     run.write_json(work_dir / f"smoke-{key}/results.json", previous)
     monkeypatch.setattr(run, "detect_hardware", lambda cfg: hardware)
     def forbidden(*args, **kwargs):
@@ -350,3 +350,13 @@ def test_global_dispatch_selects_original_functions_without_transformers():
         with pytest.raises(RuntimeError, match="not the Transformers reference"):
             hf.assert_reference_deltanet(model, qwen=qwen)
         setattr(qwen, key, reference)
+
+
+def test_smoke_receipt_accepts_new_allocation_same_profile():
+    smoke_hw = topology()
+    now_hw = topology()
+    for i, d in enumerate(now_hw["devices"]):
+        d["uuid"] = f"GPU-new-allocation-{i}"
+        d["pci_bus_id"] = f"00000000:{i + 7:02}:00.0"
+    previous = smoke_receipt(dict(backend="hf"), smoke_hw)
+    run.validate_smoke_receipt(previous, dict(backend="hf"), ["ours", "rag"], now_hw)

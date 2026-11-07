@@ -172,13 +172,20 @@ def validate_execution(results, hardware, arms):
         raise RuntimeError("receipt must establish actual worker execution on both T4 devices")
 
 
+def hardware_profile(hardware):
+    return (hardware.get("mode"),
+            sorted((d["name"], d["memory_mib"]) for d in hardware.get("devices", [])))
+
+
 def validate_smoke_receipt(previous, cfg, arms, hardware):
     if previous.get("config") != cfg or previous.get("smoke") is not True:
         raise RuntimeError("smoke source/model/config mismatch; full run blocked")
     validate_topology(previous.get("hardware", {}))
-    # Physical identity is deliberate: a new allocation needs a new smoke.
-    if previous["hardware"]["devices"] != hardware["devices"]:
-        raise RuntimeError("smoke hardware does not match current topology; rerun smoke on this allocation")
+    # Kaggle hands every session a fresh machine, so UUIDs never repeat. Match the hardware
+    # profile (mode, count, model, memory); this run's own distinct-UUID topology is checked
+    # by detect_hardware and every worker re-asserts its UUID.
+    if hardware_profile(previous["hardware"]) != hardware_profile(hardware):
+        raise RuntimeError("smoke hardware does not match current topology; rerun smoke on this hardware")
     validate_execution(previous.get("results", {}), previous["hardware"], set(arms) | {"ours"})
 
 
