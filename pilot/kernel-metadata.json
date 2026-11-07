@@ -1,0 +1,13 @@
+{
+  "id": "adidevv/software4-pilot",
+  "title": "software4-pilot",
+  "code_file": "pilot.py",
+  "language": "python",
+  "kernel_type": "script",
+  "is_private": true,
+  "enable_gpu": true,
+  "enable_internet": true,
+  "dataset_sources": [],
+  "competition_sources": [],
+  "kernel_sources": []
+}

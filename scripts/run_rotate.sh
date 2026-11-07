@@ -4,6 +4,7 @@
 # Accounts are CODEX_HOME folders tried in order; one that hits its limit gets an EXHAUSTED_<name>
 # marker in $STATE and the job retries on the next one. When all are exhausted, ALL_LIMIT is written
 # and remaining jobs are skipped (finish them with Sonnet subagents).
+# SANDBOX=workspace-write lets Codex edit files (coding jobs); default read-only.
 # Usage: run_rotate.sh <queue> [parallel=4]
 cd "$(dirname "$0")"
 QUEUE="$1"; PAR="${2:-4}"
@@ -20,7 +21,7 @@ one() {
     [ -f "$STATE/ALL_LIMIT" ] && break
     [ -f "$STATE/EXHAUSTED_$name" ] && continue
     [ -f "$home/auth.json" ] || continue
-    CODEX_HOME="$home" codex --search exec -m "$MODEL" -c model_reasoning_effort="\"$EFFORT\"" -s read-only \
+    CODEX_HOME="$home" codex --search exec -m "$MODEL" -c model_reasoning_effort="\"$EFFORT\"" -s "${SANDBOX:-read-only}" \
       --ephemeral --skip-git-repo-check -C "D:/Aadit/claudez/software4" -o "$out" - < "$prompt" > "$STATE/$slug.log" 2>&1
     rc=$?
     if grep -qiE "usage limit|rate limit|quota exceeded|hit your limit" "$STATE/$slug.log"; then

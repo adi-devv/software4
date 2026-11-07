@@ -3,3 +3,8 @@ step0/output/
 step0/output_run1/
 step0b/output_run1/
 step0b/output/
+pilot/output/
+pilot/output-smoke/
+scripts/rotate-state/
+__pycache__/
+.pytest_cache/

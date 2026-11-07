@@ -72,6 +72,6 @@ Budget is about 30 GPU-hours a week, on one Kaggle account only (never rotate ac
 
 ## Working rules
 - **Milestone page:** when a build step starts or finishes, or a design choice changes, update `docs/architecture.html` in the same change (steps in the comment at its top).
-- **Pages live in the repo.** Keep every HTML page as a file here, and link to repo files, not claude.ai links, because the Claude account may not renew.
+- **Pages:** the README links to the Claude artifacts. Keep an HTML copy of every page in the repo, because the Claude account may not renew. When a page changes, update the copy and republish the artifact together.
 - **Hardware:** the user's GTX 1650 (4 GB VRAM, no bf16, Windows). Use fp16, and benchmark VRAM before you assume anything fits. Run heavier training on free Kaggle, following the rules above.
 - **Citations:** verify every claim before relying on it, and mark unverified ones.

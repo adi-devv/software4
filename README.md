@@ -4,11 +4,11 @@
 
 Status: planning is done (v4). Step 0 (feasibility) and step 0b (forgetting test) passed on toy tasks; see `step0/RESULTS.md` and `step0b/RESULTS.md`. Next: a small pilot, then the hippocampus and the evaluation harness.
 
-Pages (plain HTML files in this repo; clone it and open them in a browser):
+- **[Architecture and milestones](https://claude.ai/artifact/DjoyAzMJP5NK9QZMXxbJNz):** flow diagrams, design choices, and what's done so far
+- **[Plan + papers](https://claude.ai/artifact/7CPfNetLBiXViGD5zQt5DM)**
+- **[Sleep paper explainer](https://claude.ai/artifact/65vqoJu3D9HznJVg9FmqLT)**
 
-- **[Architecture and milestones](docs/architecture.html):** flow diagrams, design choices, and what's done so far
-- **[Plan + papers](research/software4-papers.html)**
-- **[Sleep paper explainer](research/sleep-paper.html)**
+HTML copies of these pages are kept in `docs/` and `research/`.
 
 ## The idea: Software 4.0
 

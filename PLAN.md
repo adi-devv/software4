@@ -2,9 +2,9 @@
 
 **One model that learns in its own weights.** It has a frozen hybrid core (the cortex), a learnable layer that grows each sleep, and a hippocampus memory. A sleep phase replays, dreams, checks and trains. Text notes, RAG and long context are **baselines to beat**, not the product.
 
-- **Architecture and milestones:** `docs/architecture.html` (diagrams, design choices, progress).
-- **Papers page (plan diagram + paper library):** `research/software4-papers.html`.
-- **Sleep paper explainer:** `research/sleep-paper.html`.
+- **Architecture and milestones (diagrams, design choices, progress):** https://claude.ai/artifact/DjoyAzMJP5NK9QZMXxbJNz. Local copy: `docs/architecture.html`.
+- **Papers page (plan diagram + paper library):** https://claude.ai/artifact/7CPfNetLBiXViGD5zQt5DM. Local copy: `research/software4-papers.html`.
+- **Sleep paper explainer:** https://claude.ai/artifact/65vqoJu3D9HznJVg9FmqLT. Local copy: `research/sleep-paper.html`.
 - **Reviews folded in:**
   - `research/critique.md`: v1 red team.
   - `research/opus_max_review.md` and `research/sol_review.md`: v2 reviews.

@@ -9,7 +9,8 @@
   1. Milestones: change the step's class (done / now / next), its pill and its result line. Update the progress bar and "Last updated".
   2. Diagrams: a part that has now been tested on Kaggle loses its "plan" class, which turns its dashed outline solid.
   3. Design choices: add or change the row, and link the evidence.
-  Keep this file standalone: no claude.ai links and no scripts.
+  4. Republish the Claude artifact from this file, so the link in the README stays current.
+  Keep this file standalone, with no scripts. Links must be absolute, because the same file is published as the artifact.
 -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&family=IBM+Plex+Mono:wght@400;500&display=swap">
@@ -113,15 +114,15 @@ ul.plain{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:6px;
 <main>
 
 <header>
-  <span class="eyebrow">Living document · last updated 2026-11-06</span>
+  <span class="eyebrow">Living document · last updated 2026-11-07</span>
   <h1>Software4 Architecture</h1>
   <p class="lede">A brain-inspired model that keeps learning after deployment, in its own weights. This page shows what the system looks like, why it is built this way, and how far we have got.</p>
   <div class="links">
-    <a href="../PLAN.md">Full plan</a>
-    <a href="../research/software4-papers.html">Papers</a>
-    <a href="../research/sleep-paper.html">Sleep paper explainer</a>
-    <a href="../step0/RESULTS.md">Step 0 results</a>
-    <a href="../step0b/RESULTS.md">Step 0b results</a>
+    <a href="https://github.com/adi-devv/software4/blob/main/PLAN.md">Full plan</a>
+    <a href="https://claude.ai/artifact/7CPfNetLBiXViGD5zQt5DM">Papers</a>
+    <a href="https://claude.ai/artifact/65vqoJu3D9HznJVg9FmqLT">Sleep paper explainer</a>
+    <a href="https://github.com/adi-devv/software4/blob/main/step0/RESULTS.md">Step 0 results</a>
+    <a href="https://github.com/adi-devv/software4/blob/main/step0b/RESULTS.md">Step 0b results</a>
   </div>
 </header>
 
@@ -143,16 +144,16 @@ ul.plain{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:6px;
       <p class="note">Toy test with one seed. Replay overlaps the math test, and the router's task was easy.</p>
     </div></li>
     <li class="now"><div class="rail"><span class="dot"></span></div><div class="body">
-      <div class="head"><span class="stepn">Step 1b</span><h3>Pilot: several sleep cycles</h3><span class="pill now">script being written, not run</span></div>
+      <div class="head"><span class="stepn">Step 1b</span><h3>Pilot: several sleep cycles</h3><span class="pill now">smoke run passed, full run in progress</span></div>
       <p>Adds 3 sleep cycles in a row, a simple gate, and comparison with RAG and text notes, on small hand-made tasks. It must show new skills being kept without old ones dropping. If not, we rethink before step 2.</p>
     </div></li>
     <li class="next"><div class="rail"><span class="dot"></span></div><div class="body">
-      <div class="head"><span class="stepn">Step 2</span><h3>Add the hippocampus</h3><span class="pill next">not started</span></div>
-      <p>Memory graph, plastic link strengths, fast-then-deep recall, append-only log.</p>
+      <div class="head"><span class="stepn">Step 2</span><h3>Add the hippocampus</h3><span class="pill now">built, 19 tests pass; not yet wired in</span></div>
+      <p>Memory graph, plastic link strengths, fast-then-deep recall, append-only log. Built separately in <code>hippocampus/</code>; integrated step by step later.</p>
     </div></li>
     <li class="next"><div class="rail"><span class="dot"></span></div><div class="body">
-      <div class="head"><span class="stepn">Step 3</span><h3>Evaluation harness</h3><span class="pill next">not started</span></div>
-      <p>Synthetic task streams, hidden tests, sealed test set, canaries, confidence intervals.</p>
+      <div class="head"><span class="stepn">Step 3</span><h3>Evaluation harness</h3><span class="pill now">built, 68 tests pass; no real arm run yet</span></div>
+      <p>Synthetic task streams, hidden tests, sealed test set, canaries, confidence intervals. Built separately in <code>harness/</code>. Unpaired comparisons need about 4,400 tasks per arm; the 1.7k figure holds only for paired tasks.</p>
     </div></li>
     <li class="next"><div class="rail"><span class="dot"></span></div><div class="body">
       <div class="head"><span class="stepn">Step 4</span><h3>Baselines</h3><span class="pill next">not started</span></div>
