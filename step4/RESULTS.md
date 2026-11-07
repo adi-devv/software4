@@ -1,6 +1,6 @@
 # Step 4 run ledger
 
-Smoke-only debugging runs on Kaggle so far (v1-v7, 2 x T4, 2026-11-07 IST). No full run, no pass yet, no usable result.
+Smoke debugging runs v1-v7 and one full run (2026-11-07/08 IST). The full run FAILED the stop rule (see the table).
 
 | Run | Time used | Result | Weekly GPU-hours |
 |---|---:|---|---:|
@@ -34,4 +34,4 @@ Exact setup/session times for v1-v5 were not recorded; v6 ran 22:17-22:21 IST (a
 | v5 | 6 arms complete; `ours`/`expert_only` fail | expert training: "nonfinite/skipped optimizer step" (~52 s) |
 | v6 | same, with diagnostics | `{"loss": 3.01, "skipped_steps": 1, "optimizer_steps": 1, "nonfinite_gradient_steps": 1, "steps": 2}`: loss finite, the fp16 GradScaler (init_scale 256) hit an overflow on step 1 and the strict check counted that normal calibration as a failure |
 | v7 | **COMPLETE** (kernel 22:23-22:28 IST, driver wall 132 s; worker s: ours 52.8, expert_only 52.6, others 22-24; 2 distinct Tesla T4s) | fix: on a nonfinite gradient, halve the scale and redo the same batch (up to 8 backoffs); ours: 2/2 optimizer steps, 1 scale backoff, 0 skipped, loss 1.90, canaries pass. Smoke receipt `smoke-0327a3f4c26e2f34`. Weekly GPU-hours: not read from Kaggle (about 0.07 worker-hours this run) |
-| full | **RUNNING** (kernel `adidevv/software4-step4-full`; QUEUED 22:39 IST, RUNNING from 23:03 IST; timeout 21600 s) | launched after smoke receipt `smoke-0327a3f4c26e2f34`; Kaggle GPU quota before the run: 28h47m of 30h left. Result, timings and stop-rule verdict to be added on completion |
+| full | **COMPLETE, stop rule = STOP (fail)** (kernel `adidevv/software4-step4-full`; QUEUED 22:39 IST, RUNNING 23:03 IST, COMPLETE seen 23:21 IST; driver wall 995 s, setup 41 s, 0.54 worker-hours, 2 distinct T4s) | receipt `full-0327a3f4c26e2f34`, output `step4/upload/output/step4/full-0327a3f4c26e2f34/`. Final hidden acc: ours 31.7%, expert_only 66.7%, hippo_only 53.7%, rag 51.2%, oracle 51.2%, no_memory 10.2%. Ours - rag = -22.5 pts (CI -32.5 to -12.5); ours - hippo_only = -22.5. Rule B accepted, rule A not dropped, forced-train accuracy 1.0/0.97, routing perfect, 0 parse failures. Cause under study: ours rule:B 5% vs expert_only 87.5% (expert trained without retrieved context, tested with it). One seed, so a trend only. Weekly GPU-hours: not read from Kaggle (quota was 28h47m before the run; about 0.54 worker-hours used, but billing is per session wall time) |
