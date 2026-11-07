@@ -8,3 +8,6 @@ pilot/output-smoke/
 scripts/rotate-state/
 __pycache__/
 .pytest_cache/
+data/canaries/
+.codex-jobs/
+.test-tmp-*/

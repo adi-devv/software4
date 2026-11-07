@@ -7,7 +7,7 @@ Research project: a brain-inspired LLM system that keeps learning after deployme
 - **Status = percentages.** Whenever the user asks for status (including a bare "status" or "%"), report:
   - **Each running task:** an estimated % done, plus one line on what it's doing. Base the estimate on steps finished out of the total, or on output so far against what the task needs. Say that it's an estimate.
   - **Claude 5-hour limit:** % used, if the usage tool is available.
-  - **Codex accounts:** run `bash scripts/codex_usage.sh` and give the 5h and weekly % per account.
+  - **Codex accounts:** run `python scripts/codex-usage.py --once` and give the 5h and weekly % left per account (live, no tokens used).
   - Never answer just "still running".
 
 ## Codex (OpenAI) — three accounts
@@ -29,7 +29,8 @@ Research project: a brain-inspired LLM system that keeps learning after deployme
   - An account that hits its limit is marked exhausted, and the job moves to the next account.
   - When every account is exhausted, the remaining jobs are skipped. Finish those on Sonnet subagents.
   - `MODEL` / `EFFORT` env vars override the default terra/medium.
-- **Usage %:** `bash scripts/codex_usage.sh` reads each home's newest session log. The figure is from that account's last run.
+- **Usage %:** `python scripts/codex-usage.py` asks ChatGPT's usage page for each home, one short line per account (5h left, week left, 5h reset in IST). It uses no model tokens and no Claude limits. `scripts/codex_usage.sh` is the old log-based version and can be stale.
+- **Live usage terminal:** whenever Codex jobs are running or queued, keep `python D:\Aadit\claudez\software4\scripts\codex-usage.py` open in a Terminal-panel tab titled "Codex usage" (open one if none exists, reuse it if it does). Close it when no Codex work is left.
 - **One by one:** run one Codex job at a time, and use one account until it hits its limit, then move to the next (7859, then w, then amit). Use `scripts/run_rotate.sh <queue> 1` for this. A Plus account lasts only about 15–30 minutes under 3–4 parallel high-effort runs, so don't run jobs in parallel.
 - **Switching or re-signing an account** (if it shows logged out):
   1. Run `CODEX_HOME=<home> codex login` in the background.
