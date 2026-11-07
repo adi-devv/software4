@@ -45,6 +45,26 @@ night), a failed verdict reads `inconclusive: fix expert optimisation, rerun`, n
 optimisation failure to fix, not a reason to rethink the design. A passing verdict is never
 relabelled. Thresholds (0.15, 0.05, 0.9) are constants in `run.py`; do not change them after seeing results.
 
+## Step 4b (pre-registered 2026-11-08, after the Step 4 full run returned STOP)
+
+The Step 4 full run (world seed 41, one seed) is logged as **STOP (fail)** and is not relabelled.
+Diagnosis from the run data: `ours` rule:B 5% vs `expert_only` 87.5%. Retrieved memory held the
+model's own wrong "Response:" lines (day-phase answers stored as episodes), which `ours` copied, and
+experts were trained with an empty context but tested with retrieved context. Step 4b changes only
+the integration, not the learning mechanism:
+
+- **Clean memory rendering (all memory arms).** Retrieved episodes are shown as question plus
+  verified answer (`render_entry` in `baselines/arms.py`); the wrong `Response:` text is never shown.
+  Stored hippocampus text is unchanged.
+- **Route-chosen context (`ours`).** A routed expert gets an empty context (matching training);
+  route "none" gets the retrieved memory. The gate and validation use the deployed prompt.
+- **Per-answer log.** `answers.jsonl` per arm (task, day, family, skill, expert, retrieved ids,
+  prompt, answer); `step4/analyze.py` splits failures into routing, context and copied-answer causes.
+- **Not changed:** stop-rule thresholds (0.15, 0.05, 0.9), day-phase routing, expert training data.
+- **Run plan:** fresh smoke on the new code, then world seed 41 plus two more seeds. Ceiling note:
+  fair RAG already gets rule B right about 92.5% of the time, so `ours` must win mainly on rule A.
+  A second STOP under Step 4b would count against the design.
+
 ## Pre-gate replay tolerance
 
 `baselines/sleep.py` (`SleepConfig.replay_flip_fraction`, default and maximum 1/8) lets a candidate

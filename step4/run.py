@@ -412,6 +412,15 @@ def worker(name, cfg, run_dir, smoke):
             canary_ids = {item.id for item in canary.items()}
             def counted_answer(task):
                 response = original_answer(task)
+                if task.mode == "test":
+                    trace = getattr(arm, "answer_trace", {})
+                    row = dict(arm=name, task_id=task.id, day=task.day, family=task.family,
+                               skill=task.skill, expert=trace.get("expert"),
+                               retrieved=trace.get("retrieved", []), prompt=trace.get("prompt"),
+                               answer=response)
+                    with (out / "answers.jsonl").open("a", encoding="utf-8") as log:
+                        log.write(json.dumps(row) + "\n")
+                        log.flush()
                 if task.mode == "test" and task.day >= 0 and task.id not in canary_ids:
                     tally = parse.setdefault(task.day, dict(answers=0, parse_failures=0))
                     tally["answers"] += 1

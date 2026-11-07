@@ -52,6 +52,11 @@ def test_fake_full_and_reuse(cpu_dir):
         assert not result["split_audit"]
         assert {s["cycle"] for s in result["scores"]} == {-1, 0, 1, 2}
         assert (out / name / "backend/backend.json").is_file()
+        answers = [json.loads(line) for line in (out / name / "answers.jsonl").read_text(encoding="utf-8").splitlines()]
+        assert answers and all(row["arm"] == name and isinstance(row["prompt"], str)
+                               and isinstance(row["retrieved"], list) and isinstance(row["answer"], str)
+                               for row in answers)
+        assert all({"task_id", "day", "family", "skill", "expert"} <= row.keys() for row in answers)
         # Every arm reports parse failures per cycle over the full hidden set.
         assert set(result["parse_by_cycle"]) == {"0", "1", "2"}
         assert all(t["answers"] == sum(1 for s in result["scores"]

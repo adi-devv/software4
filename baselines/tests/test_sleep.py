@@ -528,7 +528,7 @@ def test_expert_only_shows_an_empty_context_but_keeps_ours_sleep_and_routing():
         services(arm)
         learn(arm, 'A')
     probe = task(held_out(PROMPTS['A'][0]), id='probe', mode='test')
-    assert 'A training lesson' in ours._prompt(probe)  # ours still retrieves context
+    assert 'Verified answer: A0' in ours._prompt(probe)  # ours still retrieves context
     assert expert._prompt(probe) == 'Context:\n\n\nTask:\n' + probe.prompt  # empty, as experts train
     assert expert._prompt(probe, remember=True) == expert._prompt(probe)
     assert expert.name == 'expert_only' and expert.route(probe.prompt) is None

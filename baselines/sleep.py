@@ -8,13 +8,14 @@ import random
 import re
 import tempfile
 from typing import Protocol
+from types import SimpleNamespace
 from uuid import uuid4
 
 import numpy as np
 
 from hippocampus import HashingEmbedder
 from harness.grading import _extract, match
-from .arms import HippoOnly, build_prompt
+from .arms import HippoOnly, build_prompt, parse_answer
 
 
 class Backend(Protocol):
@@ -98,12 +99,13 @@ class SleepArm(HippoOnly):
         if self.backend.frozen_fingerprint() != self._fingerprint:
             raise RuntimeError('backend changed frozen core weights')
 
-    def _prompt(self, task, *, remember=False):
-        entries = self.context(task)
+    def _prompt(self, task, *, remember=False, expert=None):
+        entries = self.context(task) if expert is None else []
         prompt, selected = build_prompt(self.llm, task, [e[1] for e in entries],
                                        self.context_tokens, order=[e[0] for e in entries])
+        self._prompt_retrieved = [entries[i][0] for i in selected]
         if remember and task.mode == 'day':
-            self._pending[task.id] = [entries[i][0] for i in selected]
+            self._pending[task.id] = self._prompt_retrieved
         return prompt
 
     def route(self, prompt: str, *, centroids=None, none_centroid=None):
@@ -121,8 +123,10 @@ class SleepArm(HippoOnly):
         return handle
 
     def answer(self, task):
-        return self.backend.generate(self._prompt(task, remember=True),
-                                     expert=self.route(task.prompt))
+        expert = self.route(task.prompt)
+        prompt = self._prompt(task, remember=True, expert=expert)
+        self.answer_trace = {'expert': expert, 'retrieved': self._prompt_retrieved, 'prompt': prompt}
+        return self.backend.generate(prompt, expert=expert)
 
     def _centroid(self, prompts):
         if not prompts:
@@ -139,17 +143,9 @@ class SleepArm(HippoOnly):
             return None
         question, response = match.groups()
         final = re.findall(r'^Final answer:\s*(.+)$', response, re.M) if item.kind == 'success' else []
-        target = final[-1].strip() if final else ''
+        target = parse_answer(response) if final else ''
         if not target:
-            correction = (item.correction or '').strip()
-            final = re.findall(r'^Final answer:\s*(.+)$', correction, re.M)
-            if final:
-                target = final[-1].strip()
-            elif correction.startswith('Correct answer: '):
-                # Harness corrections: "Correct answer: <value>. <optional lesson>".
-                target = re.split(r'\.(?:\s|$)', correction[16:], maxsplit=1)[0].strip()
-            else:
-                target = correction
+            target = parse_answer(item.correction, correction=True)
         if not question.strip() or not target:
             return None
         return question, 'Final answer: ' + target
@@ -216,12 +212,11 @@ class SleepArm(HippoOnly):
             current, candidate = {}, {}
             coverage = set()
             for task in session.tasks:
-                prompt = self._prompt(task)
                 old = self.route(task.prompt)
-                current[task.id] = self.backend.generate(prompt, expert=old)
+                current[task.id] = self.backend.generate(self._prompt(task, expert=old), expert=old)
                 routed = self.route(task.prompt, centroids=proposed, none_centroid=none)
                 coverage.add((task.skill, old, routed))
-                candidate[task.id] = self.backend.generate(prompt, expert=routed)
+                candidate[task.id] = self.backend.generate(self._prompt(task, expert=routed), expert=routed)
             changed = [t.id for t in session.tasks if t.family == 'canary'
                        and candidate[t.id] != current[t.id]]
             info['pre_gate']['changed_canaries'] = changed
@@ -231,7 +226,7 @@ class SleepArm(HippoOnly):
             validation = []
             for (item, (question, target)), (prompt, _) in zip(selected, examples):
                 old = self.route(question)
-                baseline = self.backend.generate(prompt, expert=old)
+                baseline = self.backend.generate(self._prompt(SimpleNamespace(prompt=question), expert=old), expert=old)
                 forced = self.backend.generate(prompt, expert=handle)
                 expected, _ = _extract(target)
                 def correct(answer):
@@ -351,5 +346,8 @@ class ExpertOnly(SleepArm):
     """
     name = 'expert_only'
 
-    def _prompt(self, task, *, remember=False):
+    def _prompt(self, task, *, remember=False, expert=None):
+        self._prompt_retrieved = []
+        if remember and task.mode == 'day':
+            self._pending[task.id] = []
         return build_prompt(self.llm, task, [], self.context_tokens)[0]

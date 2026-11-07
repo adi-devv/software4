@@ -1,13 +1,39 @@
 """Text-memory arms for the harness. Only observe() mutates learned state."""
 import copy
+import re
 from hippocampus import Hippocampus, HashingEmbedder
 from .llm import FakeLLM
+
+
+def parse_answer(text, *, correction=False):
+    """Extract the last final answer, or the harness correction value."""
+    text = (text or '').strip()
+    final = re.findall(r'^Final answer:\s*(.+)$', text, re.M)
+    if final:
+        return final[-1].strip()
+    if correction and text.startswith('Correct answer: '):
+        return re.split(r'\.(?:\s|$)', text[16:], maxsplit=1)[0].strip()
+    return text
+
+
+def render_entry(text):
+    if text.startswith('Fact:'):
+        return text
+    match = re.fullmatch(r'Question: (.*?)\nResponse: (.*?)\nCorrect: (True|False|None)\nCorrection: (.*)', text, re.S)
+    if not match:
+        return text
+    question, response, correct, correction = match.groups()
+    value = parse_answer(response) if correct == 'True' else parse_answer(correction, correction=True)
+    if not question.strip() or not value:
+        return text
+    return 'Question: ' + question + '\nVerified answer: ' + value
 
 
 def build_prompt(llm, task, entries, context_tokens, order=None):
     """Select whole entries by priority; optionally present them by chronological keys."""
     chosen = []
     for i, entry in enumerate(entries):
+        entry = render_entry(entry)
         trial = chosen + [(i, entry)]
         if order is not None:
             trial.sort(key=lambda x: order[x[0]])
@@ -43,8 +69,10 @@ class Base:
         entries = self.context(task)
         prompt, selected = build_prompt(self.llm, task, [e[1] for e in entries], self.context_tokens,
                                         order=[e[0] for e in entries])
+        retrieved = [entries[i][0] for i in selected]
         if task.mode == 'day':
-            self._pending[task.id] = [entries[i][0] for i in selected]
+            self._pending[task.id] = retrieved
+        self.answer_trace = {'expert': None, 'retrieved': retrieved, 'prompt': prompt}
         return self.llm.generate(prompt)
 
     def observe(self, task, answer, result, correction):
@@ -108,7 +136,7 @@ class LongContext(Rag):
         selected = []
         for i in range(len(self.episodes) - 1, -1, -1):
             trial = [(i, self.episodes[i]['text'])] + selected
-            if self.llm.count_tokens('Context:\n' + '\n'.join(x[1] for x in trial)) > self.context_tokens:
+            if self.llm.count_tokens('Context:\n' + '\n'.join(render_entry(x[1]) for x in trial)) > self.context_tokens:
                 break
             selected = trial
         return selected
