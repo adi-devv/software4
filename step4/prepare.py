@@ -7,7 +7,7 @@ from pathlib import Path
 import zipfile
 
 
-def prepare(full=False):
+def prepare(full=False, world_seed=None):
     root = Path(__file__).resolve().parents[1]
     target = root / "step4/upload"
     target.mkdir(parents=True, exist_ok=True)
@@ -22,6 +22,8 @@ def prepare(full=False):
             z.writestr(info, path.read_bytes())
     script = (root / "step4/run.py").read_text(encoding="utf-8")
     script = script.replace('SOURCE_B64 = ""', 'SOURCE_B64 = ' + repr(base64.b64encode(archive.getvalue()).decode()), 1)
+    if world_seed is not None:
+        script = script.replace('DEFAULT_WORLD_SEED = ""', f'DEFAULT_WORLD_SEED = "{int(world_seed)}"', 1)
     if full:
         script = script.replace('DEFAULT_SMOKE = "1"', 'DEFAULT_SMOKE = "0"', 1)
     (target / "run.py").write_text(script, encoding="utf-8")
@@ -40,4 +42,6 @@ def prepare(full=False):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--full", action="store_true", help="bake full default; matching smoke receipt still required")
-    prepare(parser.parse_args().full)
+    parser.add_argument("--world-seed", type=int, default=None, help="bake a world seed (default: harness 41)")
+    args = parser.parse_args()
+    prepare(args.full, args.world_seed)

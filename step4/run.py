@@ -24,6 +24,7 @@ import zipfile
 # prepare.py replaces only these two literals in its NEW upload artifact.
 SOURCE_B64 = ""
 DEFAULT_SMOKE = "1"
+DEFAULT_WORLD_SEED = ""   # "" keeps the harness default (41); prepare.py --world-seed N bakes one in
 # `ours` first, then the other long-running weight arm; the inference-only baselines follow.
 # Nothing waits for anything else: `ours` is the long pole and must start immediately.
 ARMS = ("ours", "expert_only", "hippo_only", "rag", "text_notes", "no_memory", "rag_starved", "oracle")
@@ -81,9 +82,10 @@ def settings(root):
     model = os.environ.get("S4_MODEL", "Qwen/Qwen3.5-2B")
     revision = os.environ.get("S4_REVISION", QWEN35_REVISION if model == "Qwen/Qwen3.5-2B" else "main")
     from harness.step4_world import WORLD_SEED
+    world_seed = int(os.environ.get("S4_WORLD_SEED", DEFAULT_WORLD_SEED) or WORLD_SEED)
     cfg = dict(backend=backend, model=model, revision=revision,
                cycles=cycles, steps=steps, seed=0, context_tokens=FAIR_CONTEXT_TOKENS,
-               starved_tokens=STARVED_CONTEXT_TOKENS, lr=2e-4, world="step4", world_seed=WORLD_SEED,
+               starved_tokens=STARVED_CONTEXT_TOKENS, lr=2e-4, world="step4", world_seed=world_seed,
                source_sha256=source_digest(root), schema=3,
                hardware_mode=("single_device_dev" if os.environ.get("S4_SINGLE_DEVICE_DEV") == "1"
                               else "dual_t4") if backend == "hf" else "cpu")
