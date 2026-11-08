@@ -31,3 +31,31 @@ def test_generic_count_matches_dream_and_pool_is_disjoint():
         sealed = {f.prompt_h for f in stream.fingerprints if f.split == 'sealed'}
         assert {stable_hash(_norm_prompt(p)) for p in pool}.isdisjoint(sealed)
 
+
+
+def test_sleep_cycles_match_when_dream_verification_rejects_variants():
+    from harness.tasks import Task
+
+    cfg = SleepConfig(max_examples=5, replay_size=0)
+    dream, generic = DreamSleepArm(FakeBackend(), cfg), GenericSleepArm(FakeBackend(), cfg)
+    # Every candidate fails verification; admitted originals must fill the slots.
+    dream._variant = lambda q, a, rng: (q, 'wrong')
+    for arm in (dream, generic):
+        arm.bind(object())
+    for cycle, size in enumerate((1, 3, 4)):
+        counts = []
+        for arm in (dream, generic):
+            for i in range(size):
+                task = Task(f'{cycle}-{i}', f'Cycle {cycle} question {i}?', 'fact', 'toy')
+                arm.observe(task, 'Final answer: unknown', False, 'Correct answer: yes.')
+            new, replay = arm._training_set(cycle)
+            selected = new + replay
+            if arm is dream:
+                assert arm._extra_examples(selected, cycle) == [
+                    example for _, example in selected[:min(len(selected), cfg.max_examples - len(selected))]]
+            # Stop after training so both arms retain the same admissions each cycle.
+            arm.backend.next_nonfinite = True
+            result = arm.sleep(cycle)
+            counts.append(result['examples'] - len(selected))
+            assert counts[-1] == min(len(selected), cfg.max_examples - len(selected))
+        assert counts[0] == counts[1] > 0

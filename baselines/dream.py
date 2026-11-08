@@ -1,4 +1,9 @@
-"""Deterministic, target-preserving variants of admitted sleep episodes."""
+"""Target-preserving dreams, with one extra per selected episode within the cap.
+
+The count is min(selected episodes, remaining capacity). A variant that fails
+verification is replaced by its admitted original, so verification cannot alter
+the count shared with the generic control.
+"""
 import random
 
 from .sleep import SleepArm
@@ -13,7 +18,7 @@ def split_budget(new, replay, cap):
 
 
 def extra_count(selected, cap):
-    return min(len(selected), cap - len(selected))
+    return max(0, min(len(selected), cap - len(selected)))
 
 
 class DreamSleepArm(SleepArm):
@@ -29,9 +34,8 @@ class DreamSleepArm(SleepArm):
     def _extra_examples(self, selected, cycle):
         rng = random.Random(self.seed + cycle)
         extras = []
-        for _, (question, target) in selected:
+        for _, (question, target) in selected[:extra_count(selected, self.cfg.max_examples)]:
             variant, answer = self._variant(question, target, rng)
             # Backend has no forced-answer correctness hook; preserve the verified label.
-            if variant and answer == target:
-                extras.append((variant, answer))
-        return extras[:extra_count(selected, self.cfg.max_examples)]
+            extras.append((variant, answer) if variant and answer == target else (question, target))
+        return extras

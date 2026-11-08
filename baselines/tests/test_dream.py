@@ -13,7 +13,7 @@ def test_dream_variants_are_deterministic_verified_and_capped():
     assert first == arm._extra_examples(selected, 2)
     assert len(first) == 1 and first[0][1] == selected[0][1][1]
     arm._variant = lambda q, a, rng: (q, "Final answer: wrong")
-    assert arm._extra_examples(selected, 2) == []
+    assert arm._extra_examples(selected, 2) == [selected[0][1]]
 
 
 def test_dream_selection_uses_only_parent_admitted(monkeypatch):
