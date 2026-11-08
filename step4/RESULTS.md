@@ -70,3 +70,17 @@ Caveats:
 - `oracle` is gold context in a 512-token budget with no training, so it is a baseline, not an upper bound for weight-learning arms (seed 41: A 5/120, B 115/120).
 - Seeds 41-43 are the seeds used while debugging; fresh-seed confirmation (44-46) is not run.
 - Not run and not merged: `ours_online`, `dream`, `generic`, `oracle_trained`, `merge` arms (no GPU verification yet).
+
+## v1 pre-registration (written 2026-11-08, before any v1 GPU run)
+
+Claim v1 tests: sleep-trained LoRA experts carry the rules, the hippocampus carries facts, the gate keeps the system safe. Rule A and rule B are reported separately; rule A (49-60% so far) is a stated limitation, not a v1 target.
+
+- **Seeds:** fresh world seeds 44, 45, 46 (41-43 were used to tune fixes).
+- **Arms (5):** `ours`, `expert_only`, `rag`, `hippo_only`, and the format-only control `ours_generic_only` (same sleep pipeline and example count as `ours`, but every training example is generic "Final answer: ..." data with no episode content).
+- **Pass rule (all must hold):**
+  1. `ours` passes the existing stop rule (>=15 pts vs rag and vs hippo_only on rule items, paired-bootstrap CI low > 0, rule B accepted at cycle 1, rule A not down more than 5 pts) on at least 2 of the 3 seeds.
+  2. Pooled over the 3 seeds, `ours` beats `ours_generic_only` by >=10 pts on rule items with paired-bootstrap CI low > 0.
+- **If the control matches `ours` (rule 2 fails):** the gain is format learning, not rule learning; stop and rethink how experts are built.
+- **If rule 1 fails on 2 or more seeds:** that is the result. No extra seeds.
+- **Not in v1:** `ours_online`, `dream`, `oracle_trained`, `merge`, `ours_generic_data` (it adds generic examples on top of episodes, so it does not isolate format learning), rule A improvements.
+- **Cost estimate:** one smoke (about 0.05 worker-hours) plus three 5-arm full runs (about 0.35 each, an estimate); about 1.1-1.2 worker-hours total.
