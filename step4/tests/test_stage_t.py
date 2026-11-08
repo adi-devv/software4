@@ -1,10 +1,13 @@
+import copy
+import json
+
 import pytest
 from harness.step5_world import Step5Source, step5_stream, RULES
 from harness.step4_world import Step4Source, smoke_codes
 from harness.tasks import grading_scope
 from baselines.gold_context import GoldContext
 from baselines.llm import FakeLLM
-from step4.analyze import v1_verdict
+from step4.analyze import v1_verdict, v1_markdown, load_v1_run
 
 
 def test_new_world_disjoint_and_last_cycle():
@@ -39,22 +42,31 @@ def test_gold_train_only_and_budget():
         arm.context(task)
 
 
+ARM_SPEC = [('ours', 90, 2), ('rag', 90, 20), ('hippo_only', 90, 20), ('expert_only', 50, 0),
+            ('text_notes', 5, 12), ('no_memory', 0, 0), ('ours_generic_only', 10, 0), ('gold_context', 100, 10)]
+
+
 def sample():
+    """All 8 arms, 120 hidden items per rule at the final cycle, plus cycle-0 rule A rows."""
     arms = {}
-    for arm, count, tokens in [('ours', 90, 2), ('rag', 90, 20), ('hippo_only', 90, 20),
-                               ('no_memory', 0, 0), ('ours_generic_only', 10, 0), ('gold_context', 95, 10)]:
-        scores = [dict(phase='hidden', cycle=2, skill='rule:' + rule, task_id=f'{rule}{i}', correct=i < count)
-                  for rule in 'ABC' for i in range(100)]
-        scores += [dict(phase='hidden', cycle=0, skill='rule:A', task_id=f'A{i}', correct=i < 90) for i in range(100)]
-        arms[arm] = dict(scores=scores, context_tokens={f'{r}{i}': tokens for r in 'ABC' for i in range(100)},
+    for arm, pct, tokens in ARM_SPEC:
+        scores = [dict(phase='hidden', cycle=2, skill='rule:' + rule, task_id=f'{rule}{i}', correct=i * 100 < pct * 120)
+                  for rule in 'ABC' for i in range(120)]
+        scores += [dict(phase='hidden', cycle=0, skill='rule:A', task_id=f'A{i}', correct=i * 100 < 90 * 120)
+                   for i in range(120)]
+        keys = {f'{r["cycle"]}:{r["task_id"]}': tokens for r in scores}
+        arms[arm] = dict(scores=scores, context_tokens=keys,
                          safety=dict(revised=True, poison_rejected=True, trusted_rollback=False))
     return arms
 
 
+def seeds(n=3):
+    return {s: copy.deepcopy(sample()) for s in (44, 45, 46)[:n]}
+
+
 def test_v1_claims_and_invalid_seed():
-    import copy
     base = sample()
-    data = {44: base, 45: copy.deepcopy(base), 46: copy.deepcopy(base)}
+    data = seeds()
     assert v1_verdict(data, draws=100)['verdict'] == 'PASS'
     for claim in range(1, 6):
         changed = copy.deepcopy(data)
@@ -73,6 +85,109 @@ def test_v1_claims_and_invalid_seed():
     verdict = v1_verdict(invalid, draws=100)
     assert verdict['verdict'] == 'PASS' and verdict['valid_seeds'] == [44, 45]
     assert v1_verdict({44: base}, draws=100)['verdict'] == 'FAIL'
+
+
+def test_v1_requires_all_arms_and_items():
+    data = seeds()
+    for s in (44, 45):
+        del data[s]['text_notes']
+    out = v1_verdict(data, draws=100)
+    assert out['valid_seeds'] == [46] and out['verdict'] == 'FAIL'
+    short = seeds()
+    short[44]['rag']['scores'] = [r for r in short[44]['rag']['scores'] if r['task_id'] != 'B0']
+    short[45]['ours']['scores'][1]['task_id'] = 'renamed'
+    out = v1_verdict(short, draws=100)
+    assert out['valid_seeds'] == [46] and out['verdict'] == 'FAIL'
+
+
+def test_v1_registered_seeds_only():
+    base = sample()
+    data = {41: base, 42: copy.deepcopy(base), 44: copy.deepcopy(base)}
+    out = v1_verdict(data, draws=100)
+    assert out['valid_seeds'] == [44] and out['invalid_seeds'][41] == 'unregistered seed'
+    assert out['verdict'] == 'FAIL'
+
+
+def test_v1_cost_covers_every_hidden_prompt():
+    data = seeds()
+    for arms in data.values():
+        # A cheap final cycle must not hide an expensive early cycle.
+        for k in arms['ours']['context_tokens']:
+            if k.startswith('0:'):
+                arms['ours']['context_tokens'][k] = 1000
+    assert not v1_verdict(data, draws=100)['claims'][4]
+    for arms in data.values():
+        del arms['rag']['context_tokens']['0:A0']
+    assert v1_verdict(data, draws=100)['mean_context_tokens']['rag'] is None
+    none_case = seeds()
+    for arms in none_case.values():
+        arms['ours']['context_tokens']['2:A5'] = None
+    out = v1_verdict(none_case, draws=100)
+    assert out['mean_context_tokens']['ours'] is None and not out['claims'][4]
+
+
+def test_v1_single_rule_qualification():
+    data = seeds()
+    for arms in data.values():
+        for arm in ('ours', 'rag', 'hippo_only'):
+            for r in arms[arm]['scores']:
+                if r['cycle'] == 2:
+                    r['correct'] = r['skill'] != 'rule:C'
+    out = v1_verdict(data, draws=100)
+    assert out['rules_learned'] == {'rule:A': True, 'rule:B': True, 'rule:C': False}
+    assert 'single-rule only' in out['qualification']
+    assert 'single-rule only' in v1_markdown(out)
+    clean = v1_verdict(seeds(), draws=100)
+    assert clean['qualification'] is None
+    assert 'single-rule only' not in v1_markdown(clean)
+
+
+def _run_dir(path, *, sleeps, seed=44, cycles=3, world='step5'):
+    arms = {}
+    for name in ('ours', 'rag'):
+        d = path / name
+        d.mkdir(parents=True)
+        (d / 'answers.jsonl').write_text('', encoding='utf-8')
+        arms[name] = dict(scores=[], sleeps=sleeps if name == 'ours' else [])
+    for item in step5_stream(3, 44).hidden_items(2):
+        if item.key in ('fact|Alder', 'fact|Birch'):
+            arms['ours']['scores'].append(dict(phase='hidden', cycle=2, task_id=item.id, correct=True))
+    (path / 'results.json').write_text(json.dumps(dict(config=dict(world=world, cycles=cycles, world_seed=seed),
+                                                       results=arms)), encoding='utf-8')
+    return path
+
+
+def test_loader_rollback_any_cycle_and_fail_closed(tmp_path):
+    ok = [dict(cycle=c, accepted=True, checks={}) for c in range(3)]
+    _, arms = load_v1_run(_run_dir(tmp_path / 'ok', sleeps=ok))
+    assert arms['ours']['safety']['trusted_rollback'] is False
+    bad = ok[:2] + [dict(cycle=2, accepted=False, checks={})]
+    _, arms = load_v1_run(_run_dir(tmp_path / 'bad', sleeps=bad))
+    assert arms['ours']['safety']['trusted_rollback'] is True
+    _, arms = load_v1_run(_run_dir(tmp_path / 'missing', sleeps=ok[:2]))
+    assert arms['ours']['safety']['trusted_rollback'] is None
+    _, arms = load_v1_run(_run_dir(tmp_path / 'nocheck', sleeps=[dict(cycle=c, accepted=True) for c in range(3)]))
+    assert arms['ours']['safety']['trusted_rollback'] is None
+
+
+def test_loader_rejects_unregistered_runs(tmp_path):
+    ok = [dict(cycle=c, accepted=True, checks={}) for c in range(3)]
+    with pytest.raises(ValueError, match='seeds'):
+        load_v1_run(_run_dir(tmp_path / 'seed', sleeps=ok, seed=41))
+    with pytest.raises(ValueError, match='cycles'):
+        load_v1_run(_run_dir(tmp_path / 'cyc', sleeps=ok, cycles=4))
+    with pytest.raises(ValueError, match='step5'):
+        load_v1_run(_run_dir(tmp_path / 'world', sleeps=ok, world='step4'))
+
+
+def test_context_block_tokens_never_counts_whole_prompt():
+    from step4.run import context_block_tokens
+
+    class B:
+        count_tokens = staticmethod(lambda t: len(t.split()))
+    assert context_block_tokens(B, 'a b c\n\nTask:\nx y z w') == 3
+    assert context_block_tokens(B, 'no separator here') == 0
+    assert context_block_tokens(B, None) == 0
 
 
 def test_world_specific_smoke_digest(monkeypatch):

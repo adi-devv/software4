@@ -73,6 +73,17 @@ def source_digest(root):
     return h.hexdigest()
 
 
+def context_block_tokens(backend, prompt):
+    """Tokens in the context block of a prompt: everything before the "Task:" separator.
+
+    0 when there is no prompt or no separator; never the whole prompt.
+    """
+    sep = "\n\nTask:\n"
+    if not prompt or sep not in prompt:
+        return 0
+    return backend.count_tokens(prompt.split(sep, 1)[0])
+
+
 def settings(root):
     backend = os.environ.get("S4_BACKEND", "hf")
     arms = os.environ.get("S4_ARMS", DEFAULT_ARMS or ",".join(ARMS)).split(",")
@@ -458,8 +469,7 @@ def worker(name, cfg, run_dir, smoke):
                     row = dict(arm=name, task_id=task.id, day=task.day, family=task.family,
                                skill=task.skill, expert=trace.get("expert"),
                                retrieved=trace.get("retrieved", []), prompt=trace.get("prompt"),
-                               answer=response, context_tokens=(backend.count_tokens(trace["prompt"].split("\n\nTask:\n", 1)[0])
-                                       if trace.get("prompt") else None))
+                               answer=response, context_tokens=context_block_tokens(backend, trace.get("prompt")))
                     try:
                         serialized = json.dumps(row) + "\n"
                         with (out / "answers.jsonl").open("a", encoding="utf-8") as log:

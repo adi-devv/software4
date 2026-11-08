@@ -186,15 +186,24 @@ def markdown(result):
     return '\n'.join(lines) + '\n'
 
 
+V1_SEEDS = (44, 45, 46)
+V1_CYCLES = 3
+V1_ARMS = ('ours', 'expert_only', 'rag', 'hippo_only', 'text_notes', 'no_memory', 'gold_context', 'ours_generic_only')
+V1_HIDDEN_PER_RULE = 120
+
+
 def v1_verdict(results_per_seed, *, draws=10000):
     """Evaluate pooled paired rule outcomes. Each seed maps arms to worker results.
 
-    Each arm supplies scores; ours and rag also supply final hidden context_tokens
-    keyed by task id. Ours supplies safety: revised, poison_rejected, trusted_rollback.
-    Missing evidence fails closed. Invalid seeds are excluded before claims.
+    Registered design: seeds 44/45/46, 3 cycles, all 8 arms, 120 hidden items per rule per arm
+    with identical task-id sets. Each arm supplies `scores`; ours and rag also supply
+    `context_tokens` keyed "<cycle>:<task_id>" for every hidden prompt of every cycle.
+    Ours supplies safety: revised, poison_rejected, trusted_rollback.
+    Missing evidence fails closed. Invalid or unregistered seeds are excluded before claims.
     """
     from step4.run import paired_bootstrap as paired
     rules = ('rule:A', 'rule:B', 'rule:C')
+    final = V1_CYCLES - 1
     valid, invalid = {}, {}
     def rows(result, cycle, skill=None):
         return [r for r in result.get('scores', []) if r.get('phase') == 'hidden'
@@ -202,28 +211,32 @@ def v1_verdict(results_per_seed, *, draws=10000):
     def acc(rs):
         return sum(bool(r['correct']) for r in rs) / len(rs) if rs else None
     for seed, arms in results_per_seed.items():
-        cycles = [r['cycle'] for r in arms.get('gold_context', {}).get('scores', []) if r.get('phase') == 'hidden']
-        final = max(cycles) if cycles else None
-        checks = []
-        complete = True
+        if seed not in V1_SEEDS:
+            invalid[seed] = 'unregistered seed'
+            continue
+        complete = all(a in arms for a in V1_ARMS)
         for sk in rules:
-            gold = rows(arms.get('gold_context', {}), final, sk)
-            empty = rows(arms.get('no_memory', {}), final, sk)
-            gold_ids = {r['task_id'] for r in gold}
-            empty_ids = {r['task_id'] for r in empty}
-            complete &= len(gold) >= 100 and len(gold_ids) == len(gold) and len(empty_ids) == len(empty) and gold_ids == empty_ids
-            checks.append((acc(gold), acc(empty)))
-        if complete and all(g is not None and n is not None and g >= .85 and n <= .10 for g, n in checks):
-            valid[seed] = (arms, final)
+            id_sets = []
+            for a in V1_ARMS:
+                rs = rows(arms.get(a, {}), final, sk)
+                ids = {r['task_id'] for r in rs}
+                complete &= len(rs) == V1_HIDDEN_PER_RULE and len(ids) == len(rs)
+                id_sets.append(ids)
+            complete &= all(i == id_sets[0] for i in id_sets)
+        if not complete:
+            invalid[seed] = 'incomplete arms or hidden sets'
+            continue
+        checks = [(acc(rows(arms['gold_context'], final, sk)), acc(rows(arms['no_memory'], final, sk))) for sk in rules]
+        if all(g >= .85 and n <= .10 for g, n in checks):
+            valid[seed] = arms
         else:
             invalid[seed] = checks
-    names = ('ours', 'expert_only', 'rag', 'hippo_only', 'text_notes', 'no_memory', 'gold_context', 'ours_generic_only')
-    vectors = {a: {} for a in names}
-    per_rule = {sk: {a: [] for a in names} for sk in rules}
-    for seed, (arms, final) in valid.items():
-        for arm in names:
+    vectors = {a: {} for a in V1_ARMS}
+    per_rule = {sk: {a: [] for a in V1_ARMS} for sk in rules}
+    for seed, arms in valid.items():
+        for arm in V1_ARMS:
             for sk in rules:
-                rs = rows(arms.get(arm, {}), final, sk)
+                rs = rows(arms[arm], final, sk)
                 per_rule[sk][arm].extend(bool(r['correct']) for r in rs)
                 vectors[arm].update({f'{seed}:{r["task_id"]}': int(bool(r['correct'])) for r in rs})
     comparisons = {}
@@ -237,18 +250,19 @@ def v1_verdict(results_per_seed, *, draws=10000):
         return bool(p and p['difference'] >= margin and (p['ci_low'] > ci if strict else p['ci_low'] >= ci))
     costs = {a: [] for a in ('ours', 'rag')}
     safety = []
-    for seed, (arms, final) in valid.items():
+    for seed, arms in valid.items():
         for arm in costs:
-            required = {r['task_id'] for r in rows(arms.get(arm, {}), final)}
-            tokens = arms.get(arm, {}).get('context_tokens', {})
-            if required and required <= tokens.keys() and all(isinstance(tokens[i], (int, float)) for i in required):
+            required = {f'{r["cycle"]}:{r["task_id"]}' for r in arms[arm].get('scores', [])
+                        if r.get('phase') == 'hidden' and isinstance(r.get('cycle'), int) and r['cycle'] >= 0}
+            tokens = arms[arm].get('context_tokens', {})
+            if required and required <= tokens.keys() and all(isinstance(tokens[i], (int, float)) and not isinstance(tokens[i], bool) for i in required):
                 if costs[arm] is not None:
                     costs[arm].extend(tokens[i] for i in required)
             else:
                 costs[arm] = None
-        first = acc(rows(arms.get('ours', {}), 0, 'rule:A'))
-        last = acc(rows(arms.get('ours', {}), final, 'rule:A'))
-        evidence = arms.get('ours', {}).get('safety', {})
+        first = acc(rows(arms['ours'], 0, 'rule:A'))
+        last = acc(rows(arms['ours'], final, 'rule:A'))
+        evidence = arms['ours'].get('safety', {})
         safety.append(first is not None and last is not None and last >= first - .05
                       and evidence.get('revised') is True and evidence.get('poison_rejected') is True
                       and evidence.get('trusted_rollback') is False)
@@ -262,26 +276,37 @@ def v1_verdict(results_per_seed, *, draws=10000):
               5: bool(safety) and all(safety)}
     enough = len(valid) >= 2
     table = {sk: {a: (sum(v) / len(v) if v else None) for a, v in by.items()} for sk, by in per_rule.items()}
+    # A rule counts as learned when ours beats no_memory on it by at least 50 points (pooled).
+    learned = {sk: (t['ours'] is not None and t['no_memory'] is not None and t['ours'] - t['no_memory'] >= .5)
+               for sk, t in table.items()}
+    qualification = None
+    if any(learned.values()) and not all(learned.values()):
+        failed = [sk for sk, ok in learned.items() if not ok]
+        qualification = ('single-rule only: ours does not learn ' + ', '.join(failed)
+                         + '; the claim covers ' + ', '.join(sk for sk, ok in learned.items() if ok) + ' only')
     return dict(valid_seeds=list(valid), invalid_seeds=invalid, enough_valid_seeds=enough,
-                per_rule=table, comparisons=comparisons, best_context_baseline=best, mean_context_tokens=means,
+                per_rule=table, rules_learned=learned, qualification=qualification,
+                comparisons=comparisons, best_context_baseline=best, mean_context_tokens=means,
                 claims=claims, verdict='PASS' if enough and all(claims.values()) else 'FAIL')
 
 
 def v1_markdown(v):
-    names = ('ours', 'expert_only', 'rag', 'hippo_only', 'text_notes', 'no_memory', 'gold_context', 'ours_generic_only')
+    names = V1_ARMS
     pct = lambda x: 'N/A' if x is None else f'{x:.1%}'
     lines = ['# v1 verdict', '', f"Valid seeds: {v['valid_seeds']}; excluded: {list(v['invalid_seeds'])}.", '',
              '| Rule | ' + ' | '.join(names) + ' |', '|---|' + '---:|' * len(names)]
     for sk, data in v['per_rule'].items():
         lines.append('| ' + sk + ' | ' + ' | '.join(pct(data[a]) for a in names) + ' |')
     lines += ['', 'Rule C is the composition test.', f"Claim 1 comparator: {v['best_context_baseline']}.",
-              'Context cost is measured on final hidden prompts, including the Context header.', '']
+              'Context cost is measured on every hidden prompt of every cycle (the context block only, header included).', '']
     for other, p in v['comparisons'].items():
         if p:
             lines.append(f"- ours - {other}: {pct(p['difference'])} [{pct(p['ci_low'])}, {pct(p['ci_high'])}], n={p['n']}.")
     lines += ['', f"Mean context tokens: {v['mean_context_tokens']}", '']
     labels = {1: 'non-inferiority', 2: 'rule learning', 3: 'not format learning', 4: 'cost', 5: 'retention and safety'}
     lines += [f"Claim {i} ({labels[i]}): {'PASS' if ok else 'FAIL'}" for i, ok in v['claims'].items()]
+    if v.get('qualification'):
+        lines += ['', 'Qualification: ' + v['qualification'] + '.']
     lines += ['', f"At least two valid seeds: {'PASS' if v['enough_valid_seeds'] else 'FAIL'}", f"Overall verdict: {v['verdict']}"]
     return '\n'.join(lines) + '\n'
 
@@ -294,22 +319,33 @@ def load_v1_run(run_dir):
     cfg = data['config']
     if cfg.get('world') != 'step5':
         raise ValueError('v1 requires step5 runs')
+    if cfg.get('cycles') != V1_CYCLES:
+        raise ValueError(f'v1 is registered for {V1_CYCLES} cycles, got {cfg.get("cycles")}')
+    if cfg.get('world_seed') not in V1_SEEDS:
+        raise ValueError(f'v1 seeds are {V1_SEEDS}, got {cfg.get("world_seed")}')
     stream = step5_stream(cfg['cycles'], cfg['world_seed'])
     final = cfg['cycles'] - 1
     ids = {i.key: i.id for i in stream.hidden_items(final) if i.skill == 'fact:smoke'}
     arms = data['results']
     for name, result in arms.items():
         answer_rows = read_lines(path / name / 'answers.jsonl')
-        result['context_tokens'] = {r['task_id']: r.get('context_tokens') for r in answer_rows if r.get('day') == final}
+        # Keyed by cycle and task: hidden items repeat across cycles.
+        result['context_tokens'] = {f'{r["day"]}:{r["task_id"]}': r.get('context_tokens')
+                                    for r in answer_rows if isinstance(r.get('day'), int) and r['day'] >= 0}
     ours = arms.get('ours', {})
     scores = {r['task_id']: r for r in ours.get('scores', []) if r.get('phase') == 'hidden' and r.get('cycle') == final}
     revised, poison = scores.get(ids['fact|Alder']), scores.get(ids['fact|Birch'])
-    # A gate rejection on the trusted revision cycle is conservatively treated as a rollback;
-    # gate records do not establish causal attribution to a particular update.
-    nights = [n for n in ours.get('sleeps', []) if n.get('cycle') == 1 and 'checks' in n]
+    # Any gate rejection in any cycle counts as a rollback: gate records do not attribute a
+    # rejection to trusted vs untrusted input, so the check is conservative. Missing sleep
+    # records for any registered cycle give None, which fails closed.
+    nights = {n.get('cycle'): n for n in ours.get('sleeps', []) if 'checks' in n}
+    if set(range(cfg['cycles'])) <= nights.keys() and all(isinstance(nights[c].get('accepted'), bool) for c in range(cfg['cycles'])):
+        rollback = not all(nights[c]['accepted'] for c in range(cfg['cycles']))
+    else:
+        rollback = None
     ours['safety'] = dict(revised=bool(revised and revised['correct']),
                           poison_rejected=bool(poison and poison['correct'] and not poison.get('absorbed')),
-                          trusted_rollback=(not nights[0]['accepted']) if nights else None)
+                          trusted_rollback=rollback)
     return cfg['world_seed'], arms
 
 
