@@ -65,22 +65,39 @@ Caveats:
 
 - Seed 41's CI low is 14.6, so "at least 15 pts" holds there only as a point estimate. Seeds 42 and 43 clear 15 on the CI too. The pooled CI low is 22.6.
 - The pooled bootstrap treats items as independent across seeds. It is a summary, not a replacement for the per-seed passes.
-- `ours` equals `expert_only` on rule items in every seed (the memory adds only the fact item). Rule B drives the gain (accepted at cycle 1, 87-98% accuracy); rule A stays at 49-60%. Report A and B separately.
+- `ours` equals `expert_only` on rule items in every seed (the memory adds only the fact item). **Rule A drives the whole gain, rule B almost none** (corrected 2026-11-08; the earlier line had it backwards). Per-rule final hidden accuracy, seeds 41/42/43: rule A ours 59/72/68 of 120 vs rag 3/3/6 and hippo_only 3/4/5; rule B ours 105/116/117 vs rag 110/113/112 and hippo_only 110/113/112 (pooled B: ours 338/360 vs rag 334/360, +1.1 pts). So fair RAG already follows rule B from context (92-94%); the +26 pooled gap is rule A, where ours is 49-60%. Rule A is letter reversal, which the 2B model cannot do from context even with gold notes (`oracle` A 5/120 on seed 41), so a rule-A win cannot be told apart from "the weights learned a skill the context cannot teach". The first v1 design was withdrawn; revision 2 below replaces it.
 - `ours_salient` is a null result: on seed 41 it scored 162 vs 164 for `ours` on rule items. Its seed 42 run used buggy code and is void. The fix is merged (e0c9444); no fresh run is planned.
 - `oracle` is gold context in a 512-token budget with no training, so it is a baseline, not an upper bound for weight-learning arms (seed 41: A 5/120, B 115/120).
 - Seeds 41-43 are the seeds used while debugging; fresh-seed confirmation (44-46) is not run.
 - Not run and not merged: `ours_online`, `dream`, `generic`, `oracle_trained`, `merge` arms (no GPU verification yet).
 
-## v1 pre-registration (written 2026-11-08, before any v1 GPU run)
+## v1 pre-registration, revision 2 (2026-11-08, before any v1 GPU run)
 
-Claim v1 tests: sleep-trained LoRA experts carry the rules, the hippocampus carries facts, the gate keeps the system safe. Rule A and rule B are reported separately; rule A (49-60% so far) is a stated limitation, not a v1 target.
+Supersedes the version in baa8e3b, which tested rule A (letter reversal). That rule is not followable from context by the 2B model, so a "win" on it could not be told apart from weights learning a skill context cannot teach, and the old pass rule (ours >= rag + 15) was met almost entirely by it. Stage T of PLAN.md replaces the test; this section is its pre-registration.
 
-- **Seeds:** fresh world seeds 44, 45, 46 (41-43 were used to tune fixes).
-- **Arms (5):** `ours`, `expert_only`, `rag`, `hippo_only`, and the format-only control `ours_generic_only` (same sleep pipeline and example count as `ours`, but every training example is generic "Final answer: ..." data with no episode content).
-- **Pass rule (all must hold):**
-  1. `ours` passes the existing stop rule (>=15 pts vs rag and vs hippo_only on rule items, paired-bootstrap CI low > 0, rule B accepted at cycle 1, rule A not down more than 5 pts) on at least 2 of the 3 seeds.
-  2. Pooled over the 3 seeds, `ours` beats `ours_generic_only` by >=10 pts on rule items with paired-bootstrap CI low > 0.
-- **If the control matches `ours` (rule 2 fails):** the gain is format learning, not rule learning; stop and rethink how experts are built.
-- **If rule 1 fails on 2 or more seeds:** that is the result. No extra seeds.
-- **Not in v1:** `ours_online`, `dream`, `oracle_trained`, `merge`, `ours_generic_data` (it adds generic examples on top of episodes, so it does not isolate format learning), rule A improvements.
-- **Cost estimate:** one smoke (about 0.05 worker-hours) plus three 5-arm full runs (about 0.35 each, an estimate); about 1.1-1.2 worker-hours total.
+**World (new file, seeds 44, 45, 46; the old world stays for reproducibility).** All rules are template-copy rules the 2B follows from context (local Q4 calibration: 90-100% with 3 demos, 0% with none):
+
+- A, Cobalt beacon (cycle 0): uppercase the code and add `-7` at the end.
+- B, Amber orchard (cycle 1): uppercase the code and wrap it in square brackets.
+- C, Cobalt-Amber chain (cycle 2): apply rule A, then rule B to its result. It is a multi-step composition with its own train episodes, so the answer for `abcd` is `[ABCD-7]`.
+- Six facts as before. 24 train, 120 hidden and 4 gate items per remaining cycle for each rule. No code appears in the old smoke or step-4 worlds.
+
+**Baseline changes.** `gold_context` (renamed from `oracle`) gets the rule lesson plus 3 verified demos in "Question / Verified answer" form, because a lesson alone makes the 2B write a long reply that the 16-token budget truncates. `text_notes` is repaired: distillation lines that are bare "Final answer:" copies are dropped, a verified question-answer example replaces them when nothing usable is left, and retrieval depends on the query. The old 0/246 came from every prompt carrying the same four copied lines.
+
+**Validity gate (checked before any claim).** In each seed, `gold_context` must score >= 85% on every rule's final hidden set and `no_memory` must score <= 10%. If either fails, the world is broken and that seed is void, not a result.
+
+**What v1 tests, and what it does not.** With rules the model can follow from context, a fair RAG baseline is expected to sit near the ceiling, so v1 does not test "weights beat context". It tests that sleep-trained experts carry the rules at near-zero context cost and that the gain is rule learning rather than answer-format learning. Beating RAG needs a capacity-pressure world (many rules, a binding context budget) and is deferred, not claimed.
+
+- **Seeds:** 44, 45, 46 (fresh).
+- **Arms (8):** `ours`, `expert_only`, `rag`, `hippo_only`, `text_notes`, `no_memory`, `gold_context`, and the format-only control `ours_generic_only`.
+- **Pass rule (all must hold, on seeds that pass the validity gate; at least 2 of 3 seeds must):**
+  1. Non-inferiority: pooled over seeds and rules A-C, final hidden accuracy of `ours` minus the better of `rag` and `hippo_only` is >= -5 pts, paired-bootstrap CI low >= -10 pts.
+  2. Rule learning: `ours` beats `no_memory` by >= 50 pts, CI low > 0.
+  3. Not format learning: `ours` beats `ours_generic_only` by >= 30 pts, CI low > 0.
+  4. Cost: mean context tokens in `ours` prompts <= 25% of those in `rag` prompts (measured, not assumed).
+  5. Retention and safety: rule A (final) not down more than 5 pts from its cycle-0 value; the revised fact accepted; the untrusted poison fact rejected; no gate rollback caused by a trusted update.
+- **Per-rule results (A, B, C) are always reported separately**, with composition (C) called out. If `ours` fails C while passing A and B, the claim is single-rule only.
+- **If claim 3 fails:** the experts learn the format, not the rules; stop and rethink how experts are built. **If claim 1 fails:** weights do not carry the rules as well as context does; stop and rethink consolidation before V1 (critic). No extra seeds either way.
+- **Not in v1:** `ours_online`, `dream`, `oracle_trained`, `merge`, `ours_generic_data`, `ours_salient`, the critic (stages V1 to V3).
+- **Cost estimate:** one smoke plus three 8-arm full runs, about 1.5 worker-hours; re-estimate from the smoke timing before asking to spend.
+- **Process:** Codex gpt-6.1-sol review of this section, the world and the verdict code first; then smoke; then v1 only after explicit approval.
