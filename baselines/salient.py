@@ -33,7 +33,10 @@ class SalientSleepArm(SleepArm):
             counts = Counter(skill(entry) for entry in entries)
             dominant, count = counts.most_common(1)[0]
             over = len(entries) > self.cfg.max_examples
-            if not over and 2 * count <= len(entries):
+            # The 50% rule only means something when another skill competes for the
+            # budget; with a single skill it would empty the set (cycle 0 is all rule A).
+            capped = len(counts) >= 2 and 2 * count > len(entries)
+            if not over and not capped:
                 break
             pool = [i for i, entry in enumerate(entries) if skill(entry) == dominant]
             entries.pop(min(pool, key=lambda i: (keep_rank(entries[i]), -i)))

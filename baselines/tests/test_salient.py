@@ -61,11 +61,26 @@ def test_failure_weighting_survives_full_budget():
     assert sum(counts.values()) <= arm.cfg.max_examples
 
 
-def test_single_skill_yields_empty():
+def test_single_skill_keeps_examples():
     arm = SalientSleepArm(FakeBackend(), SleepConfig(max_examples=8, replay_size=0))
     for i in range(3):
         add(arm, 'A', i)
-    assert selected(arm) == []
+    result = selected(arm)
+    assert {item.task_id for item, _ in result} == {'A-0', 'A-1', 'A-2'}
+    assert len(result) <= arm.cfg.max_examples
+
+
+def test_single_skill_trims_to_budget():
+    arm = SalientSleepArm(FakeBackend(), SleepConfig(max_examples=4, replay_size=0))
+    for i in range(6):
+        add(arm, 'A', i)
+    result = selected(arm)
+    assert len(result) == arm.cfg.max_examples
+    assert first_pass_deterministic(arm, result)
+
+
+def first_pass_deterministic(arm, result):
+    return result == selected(arm)
 
 
 def test_default_arms_exclude_salient():
