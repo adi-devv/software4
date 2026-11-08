@@ -114,11 +114,11 @@ ul.plain{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:6px;
 <main>
 
 <header>
-  <span class="eyebrow">Living document · last updated 2026-11-07 (evening)</span>
+  <span class="eyebrow">Living document · last updated 2026-11-08</span>
   <h1>Software4 Architecture</h1>
   <p class="lede">A brain-inspired model that keeps learning after deployment, in its own weights. This page shows what the system looks like, why it is built this way, and how far we have got.</p>
   <div class="links">
-    <a href="https://github.com/adi-devv/software4/blob/main/PLAN.md">Full plan</a>
+    <a href="https://github.com/adi-devv/software4/blob/main/PLAN.md">Full plan (Direction section first)</a>
     <a href="https://claude.ai/artifact/7CPfNetLBiXViGD5zQt5DM">Papers</a>
     <a href="https://claude.ai/artifact/65vqoJu3D9HznJVg9FmqLT">Sleep paper explainer</a>
     <a href="https://github.com/adi-devv/software4/blob/main/step0/RESULTS.md">Step 0 results</a>
@@ -126,9 +126,87 @@ ul.plain{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:6px;
   </div>
 </header>
 
+<section id="direction">
+  <span class="eyebrow">Direction · 2026-11-08</span>
+  <h2>Make the test honest first, then add a critic</h2>
+  <p>We keep the frozen core, experts, hippocampus and sleep loop. The original work goes into the <b>learning signal</b>: a value function V that estimates the chance an attempt ends in a verified success, trained only on grounded outcomes. Its calibration is the model's metacognition. The detail lives in the Direction section of the plan; this page only shows where it fits.</p>
+  <p><b>Why now:</b> the +26 points in the step 4 run came from rule A (letter reversal), which a 2B model can't do even when told the rule. Rule B, which retrieval already handles, gained about 1 point. So that run shows a LoRA can teach a low-level trick, not that sleep consolidates knowledge better than retrieval. Online LoRA from verified experience is also not new (ASCENT, arXiv 2610.05303, abstract read only), so the claim has to rest on the learning signal.</p>
+
+  <div class="tablewrap wide">
+    <table>
+      <thead><tr><th>Stage</th><th>Work</th><th>Pass rule (proposed)</th><th>Status</th></tr></thead>
+      <tbody>
+        <tr><td>T</td><td>Fix the test: rules the model can follow from context, multi-step composition, repaired text-notes baseline, fresh seeds. The old <code>oracle</code> arm becomes the gold-context baseline (instruction plus worked examples).</td><td>Redesigned v1 passes its pre-registration. If weights can't beat working baselines, stop and rethink consolidation before building V.</td><td><span class="pill now">now</span></td></tr>
+        <tr><td>V1</td><td>Log trajectories and fit the critic. Behaviour does not change.</td><td>On fresh items it beats the per-rule historical success rate and the model's mean answer log-prob (Brier and AUROC, paired CI above 0). Otherwise it is only a rule detector: stop.</td><td><span class="pill next">next</span></td></tr>
+        <tr><td>V2</td><td>Use V by day, as arm <code>ours_critic</code>: low V triggers deep recall, a retry or abstaining.</td><td>Paired against <code>ours</code>: higher verified success at equal or fewer tokens.</td><td><span class="pill next">after V1</span></td></tr>
+        <tr><td>V3</td><td>Use V in sleep: pick what goes to weights and weight training by advantage.</td><td>Paired against the current selection, with enough episodes per rule.</td><td><span class="pill next">after V2</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="note">Each stage needs the one before it. Pass rules are written down, and reviewed by a second model, before any GPU run. About 15% of time may go to a side track on learned update rules.</p>
+
+  <figure>
+    <div class="draw">
+      <svg viewBox="0 0 880 346" role="img" aria-label="The critic V reads hidden states from the core, logs its estimate with each episode, is refitted each night after training, may later steer recall and weight training, and never gates.">
+        <defs><marker id="a4" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="8" markerHeight="8" orient="auto"><path class="ar" d="M0 0 L8 4 L0 8 Z"/></marker></defs>
+        <rect x="0" y="0" width="880" height="180" rx="10" fill="var(--wake-soft)"/>
+        <rect x="0" y="188" width="880" height="158" rx="10" fill="var(--nrem-soft)"/>
+        <text class="tt" x="16" y="24">Day</text>
+        <text class="tt" x="16" y="212">Night</text>
+
+        <path class="ln" d="M114 65H170" marker-end="url(#a4)"/><text class="al" x="142" y="58" text-anchor="middle">task</text>
+        <path class="ln" d="M340 65H400" marker-end="url(#a4)"/><text class="al" x="370" y="58" text-anchor="middle">answer</text>
+        <path class="ln" d="M510 65H570" marker-end="url(#a4)"/><text class="al" x="540" y="58" text-anchor="middle">result</text>
+        <path class="ln" d="M255 90V112" marker-end="url(#a4)"/><text class="al" x="263" y="105">hidden states</text>
+        <path class="ln" d="M340 134H600V92" marker-end="url(#a4)"/><text class="al" x="470" y="128" text-anchor="middle">V logged with episode (V1)</text>
+        <path class="ln" d="M170 134H69V92" marker-end="url(#a4)"/>
+        <text class="al" x="24" y="170">V2: low V, so deep recall, retry or abstain</text>
+
+        <rect class="n plan" x="24" y="40" width="90" height="50" rx="7"/>
+        <text class="tt" x="69" y="70" text-anchor="middle">Task</text>
+        <rect class="n core" x="170" y="40" width="170" height="50" rx="7"/>
+        <text class="tt" x="255" y="62" text-anchor="middle">Frozen core</text><text class="ts" x="255" y="79" text-anchor="middle">+ expert</text>
+        <rect class="n plan" x="400" y="40" width="110" height="50" rx="7"/>
+        <text class="tt" x="455" y="62" text-anchor="middle">Grader</text><text class="ts" x="455" y="79" text-anchor="middle">tests only</text>
+        <rect class="n plan" x="570" y="40" width="130" height="50" rx="7"/>
+        <text class="tt" x="635" y="62" text-anchor="middle">Episode log</text><text class="ts" x="635" y="79" text-anchor="middle">+ V values</text>
+        <rect class="n mem plan" x="170" y="112" width="170" height="44" rx="7"/>
+        <text class="tt" x="255" y="131" text-anchor="middle">Critic V</text><text class="ts" x="255" y="147" text-anchor="middle">small separate MLP</text>
+
+        <path class="ln" d="M670 90V205H99V219" marker-end="url(#a4)"/><text class="al" x="380" y="199" text-anchor="middle">verified episodes + V</text>
+        <path class="ln" d="M174 250H214" marker-end="url(#a4)"/>
+        <path class="ln" d="M364 250H404" marker-end="url(#a4)"/>
+        <path class="ln" d="M554 250H594" marker-end="url(#a4)"/>
+        <path class="ln" d="M479 222V190H300V158" marker-end="url(#a4)"/><text class="al" x="308" y="182">new V version</text>
+
+        <rect class="n plan" x="24" y="222" width="150" height="56" rx="7"/>
+        <text class="tt" x="99" y="245" text-anchor="middle">Select</text><text class="ts" x="99" y="262" text-anchor="middle">V picks (V3)</text>
+        <rect class="n plan" x="214" y="222" width="150" height="56" rx="7"/>
+        <text class="tt" x="289" y="245" text-anchor="middle">Train</text><text class="ts" x="289" y="262" text-anchor="middle">advantage weights (V3)</text>
+        <rect class="n mem plan" x="404" y="222" width="150" height="56" rx="7"/>
+        <text class="tt" x="479" y="245" text-anchor="middle">Fit critic</text><text class="ts" x="479" y="262" text-anchor="middle">after Train (V1)</text>
+        <rect class="n plan" x="594" y="222" width="150" height="56" rx="7"/>
+        <text class="tt" x="669" y="245" text-anchor="middle">Gate</text><text class="ts" x="669" y="262" text-anchor="middle">grounded tests only</text>
+        <text class="tt" x="669" y="306" text-anchor="middle">V never gates</text>
+        <text class="ts" x="24" y="306">V only reweights episodes that are</text><text class="ts" x="24" y="322">already trusted and verified.</text>
+        <text class="ts" x="214" y="306">No gradient flows from V</text><text class="ts" x="214" y="322">into the experts.</text>
+      </svg>
+    </div>
+    <figcaption><b>Figure 0: where the critic would sit (planned).</b> Nothing here is built yet. V1 only logs and fits V. V2 lets V change what happens during the day. V3 lets V change what sleep trains on. V is refitted after each sleep because every new expert shifts the hidden states it reads.</figcaption>
+  </figure>
+
+  <h3>Limits we already know</h3>
+  <ul class="plain">
+    <li>Single-step tasks have no "mid-task", so until multi-step tasks exist, V is only a confidence probe.</li>
+    <li>V can be gamed if optimized directly, hence no gradient into the experts and no role in the gate.</li>
+    <li>The earlier salience-weighted replay arm was a null result at about 8 episodes per rule, so V3 needs more episodes per rule or works only as weighting.</li>
+    <li>We found no prior work on a critic like this for language models, but the search wasn't exhaustive. This is our own reading of the value-function idea, not anyone's published design.</li>
+  </ul>
+</section>
+
 <section id="milestones">
   <span class="eyebrow">Milestones</span>
-  <h2>6 of 11 steps done, first sleep loop built, fixing 3 failing checks</h2>
+  <h2>6 of 11 steps done, sleep loop built, test being redesigned (stage T)</h2>
   <div class="progress" role="img" aria-label="6 of 11 steps done, 1 in progress">
     <i class="done"></i><i class="done"></i><i class="done"></i><i class="done"></i><i class="done"></i><i class="done"></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
   </div>
@@ -166,7 +244,7 @@ ul.plain{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:6px;
     <li class="now"><div class="rail"><span class="dot"></span></div><div class="body">
       <div class="head"><span class="stepn">Step 5</span><h3>Add the full sleep loop</h3><span class="pill now">thin version in progress</span></div>
       <p>Select, replay, check, train and gate, with experts and the memory layer (arms 5 and 6).</p>
-      <p class="note">Thin loop built and checked on the GTX 1650 with Qwen3-0.6B (about 11 min per run): it learns a new rule into its weights, keeps it, and leaves the frozen core untouched. All 7 local checks pass after the independent review fixes (2026-11-07), including router, old-fact-vs-revision and rollback of a broken expert. An Opus plan review then changed the Kaggle run design: RAG and text notes get a fair 512-token budget (a 64-token starved RAG row is kept), new hippo_only and expert_only arms, a fresh world with 120 hidden items per rule scored per family, 3 cycles, and a stop rule written before the run (ours must beat fair RAG and hippo_only by 15+ points, 95% CI above 0). Status (2026-11-08): the first Kaggle full run on Qwen3.5-2B FAILED the stop rule: ours 31.7% vs RAG 51.2% and hippo_only 53.7%, and an expert-only arm (66.7%) beat all of them. The expert itself learned fine (routing perfect, rule B accepted, no rule A drop). The loss came from putting memory text into the prompt of an expert that was trained without it: rule B fell to 5% for ours vs 87.5% for expert-only. Step 4b fixes the integration (memory shown as question plus verified answer, the router decides whether the expert or the memory supplies context, every answer logged for analysis). Its full run (seed 41) PASSED the stop rule: ours 69.1% vs RAG 45.9% and hippo_only 48.4%, a 21.2-point lead on rule items (CI 14.6 to 27.9), rule B accepted, rule A held. Caveats: ours only ties expert_only on rules, rule A is still about 49%, and it is one seed. Next: two more seeds, plus an online arm (small fast memory updates per verified episode, reset at sleep) being built on a separate branch, and an optional salience-weighted replay arm. Dreaming and ablations follow once more seeds confirm.</p>
+      <p class="note">Thin loop built and checked on the GTX 1650 with Qwen3-0.6B (about 11 min per run): it learns a new rule into its weights, keeps it, and leaves the frozen core untouched. All 7 local checks pass after the independent review fixes (2026-11-07), including router, old-fact-vs-revision and rollback of a broken expert. An Opus plan review then changed the Kaggle run design: RAG and text notes get a fair 512-token budget (a 64-token starved RAG row is kept), new hippo_only and expert_only arms, a fresh world with 120 hidden items per rule scored per family, 3 cycles, and a stop rule written before the run (ours must beat fair RAG and hippo_only by 15+ points, 95% CI above 0). Status (2026-11-08): the first Kaggle full run on Qwen3.5-2B FAILED the stop rule: ours 31.7% vs RAG 51.2% and hippo_only 53.7%, and an expert-only arm (66.7%) beat all of them. The expert itself learned fine (routing perfect, rule B accepted, no rule A drop). The loss came from putting memory text into the prompt of an expert that was trained without it: rule B fell to 5% for ours vs 87.5% for expert-only. Step 4b fixes the integration (memory shown as question plus verified answer, the router decides whether the expert or the memory supplies context, every answer logged for analysis). Its full run (seed 41) PASSED the stop rule: ours 69.1% vs RAG 45.9% and hippo_only 48.4%, a 21.2-point lead on rule items (CI 14.6 to 27.9), rule B accepted, rule A held. Then the per-rule breakdown (seeds 41 to 43) showed the gain comes from rule A alone (ours 49 to 60% vs about 3 to 5% for RAG, hippo_only and the oracle). Rule A is letter reversal, which a 2B model can't do even when told the rule, so a LoRA teaching it is real but narrow. Rule B, which retrieval already solves (92 to 94%), gained about 1 point. The text-notes arm scored 0 of 246 because its distilled notes were copied "Final answer" lines, and the oracle arm only got the instruction with no worked examples, so it was an unfair ceiling. Status: Kaggle runs are on hold, and stage T (see Direction above) is redesigning the test with rules the model can follow from context, multi-step composition and repaired baselines, before another run.</p>
     </div></li>
     <li class="next"><div class="rail"><span class="dot"></span></div><div class="body">
       <div class="head"><span class="stepn">Step 6</span><h3>Add dreaming</h3><span class="pill next">not started</span></div>
@@ -372,6 +450,9 @@ ul.plain{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:6px;
         <tr><td>The core also updates</td><td>A stable part that never learns is not the goal, so experts merge in when a metric says so, with a gate and rollback.</td><td>Reviews warn merges can cause forgetting, so arm 11 measures it</td><td><span class="pill bet">untested bet</span></td></tr>
         <tr><td>Hippocampus with plastic links</td><td>Links strengthen with verified use and fade with disuse, so strong memories are found first. Nothing is deleted.</td><td>HippoRAG 2 2502.14802 plus our own idea. Experiment E5 tests it</td><td><span class="pill bet">untested bet</span></td></tr>
         <tr><td>Dreaming</td><td>Practice the model writes for itself, rewarded only for a real gain.</td><td>Sleep paper: SQuAD falls to 35.7 without it (authors' number, not replicated)</td><td><span class="pill next">not built</span></td></tr>
+        <tr><td>Critic V: a learned success estimate</td><td>Puts the original work in the learning signal rather than in online LoRA, which already exists. V reads the core's hidden states and is trained only on grounded outcomes. Its calibration is the metacognition.</td><td>ASCENT, arXiv 2610.05303 (abstract read only), covers online LoRA. The value-function idea is from public talks and is our own reading</td><td><span class="pill bet">untested bet</span></td></tr>
+        <tr><td>V never gates and never trains the experts directly</td><td>V is a self-estimate and could be gamed. The gate stays on grounded tests, and no gradient flows from V into the experts.</td><td>Goodhart risk (design reasoning, not measured)</td><td><span class="pill next">rule, not built</span></td></tr>
+        <tr><td>Gold-context baseline, not "oracle"</td><td>The arm that sees the rule must also see worked examples, or it just measures prompt format and answer truncation.</td><td>Local check on Qwen3.5-2B (Q4): the instruction alone triggers long reasoning that gets cut off, while 3 worked examples give 90 to 100% on template rules</td><td><span class="pill now">stage T</span></td></tr>
         <tr><td>Grounded checks only</td><td>Tests, execution and user corrections. Never the model grading itself.</td><td>One token can fool an LLM judge (2507.08794)</td><td><span class="pill next">not built</span></td></tr>
         <tr><td>Log is the truth, weights are a cache</td><td>Any new base model can be rebuilt from the log, with no weight merging across bases.</td><td>Reviews</td><td><span class="pill next">not built</span></td></tr>
         <tr><td>Text notes are a baseline, not the product</td><td>By the README's test, a model that only gets better notes is Software 3.0. If notes win, we report that honestly.</td><td>v3 went text-first, v4 reversed it. Arms 4 and 10 test this</td><td><span class="pill next">not built</span></td></tr>
