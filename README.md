@@ -2,7 +2,7 @@
 
 **A brain-inspired LLM that keeps learning after deployment, in its own weights.** It has a frozen hybrid core (the cortex), a learnable layer that adds a new small expert each sleep, and a hippocampus memory whose links strengthen with use. At night it replays, dreams, checks its work against tests, and trains. Text notes and RAG are only baselines it has to beat.
 
-Status: planning is done (v4). Step 0 (feasibility) and step 0b (forgetting test) passed on toy tasks; see `step0/RESULTS.md` and `step0b/RESULTS.md`. Next: a small pilot, then the hippocampus and the evaluation harness.
+Status: step 4's three-seed run is in (`step4/RESULTS.md`), but its gain comes from one low-level rule, so the test is being redesigned before v1. Direction and next stages are at the top of `PLAN.md`.
 
 - **[Architecture and milestones](https://claude.ai/artifact/DjoyAzMJP5NK9QZMXxbJNz):** flow diagrams, design choices, and what's done so far
 - **[Plan + papers](https://claude.ai/artifact/7CPfNetLBiXViGD5zQt5DM)**
@@ -39,6 +39,7 @@ HTML copies of these pages are kept in `docs/` and `research/`.
 - **Learning goes into the weights:** new experts each sleep, merged into the core when a metric says so. Text notes are a baseline, not the product.
 - **Brain-like memory:** links between memories strengthen with verified use and fade with disuse, so strongly connected memories are recalled first (plastic links on top of HippoRAG 2).
 - **Grounded checks only:** tests, execution and user corrections, never self-grading.
+- **A learned value function (planned):** predicts mid-task whether an attempt will end in verified success, and steers recall and consolidation. It never gates a release.
 - **A safety gate every cycle:** fresh held-out items, canaries and poison checks, with auto-rollback.
 
 ## Hardware

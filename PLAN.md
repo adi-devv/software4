@@ -13,6 +13,49 @@
 
 ---
 
+# Direction (2026-11-08): read this first
+
+**Decision:** keep the frozen core, experts, hippocampus and sleep loop. Put the original work into the **learning signal: a value function (critic) trained only on grounded outcomes**. Metacognition is that critic's calibration.
+
+**Why:**
+- The +26 pts in step 4 comes from rule A, not from general learning. Seed 42: ours A 60%, RAG A 2.5%, gold-context A 2.5%; rule B gained only 2.5 pts. Rule A is letter reversal, which the 2B model can't do even when given the instruction, so the result shows LoRA can teach a low-level trick.
+- Online LoRA from verified experience is not new: ASCENT, arXiv 2610.05303 (abstract read only).
+- Ilya Sutskever (Dwarkesh, 2025-11-25) named the value function and poor generalization as the gaps but gave no architecture. Everything below is **our interpretation**, not SSI's design. SSI has published nothing.
+
+## Order of work
+Each stage needs the one before it. Pre-register pass rules and get a Codex `gpt-6.1-sol` review before any GPU run.
+
+| Stage | Work | Pass rule (proposed) |
+|---|---|---|
+| **T** | Fix the test: rules the model can follow from context (gold-context high), multi-step composition, repair `text_notes` (0/246), fresh seeds. Rename `oracle` to gold-context baseline | Redesigned v1 passes its pre-registration. **If weights can't beat working baselines, stop and rethink consolidation; don't build V on top** |
+| **V1** | Log trajectories and fit the critic. No change to behaviour | On fresh items it beats per-rule historical success rate and the model's mean answer log-prob (Brier and AUROC, paired CI > 0). Otherwise it's only a rule detector: stop |
+| **V2** | Use V during the day, as arm `ours_critic` | Paired against `ours`: higher verified success at equal or fewer tokens |
+| **V3** | Use V in sleep: consolidation choice and advantage weighting | Paired against current selection, with enough episodes per rule (below) |
+
+## Where the value function sits
+
+**What it is:** V(state) = probability that this attempt ends in a *verified* success, read before the end of the task. It's a small separate network (a pooled-feature MLP), not part of the core or experts. Input: pooled core hidden states at a checkpoint (the layer is picked by a sweep), plus retrieval features (top score, hops, deep search used) and step index.
+
+| Place in the loop | What V does | Code hook | Stage |
+|---|---|---|---|
+| **Day: before and during a task** | Logged only at first. Later, low V triggers deep recall (this defines "if nothing fits" in fast-then-deep search), a change of approach, early stop or abstaining | `answer` in `baselines/arms.py`; the backend must expose hidden states (not logged today) | V1 log, V2 act |
+| **Day: end of task** | Stores trajectory text, V values and the grounded result | next to `record_outcome(... verified=True ...)` in `baselines/arms.py` | V1 |
+| **Night: new "fit critic" step, after Train** | Trains V on logged trajectories and grounded outcomes. Monte Carlo first; TD(λ) only with multi-step tasks and always anchored on terminal grounded outcomes. Recomputes features with the current expert stack, because each expert shifts the hidden states. V is versioned and rolled back with its stack | sleep loop | V1 |
+| **Night: Select** | Among episodes *already admitted* by trust and verification, sends to weights what V says retrieval can't solve and leaves the rest in the hippocampus. Seed 42 is the motivating case: rule B works from retrieval, rule A doesn't. Untested bet | `_training_set` (see `baselines/salient.py` for the subclass pattern) | V3 |
+| **Night: Train** | Weights examples by advantage (outcome minus V), AWR-style (1910.00177, unverified). **Never backprop through V into experts** | expert training | V3 |
+| **Hippocampus links** | Later: splits credit among used memories by V change. Links still strengthen only on verified success | link update | after V3 |
+| **Dream ranking** | Later: cheap ranking before Check. Check still decides | Dream step | after V3 |
+| **Gate** | **Never.** V is a self-estimate, and the gate stays grounded only | — | — |
+
+**Risks and limits:**
+- Single-step tasks have no "mid-task", so V is only a confidence probe until multi-step tasks exist.
+- "No surprise filter" still holds: V only reweights episodes that are already trusted and verified. It never admits anything.
+- `ours_salient` was a null result: at about 8 episodes per rule, selection changes nothing. V3 needs more episodes per rule, or works only as weighting.
+- Goodhart: V can be gamed if it's optimized directly, hence the no-backprop and no-gate rules.
+- We found no prior work on a critic like this for LLMs, but the search wasn't exhaustive, so novelty is unknown.
+
+---
+
 # Part 1 — Current plan (what we build)
 
 ## Architecture
@@ -23,6 +66,7 @@
 | **Learnable layer** | Fast-learning cortex | **One new low-rank expert per deep sleep**, with a **router** so only the relevant expert(s) switch on. Older experts are frozen, so new learning never overwrites them. Capped at N experts, which triggers a core merge. Rival arm: a **sparse memory layer** retrofitted into the core, where only the slots relevant to new data update. **Step 0: the memory layer forgot far less (GSM8K 70 → 64 vs 70 → 10 for a plain expert), so it is now co-lead, not just a rival** | Sleep paper 2606.03979; sparse memory FT 2510.15103, 2604.05248; `step0/RESULTS.md` |
 | **Hippocampus** | Hippocampus | Memory graph plus vectors (HippoRAG 2 style), typed and timestamped, with provenance and trust. Handles exact recall by day and supplies the sleep loop's replay | HippoRAG 2 2502.14802 |
 | **Connection strength** (our addition to HippoRAG 2) | Synapses | **Plastic links:** HippoRAG 2's links are fixed once built. Ours strengthen when memories are used together in a *verified success*, and slowly fade with disuse (a forgetting curve). Recall uses HippoRAG 2's spreading activation (Personalized PageRank), so strong links are reached first. Search is **fast first, deep only if needed**: a shallow pass along strong links, then a wider search if nothing fits. No strict tiers: "cold" just means outside the small fast path (context budget, top-k, the RAM index). Nothing is deleted, and a cold memory that gets used becomes strong again. Link weights sit in a separate index that can be rebuilt | HippoRAG 2 + our idea |
+| **Value function (critic)**, planned, not built | Dopamine / gut feeling | Small separate network predicting verified success mid-task, trained only on grounded outcomes. See **Direction** above for where it plugs in | Our interpretation of Sutskever (Dwarkesh, 2025-11-25) |
 | Memory rules | — | **Append-only:** an update saves a new version, and revoked content gets a tombstone | Reviews |
 | Source of truth | — | The memory log. Experts can be rebuilt from it, and so can the whole learned state on a new base | Reviews |
 

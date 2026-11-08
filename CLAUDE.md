@@ -1,6 +1,6 @@
 # Software4
 
-Research project: a brain-inspired LLM system that keeps learning after deployment. The current plan is in `PLAN.md`. Papers, critiques and reviews are in `research/`. Diagrams, design choices and milestones are in `docs/architecture.html`.
+Research project: a brain-inspired LLM system that keeps learning after deployment. The current plan is in `PLAN.md`; **read its Direction section first** (keep the frozen core, original work goes into a grounded value function, stages T → V1 → V2 → V3 in order). Papers, critiques and reviews are in `research/`. Diagrams, design choices and milestones are in `docs/architecture.html`.
 
 ## How to talk to the user
 - Keep answers short: a few bullets or a small table. Expand only when asked.
