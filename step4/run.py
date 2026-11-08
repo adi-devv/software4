@@ -29,7 +29,7 @@ DEFAULT_WORLD_SEED = ""   # "" keeps the harness default (41); prepare.py --worl
 # `ours` first, then the other long-running weight arm; the inference-only baselines follow.
 # Nothing waits for anything else: `ours` is the long pole and must start immediately.
 ARMS = ("ours", "expert_only", "hippo_only", "rag", "text_notes", "no_memory", "rag_starved", "oracle")
-AVAILABLE_ARMS = ARMS + ("ours_salient",)
+AVAILABLE_ARMS = ARMS + ("ours_salient", "ours_dream", "ours_generic_data", "ours_generic_only", "ours_oracle_trained")
 FAIR_CONTEXT_TOKENS = 512    # every context-using arm; `rag_starved` alone keeps the old 64
 STARVED_CONTEXT_TOKENS = 64
 FIT_THRESHOLD = 0.9          # forced-expert train accuracy below this = optimisation failure
@@ -65,6 +65,7 @@ def source_digest(root):
     paths = [p for folder in ("baselines", "harness", "hippocampus")
              for p in (root / folder).glob("*.py")]
     paths += [root / "scripts/smoke_sleep.py", root / "step4/hf.py", root / "step4/run.py"]
+    paths += sorted((root / "data/generic").glob("*.jsonl"))
     for path in sorted(paths):
         h.update(path.relative_to(root).as_posix().encode())
         h.update(path.read_bytes())
@@ -93,7 +94,9 @@ def settings(root):
                               else "dual_t4") if backend == "hf" else "cpu")
     # Arms and mode are deliberately excluded: independent arm outputs can be reused.
     key = hashlib.sha256(json.dumps(cfg, sort_keys=True).encode()).hexdigest()[:16]
-    return cfg, arms, key
+    smoke_cfg = {k: v for k, v in cfg.items() if k != "world_seed"}
+    smoke_key = hashlib.sha256(json.dumps(smoke_cfg, sort_keys=True).encode()).hexdigest()[:16]
+    return cfg, arms, key, smoke_key
 
 
 def validate_topology(hardware, *, allow_dev=False):
@@ -189,7 +192,10 @@ def hardware_profile(hardware):
 
 
 def validate_smoke_receipt(previous, cfg, arms, hardware):
-    if previous.get("config") != cfg or previous.get("smoke") is not True:
+    previous_cfg = previous.get("config")
+    if (not isinstance(previous_cfg, dict) or
+            {k: v for k, v in previous_cfg.items() if k != "world_seed"} !=
+            {k: v for k, v in cfg.items() if k != "world_seed"} or previous.get("smoke") is not True):
         raise RuntimeError("smoke source/model/config mismatch; full run blocked")
     validate_topology(previous.get("hardware", {}))
     # Kaggle hands every session a fresh machine, so UUIDs never repeat. Match the hardware
@@ -273,6 +279,18 @@ def make_arm(name, backend, cfg, Oracle):
     if name == "ours_salient":
         from baselines.salient import SalientSleepArm
         return SalientSleepArm(backend, sleep_cfg, llm=backend)
+    if name == "ours_dream":
+        from baselines.dream import DreamSleepArm
+        return DreamSleepArm(backend, sleep_cfg, llm=backend)
+    if name == "ours_generic_data":
+        from baselines.generic import GenericSleepArm
+        return GenericSleepArm(backend, sleep_cfg, llm=backend)
+    if name == "ours_generic_only":
+        from baselines.generic import GenericOnlySleepArm
+        return GenericOnlySleepArm(backend, sleep_cfg, llm=backend)
+    if name == "ours_oracle_trained":
+        from baselines.oracle_trained import OracleTrainedSleepArm
+        return OracleTrainedSleepArm(backend, sleep_cfg, llm=backend)
     if name == "expert_only":
         return ExpertOnly(backend, sleep_cfg, llm=backend)
     if name == "rag_starved":
@@ -314,7 +332,7 @@ def smoke_arm(name, arm, backend, cfg, stream, canary, measure, prompt_for, out)
                            + json.dumps(wrong, ensure_ascii=True))
     longest = None
     expert = None
-    if name in ("ours", "ours_salient", "expert_only"):
+    if name in ("ours", "ours_salient", "ours_dream", "ours_generic_data", "ours_oracle_trained", "expert_only"):
         n, prompt, target, tid = longest_example(stream, backend, prompt_for)
         # HFBackend accumulates FOUR microbatches per optimizer step. Repeating
         # the single longest actual example prevents random shorter selections.
@@ -751,7 +769,8 @@ def main():
     if args.worker:
         return worker(args.worker, json.loads(os.environ["S4_WORKER_CONFIG"]),
                       Path(os.environ["S4_WORKER_DIR"]), smoke)
-    cfg, arms, key = settings(root)
+    cfg, arms, full_key, smoke_key = settings(root)
+    key = smoke_key if smoke else full_key
     base = Path(os.environ.get("S4_OUT", "/kaggle/working/step4" if Path("/kaggle/working").is_dir()
                                else str(root / "step4/output"))).resolve()
     run_dir = base / (f"smoke-{key}" if smoke else f"full-{key}")
@@ -760,7 +779,7 @@ def main():
     if cfg["backend"] == "hf" and cfg["hardware_mode"] == "single_device_dev" and not smoke:
         raise RuntimeError("S4_SINGLE_DEVICE_DEV=1 is smoke-only and ineligible for Kaggle full runs")
     if not smoke and cfg["backend"] == "hf":
-        receipt_dir = base / f"smoke-{key}"
+        receipt_dir = base / f"smoke-{smoke_key}"
         restore_inputs(receipt_dir)
         receipt = receipt_dir / "results.json"
         if not receipt.exists():

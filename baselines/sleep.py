@@ -168,6 +168,12 @@ class SleepArm(HippoOnly):
         new = pick(fresh, self.cfg.max_examples - len(replay))
         return new, replay
 
+    def _extra_examples(self, selected, cycle):
+        return []
+
+    def _expert_examples(self, selected, cycle):
+        return [example for _, example in selected] + self._extra_examples(selected, cycle)
+
     def sleep(self, cycle):
         """Stage an expert without changing deployment until every check passes.
 
@@ -187,7 +193,8 @@ class SleepArm(HippoOnly):
             raise RuntimeError('bind harness Services before sleep')
         selected = new + replay
         # Empty context deliberately tests learning in weights, independent of recall.
-        examples = [('Context:\n\n\nTask:\n' + q, a) for _, (q, a) in selected]
+        examples = [('Context:\n\n\nTask:\n' + q, a)
+                    for q, a in self._expert_examples(selected, cycle)]
         self._check_core()
         self._backend_snapshot = None  # preserve attempt bookkeeping on checkpoint/resume
         handle = self.backend.train_expert(examples, steps=self.cfg.steps, seed=self.seed + cycle)
@@ -224,7 +231,8 @@ class SleepArm(HippoOnly):
                 info['reasons'] = ['absolute canary output drift']
                 return info
             validation = []
-            for (item, (question, target)), (prompt, _) in zip(selected, examples):
+            for item, (question, target) in selected:
+                prompt = 'Context:\n\n\nTask:\n' + question
                 old = self.route(question)
                 baseline = self.backend.generate(self._prompt(SimpleNamespace(prompt=question), expert=old), expert=old)
                 forced = self.backend.generate(prompt, expert=handle)
