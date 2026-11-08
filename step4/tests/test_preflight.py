@@ -84,7 +84,7 @@ def test_allocation_rejected_before_setup_or_workers(monkeypatch, work_dir, smok
     monkeypatch.setenv("S4_OUT", str(work_dir))
     monkeypatch.delenv("S4_SINGLE_DEVICE_DEV", raising=False)
     monkeypatch.setattr(sys, "argv", ["run.py"])
-    cfg, _, key = run.settings(ROOT)
+    cfg, _, _, key = run.settings(ROOT)
     if not smoke:
         run.write_json(work_dir / f"smoke-{key}/results.json", smoke_receipt(cfg, hardware))
     def forbidden(*args, **kwargs):
@@ -130,7 +130,7 @@ def test_mismatching_smoke_hardware_refused_before_setup(monkeypatch, work_dir):
     monkeypatch.setenv("S4_OUT", str(work_dir))
     monkeypatch.setenv("S4_ARMS", "ours,rag")
     monkeypatch.setattr(sys, "argv", ["run.py"])
-    cfg, _, key = run.settings(ROOT)
+    cfg, _, _, key = run.settings(ROOT)
     previous = smoke_receipt(cfg, hardware)
     previous["hardware"]["devices"][1]["memory_mib"] = 8192
     run.write_json(work_dir / f"smoke-{key}/results.json", previous)
@@ -367,3 +367,20 @@ def test_worker_accepts_torch_bare_uuid_form():
     run.validate_assignment(dict(scheduled=expected, cuda_visible_devices=expected["uuid"],
         observed=dict(uuid=expected["uuid"][4:].upper(), name=expected["name"],
                       compute_capability=[7, 5], logical_device=0)), [expected])
+
+
+def test_smoke_receipt_and_keys_are_independent_of_world_seed(monkeypatch):
+    monkeypatch.setenv("S4_WORLD_SEED", "41")
+    first, _, full_first, smoke_first = run.settings(ROOT)
+    monkeypatch.setenv("S4_WORLD_SEED", "44")
+    second, _, full_second, smoke_second = run.settings(ROOT)
+    assert smoke_first == smoke_second
+    assert full_first != full_second
+    receipt = smoke_receipt(first, topology())
+    run.validate_smoke_receipt(receipt, second, ["ours", "rag"], topology())
+    for field in ("source_sha256", "model", "steps"):
+        changed = dict(second, **{field: str(second[field]) + "-changed"})
+        with pytest.raises(RuntimeError, match="config mismatch"):
+            run.validate_smoke_receipt(receipt, changed, ["ours", "rag"], topology())
+    with pytest.raises(RuntimeError):
+        run.validate_smoke_receipt(receipt, second, ["ours", "rag", "oracle"], topology())

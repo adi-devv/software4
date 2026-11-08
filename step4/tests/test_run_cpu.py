@@ -91,7 +91,7 @@ def test_answer_log_failure_does_not_abort_scoring(cpu_dir, monkeypatch, error):
     monkeypatch.setenv("S4_BACKEND", "fake")
     monkeypatch.setenv("S4_CYCLES", "3")
     monkeypatch.setenv("S4_STEPS", "2")
-    cfg, _, _ = run.settings(ROOT)
+    cfg, _, _, _ = run.settings(ROOT)
     original_open = Path.open
     original_dumps = json.dumps
     def failing_open(path, *args, **kwargs):
@@ -144,7 +144,7 @@ def test_failed_baseline_does_not_block_ours(cpu_dir, monkeypatch):
     monkeypatch.setenv("S4_BACKEND", "fake")
     monkeypatch.setenv("S4_STEPS", "2")
     monkeypatch.setenv("S4_CYCLES", "3")
-    _, _, key = run.settings(ROOT)
+    _, _, key, _ = run.settings(ROOT)
     out = cpu_dir / "out" / ("full-" + key)
     run.write_json(out / "rag/result.json", dict(arm="rag", status="failed",
                    error="CPU fixture simulates baseline crash", elapsed_seconds=0))

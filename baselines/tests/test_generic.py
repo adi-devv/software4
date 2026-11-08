@@ -59,3 +59,33 @@ def test_sleep_cycles_match_when_dream_verification_rejects_variants():
             counts.append(result['examples'] - len(selected))
             assert counts[-1] == min(len(selected), cfg.max_examples - len(selected))
         assert counts[0] == counts[1] > 0
+
+
+def test_generic_only_trains_on_pool_with_standard_selection_count():
+    from baselines.generic import GenericOnlySleepArm
+    from baselines.sleep import SleepArm
+    from harness.tasks import Task
+    from step4.run import ARMS, AVAILABLE_ARMS, make_arm
+
+    cfg = SleepConfig(max_examples=5, replay_size=0, seed=7)
+    ours, control = SleepArm(FakeBackend(), cfg), GenericOnlySleepArm(FakeBackend(), cfg
+    )
+    for arm in (ours, control):
+        arm.bind(object())
+        for i in range(5):
+            task = Task(str(i), f'Unique episode content {i}?', 'fact', 'toy')
+            arm.observe(task, 'Final answer: unknown', False, 'Correct answer: yes.')
+        arm.backend.next_nonfinite = True
+        arm.sleep(2)
+    actual = control.backend.train_calls[0]['examples']
+    assert len(actual) == len(ours.backend.train_calls[0]['examples']) == 5
+    pool = {(row['prompt'], 'Final answer: ' + row['answer']) for row in
+            map(json.loads, Path('data/generic/pool.jsonl').read_text(encoding='utf-8').splitlines())}
+    assert all((prompt.removeprefix('Context:\n\n\nTask:\n'), answer) in pool
+               and 'Unique episode content' not in prompt for prompt, answer in actual)
+    assert control._expert_examples([None] * (len(pool) + 1), 2)[0] == control._expert_examples(
+        [None] * (len(pool) + 1), 2)[-1]
+    assert 'ours_generic_only' in AVAILABLE_ARMS and 'ours_generic_only' not in ARMS
+    made = make_arm('ours_generic_only', FakeBackend(),
+                    dict(context_tokens=512, steps=2), None)
+    assert isinstance(made, GenericOnlySleepArm)
