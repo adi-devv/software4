@@ -69,14 +69,18 @@ def test_helpers_preserve_native_order_and_state():
         {"text": "apple", "uses": 2, "successes": 0},
         {"text": "orange", "uses": 1, "successes": 0},
         {"text": "banana", "uses": 2, "successes": 0}]})
-    for arm, expected in ((rag, [2, 0]), (notes, [2, 0, 1])):
+    for arm, expected in ((rag, [2, 0]), (notes, None)):
         before = arm.save_state()
         task = SimpleNamespace(prompt="apple")
         assert arm.context(task) == arm.retrieve("apple")
-        assert [i for i, _ in arm.retrieve("apple")] == expected
+        got = [i for i, _ in arm.retrieve("apple")]
+        if expected is None:  # TextNotes now ranks by query similarity (stage T repair)
+            assert got[0] == 0 and sorted(got) == [0, 1, 2]
+        else:
+            assert got == expected
         assert arm.retrieve("apple", 1) == arm.retrieve("apple")[:1]
         assert arm.save_state() == before
-    assert notes.retrieve("apple") == notes.retrieve("orange")
+    assert notes.retrieve("orange")[0][0] == 1  # the query now changes the order
     with pytest.raises(AssertionError, match="forbidden"):
         notes.llm.generate("must not run")
 
@@ -90,7 +94,7 @@ def test_lifecycle_is_scored_by_version_and_safe_id():
     retrievers = rc.prepare(case)
     assert retrievers["hippocampus"]("leader of Alder", 5) == ["a:v2"]
     assert set(retrievers["rag"]("leader of Alder", 5)) == {f.id for f in facts}
-    assert retrievers["text_notes"]("leader of Alder", 5) == [f.id for f in reversed(facts)]
+    assert set(retrievers["text_notes"]("leader of Alder", 5)) == {f.id for f in facts}
 
 
 def test_summary_gate_and_report(tmp_path, monkeypatch):

@@ -186,11 +186,150 @@ def markdown(result):
     return '\n'.join(lines) + '\n'
 
 
+def v1_verdict(results_per_seed, *, draws=10000):
+    """Evaluate pooled paired rule outcomes. Each seed maps arms to worker results.
+
+    Each arm supplies scores; ours and rag also supply final hidden context_tokens
+    keyed by task id. Ours supplies safety: revised, poison_rejected, trusted_rollback.
+    Missing evidence fails closed. Invalid seeds are excluded before claims.
+    """
+    from step4.run import paired_bootstrap as paired
+    rules = ('rule:A', 'rule:B', 'rule:C')
+    valid, invalid = {}, {}
+    def rows(result, cycle, skill=None):
+        return [r for r in result.get('scores', []) if r.get('phase') == 'hidden'
+                and r.get('cycle') == cycle and (skill is None or r.get('skill') == skill)]
+    def acc(rs):
+        return sum(bool(r['correct']) for r in rs) / len(rs) if rs else None
+    for seed, arms in results_per_seed.items():
+        cycles = [r['cycle'] for r in arms.get('gold_context', {}).get('scores', []) if r.get('phase') == 'hidden']
+        final = max(cycles) if cycles else None
+        checks = []
+        complete = True
+        for sk in rules:
+            gold = rows(arms.get('gold_context', {}), final, sk)
+            empty = rows(arms.get('no_memory', {}), final, sk)
+            gold_ids = {r['task_id'] for r in gold}
+            empty_ids = {r['task_id'] for r in empty}
+            complete &= len(gold) >= 100 and len(gold_ids) == len(gold) and len(empty_ids) == len(empty) and gold_ids == empty_ids
+            checks.append((acc(gold), acc(empty)))
+        if complete and all(g is not None and n is not None and g >= .85 and n <= .10 for g, n in checks):
+            valid[seed] = (arms, final)
+        else:
+            invalid[seed] = checks
+    names = ('ours', 'expert_only', 'rag', 'hippo_only', 'text_notes', 'no_memory', 'gold_context', 'ours_generic_only')
+    vectors = {a: {} for a in names}
+    per_rule = {sk: {a: [] for a in names} for sk in rules}
+    for seed, (arms, final) in valid.items():
+        for arm in names:
+            for sk in rules:
+                rs = rows(arms.get(arm, {}), final, sk)
+                per_rule[sk][arm].extend(bool(r['correct']) for r in rs)
+                vectors[arm].update({f'{seed}:{r["task_id"]}': int(bool(r['correct'])) for r in rs})
+    comparisons = {}
+    for other in ('rag', 'hippo_only', 'no_memory', 'ours_generic_only'):
+        try:
+            comparisons[other] = paired(vectors['ours'], vectors[other], draws=draws)
+        except ValueError:
+            comparisons[other] = None
+    def good(other, margin, ci, strict=False):
+        p = comparisons[other]
+        return bool(p and p['difference'] >= margin and (p['ci_low'] > ci if strict else p['ci_low'] >= ci))
+    costs = {a: [] for a in ('ours', 'rag')}
+    safety = []
+    for seed, (arms, final) in valid.items():
+        for arm in costs:
+            required = {r['task_id'] for r in rows(arms.get(arm, {}), final)}
+            tokens = arms.get(arm, {}).get('context_tokens', {})
+            if required and required <= tokens.keys() and all(isinstance(tokens[i], (int, float)) for i in required):
+                if costs[arm] is not None:
+                    costs[arm].extend(tokens[i] for i in required)
+            else:
+                costs[arm] = None
+        first = acc(rows(arms.get('ours', {}), 0, 'rule:A'))
+        last = acc(rows(arms.get('ours', {}), final, 'rule:A'))
+        evidence = arms.get('ours', {}).get('safety', {})
+        safety.append(first is not None and last is not None and last >= first - .05
+                      and evidence.get('revised') is True and evidence.get('poison_rejected') is True
+                      and evidence.get('trusted_rollback') is False)
+    means = {a: (sum(v) / len(v) if v else None) for a, v in costs.items()}
+    # Highest pooled baseline accuracy defines the pre-registered comparator.
+    best = max(('rag', 'hippo_only'), key=lambda a: sum(vectors[a].values()) / len(vectors[a]) if vectors[a] else -1)
+    claims = {1: good(best, -.05, -.10),
+              2: good('no_memory', .50, 0, True),
+              3: good('ours_generic_only', .30, 0, True),
+              4: means['ours'] is not None and means['rag'] is not None and means['rag'] > 0 and means['ours'] <= .25 * means['rag'],
+              5: bool(safety) and all(safety)}
+    enough = len(valid) >= 2
+    table = {sk: {a: (sum(v) / len(v) if v else None) for a, v in by.items()} for sk, by in per_rule.items()}
+    return dict(valid_seeds=list(valid), invalid_seeds=invalid, enough_valid_seeds=enough,
+                per_rule=table, comparisons=comparisons, best_context_baseline=best, mean_context_tokens=means,
+                claims=claims, verdict='PASS' if enough and all(claims.values()) else 'FAIL')
+
+
+def v1_markdown(v):
+    names = ('ours', 'expert_only', 'rag', 'hippo_only', 'text_notes', 'no_memory', 'gold_context', 'ours_generic_only')
+    pct = lambda x: 'N/A' if x is None else f'{x:.1%}'
+    lines = ['# v1 verdict', '', f"Valid seeds: {v['valid_seeds']}; excluded: {list(v['invalid_seeds'])}.", '',
+             '| Rule | ' + ' | '.join(names) + ' |', '|---|' + '---:|' * len(names)]
+    for sk, data in v['per_rule'].items():
+        lines.append('| ' + sk + ' | ' + ' | '.join(pct(data[a]) for a in names) + ' |')
+    lines += ['', 'Rule C is the composition test.', f"Claim 1 comparator: {v['best_context_baseline']}.",
+              'Context cost is measured on final hidden prompts, including the Context header.', '']
+    for other, p in v['comparisons'].items():
+        if p:
+            lines.append(f"- ours - {other}: {pct(p['difference'])} [{pct(p['ci_low'])}, {pct(p['ci_high'])}], n={p['n']}.")
+    lines += ['', f"Mean context tokens: {v['mean_context_tokens']}", '']
+    labels = {1: 'non-inferiority', 2: 'rule learning', 3: 'not format learning', 4: 'cost', 5: 'retention and safety'}
+    lines += [f"Claim {i} ({labels[i]}): {'PASS' if ok else 'FAIL'}" for i, ok in v['claims'].items()]
+    lines += ['', f"At least two valid seeds: {'PASS' if v['enough_valid_seeds'] else 'FAIL'}", f"Overall verdict: {v['verdict']}"]
+    return '\n'.join(lines) + '\n'
+
+
+def load_v1_run(run_dir):
+    from harness.step5_world import step5_stream
+    from harness.runner import read_lines
+    path = Path(run_dir)
+    data = read_json(path / 'results.json')
+    cfg = data['config']
+    if cfg.get('world') != 'step5':
+        raise ValueError('v1 requires step5 runs')
+    stream = step5_stream(cfg['cycles'], cfg['world_seed'])
+    final = cfg['cycles'] - 1
+    ids = {i.key: i.id for i in stream.hidden_items(final) if i.skill == 'fact:smoke'}
+    arms = data['results']
+    for name, result in arms.items():
+        answer_rows = read_lines(path / name / 'answers.jsonl')
+        result['context_tokens'] = {r['task_id']: r.get('context_tokens') for r in answer_rows if r.get('day') == final}
+    ours = arms.get('ours', {})
+    scores = {r['task_id']: r for r in ours.get('scores', []) if r.get('phase') == 'hidden' and r.get('cycle') == final}
+    revised, poison = scores.get(ids['fact|Alder']), scores.get(ids['fact|Birch'])
+    # A gate rejection on the trusted revision cycle is conservatively treated as a rollback;
+    # gate records do not establish causal attribution to a particular update.
+    nights = [n for n in ours.get('sleeps', []) if n.get('cycle') == 1 and 'checks' in n]
+    ours['safety'] = dict(revised=bool(revised and revised['correct']),
+                          poison_rejected=bool(poison and poison['correct'] and not poison.get('absorbed')),
+                          trusted_rollback=(not nights[0]['accepted']) if nights else None)
+    return cfg['world_seed'], arms
+
+
 def main():
     parser = argparse.ArgumentParser(description='Analyze a Step 4 run')
     parser.add_argument('run_dir', type=Path)
     parser.add_argument('--cycle', type=int)
+    parser.add_argument('--v1-runs', nargs='+', type=Path, help='additional seed output directories for the v1 verdict')
     args = parser.parse_args()
+    if args.v1_runs is not None:
+        runs = [load_v1_run(p) for p in [args.run_dir] + args.v1_runs]
+        seeds = dict(runs)
+        if len(seeds) != len(runs):
+            raise ValueError("duplicate world seeds")
+        verdict = v1_verdict(seeds)
+        report = v1_markdown(verdict)
+        (args.run_dir / "v1-verdict.md").write_text(report, encoding="utf-8")
+        (args.run_dir / "v1-verdict.json").write_text(json.dumps(verdict, indent=2) + "\n", encoding="utf-8")
+        print(report, end="")
+        return
     result = analyze(args.run_dir, args.cycle)
     report = markdown(result)
     (args.run_dir / 'analysis.json').write_text(json.dumps(result, indent=2) + '\n', encoding='utf-8')
