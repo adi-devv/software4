@@ -168,6 +168,9 @@ class SleepArm(HippoOnly):
         new = pick(fresh, self.cfg.max_examples - len(replay))
         return new, replay
 
+    def _extra_examples(self, selected, cycle):
+        return []
+
     def sleep(self, cycle):
         """Stage an expert without changing deployment until every check passes.
 
@@ -188,6 +191,8 @@ class SleepArm(HippoOnly):
         selected = new + replay
         # Empty context deliberately tests learning in weights, independent of recall.
         examples = [('Context:\n\n\nTask:\n' + q, a) for _, (q, a) in selected]
+        examples += [('Context:\n\n\nTask:\n' + q, a)
+                     for q, a in self._extra_examples(selected, cycle)]
         self._check_core()
         self._backend_snapshot = None  # preserve attempt bookkeeping on checkpoint/resume
         handle = self.backend.train_expert(examples, steps=self.cfg.steps, seed=self.seed + cycle)
