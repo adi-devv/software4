@@ -27,6 +27,7 @@ from harness.tasks import arm_scope, grading_scope
 
 
 class Oracle(NoMemory):
+    """Deprecated lesson-only baseline retained for old experiments."""
     name = 'oracle'
 
     def context(self, task):

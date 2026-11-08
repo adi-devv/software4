@@ -146,6 +146,7 @@ class TextNotes(Base):
     name = 'text_notes'
     def __init__(self, *args, max_notes=200, prune_after=3, **kwargs):
         self.max_notes, self.prune_after = max_notes, prune_after
+        self.embedder = HashingEmbedder()
         super().__init__(*args, **kwargs)
 
     def reset(self):
@@ -156,8 +157,12 @@ class TextNotes(Base):
         return self.retrieve(task.prompt)
 
     def retrieve(self, query, k=None):
-        """Read-only native note order; query is unused, as in context()."""
-        order = sorted(range(len(self.notes)), key=lambda i: (self.notes[i]['uses'], i), reverse=True)
+        """Rank notes by query similarity, then use count and recency."""
+        if not self.notes:
+            return []
+        vecs = self.embedder.embed([query] + [n["text"] for n in self.notes])
+        scores = vecs[1:] @ vecs[0]
+        order = sorted(range(len(self.notes)), key=lambda i: (float(scores[i]), self.notes[i]["uses"], i), reverse=True)
         if k is not None:
             order = order[:k]
         return [(i, self.notes[i]['text']) for i in order]
@@ -170,25 +175,32 @@ class TextNotes(Base):
         self.episodes.append(episode(task, answer, result, correction))
 
     def sleep(self, cycle):
-        header = 'Distill lessons:\nWrite short standalone lesson lines from these episodes and corrections.\n'
-        prompts, batch = [], []
+        header = ("Distill lessons:\nExample: Question: What color is snow? Verified answer: white -> Snow is white. Write a short standalone note for the episode.\n")
+        prompts = []
         for entry in self.episodes:
             if self.llm.count_tokens(header + entry) > self.llm.input_limit:
                 raise ValueError('distillation episode exceeds input_limit')
-            if batch and self.llm.count_tokens(header + '\n'.join(batch + [entry])) > self.llm.input_limit:
-                prompts.append(header + '\n'.join(batch))
-                batch = []
-            batch.append(entry)
-        if batch:
-            prompts.append(header + '\n'.join(batch))
+            prompts.append((header + entry, entry))
         before = len(self.notes)
         self.notes = [n for n in self.notes if n['uses'] < self.prune_after or n['successes'] * 2 >= n['uses']]
         pruned = before - len(self.notes)
-        for prompt in prompts:
-            lines = self.llm.generate(prompt).splitlines()
-            for line in lines:
+        for prompt, entry in prompts:
+            rendered = render_entry(entry)
+            match = re.search(r'^Verified answer: (.*)$', rendered, re.M)
+            answer = match.group(1) if match else ''
+            usable = []
+            for line in self.llm.generate(prompt).splitlines():
                 line = line.strip().lstrip('-* ').strip()
-                if line and line not in [n['text'] for n in self.notes]:
+                beyond = re.sub(re.escape(answer), '', line, flags=re.I) if answer else line
+                beyond = re.sub(r'\b(?:final|verified|correct|answer|response)\b', '', beyond, flags=re.I)
+                if (line and not line.lower().startswith('final answer')
+                        and re.search(r'[A-Za-z]', beyond)):
+                    usable.append(line)
+            if not usable and match and rendered.startswith('Question: '):
+                question = rendered.split('\n', 1)[0][len('Question: '):]
+                usable = [f'Example: {question} -> {answer}']
+            for line in usable:
+                if line not in [n['text'] for n in self.notes]:
                     self.notes.append({'text': line, 'uses': 0, 'successes': 0})
         if prompts:
             self.notes = self.notes[-self.max_notes:] if self.max_notes else []

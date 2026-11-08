@@ -25,11 +25,12 @@ import zipfile
 SOURCE_B64 = ""
 DEFAULT_SMOKE = "1"
 DEFAULT_ARMS = ""   # "" keeps the default ARMS; prepare.py --arms a,b bakes a list in
+DEFAULT_WORLD = "step4"
 DEFAULT_WORLD_SEED = ""   # "" keeps the harness default (41); prepare.py --world-seed N bakes one in
 # `ours` first, then the other long-running weight arm; the inference-only baselines follow.
 # Nothing waits for anything else: `ours` is the long pole and must start immediately.
-ARMS = ("ours", "expert_only", "hippo_only", "rag", "text_notes", "no_memory", "rag_starved", "oracle")
-AVAILABLE_ARMS = ARMS + ("ours_salient", "ours_dream", "ours_generic_data", "ours_generic_only", "ours_oracle_trained")
+ARMS = ("ours", "expert_only", "hippo_only", "rag", "text_notes", "no_memory", "rag_starved", "gold_context")
+AVAILABLE_ARMS = ARMS + ("oracle", "ours_salient", "ours_dream", "ours_generic_data", "ours_generic_only", "ours_oracle_trained")
 FAIR_CONTEXT_TOKENS = 512    # every context-using arm; `rag_starved` alone keeps the old 64
 STARVED_CONTEXT_TOKENS = 64
 FIT_THRESHOLD = 0.9          # forced-expert train accuracy below this = optimisation failure
@@ -64,12 +65,23 @@ def source_digest(root):
     h = hashlib.sha256()
     paths = [p for folder in ("baselines", "harness", "hippocampus")
              for p in (root / folder).glob("*.py")]
-    paths += [root / "scripts/smoke_sleep.py", root / "step4/hf.py", root / "step4/run.py"]
+    paths += [root / "scripts/smoke_sleep.py", root / "step4/hf.py", root / "step4/run.py", root / "step4/analyze.py"]
     paths += sorted((root / "data/generic").glob("*.jsonl"))
     for path in sorted(paths):
         h.update(path.relative_to(root).as_posix().encode())
         h.update(path.read_bytes())
     return h.hexdigest()
+
+
+def context_block_tokens(backend, prompt):
+    """Tokens in the context block of a prompt: everything before the "Task:" separator.
+
+    0 when there is no prompt or no separator; never the whole prompt.
+    """
+    sep = "\n\nTask:\n"
+    if not prompt or sep not in prompt:
+        return 0
+    return backend.count_tokens(prompt.split(sep, 1)[0])
 
 
 def settings(root):
@@ -84,11 +96,16 @@ def settings(root):
         raise ValueError("S4_ARMS must use " + ",".join(AVAILABLE_ARMS) + "; cycles >= 3; steps >= 1")
     model = os.environ.get("S4_MODEL", "Qwen/Qwen3.5-2B")
     revision = os.environ.get("S4_REVISION", QWEN35_REVISION if model == "Qwen/Qwen3.5-2B" else "main")
-    from harness.step4_world import WORLD_SEED
+    world = os.environ.get("S4_WORLD", DEFAULT_WORLD)
+    if world not in ("step4", "step5"):
+        raise ValueError("S4_WORLD must be step4 or step5")
+    from harness.step4_world import WORLD_SEED as OLD_SEED
+    from harness.step5_world import WORLD_SEED as NEW_SEED
+    WORLD_SEED = NEW_SEED if world == "step5" else OLD_SEED
     world_seed = int(os.environ.get("S4_WORLD_SEED", DEFAULT_WORLD_SEED) or WORLD_SEED)
     cfg = dict(backend=backend, model=model, revision=revision,
                cycles=cycles, steps=steps, seed=0, context_tokens=FAIR_CONTEXT_TOKENS,
-               starved_tokens=STARVED_CONTEXT_TOKENS, lr=2e-4, world="step4", world_seed=world_seed,
+               starved_tokens=STARVED_CONTEXT_TOKENS, lr=2e-4, world=world, world_seed=world_seed,
                source_sha256=source_digest(root), schema=3,
                hardware_mode=("single_device_dev" if os.environ.get("S4_SINGLE_DEVICE_DEV") == "1"
                               else "dual_t4") if backend == "hf" else "cpu")
@@ -230,7 +247,11 @@ def import_world(cfg):
     from scripts.smoke_sleep import Oracle, measure, prompt_for
     from harness.smoke_world import smoke_canaries
     from harness.step4_world import step4_stream
-    stream = step4_stream(cfg["cycles"], cfg["world_seed"])  # fresh codes, >=100 hidden per rule
+    if cfg.get("world", "step4") == "step5":
+        from harness.step5_world import step5_stream
+        stream = step5_stream(cfg["cycles"], cfg["world_seed"])
+    else:
+        stream = step4_stream(cfg["cycles"], cfg["world_seed"])
     stream.validate()
     return stream, smoke_canaries(), Oracle, measure, prompt_for
 
@@ -269,7 +290,7 @@ class BackendLLM:
         return self.backend.generate(prompt)
 
 
-def make_arm(name, backend, cfg, Oracle):
+def make_arm(name, backend, cfg, Oracle, stream=None):
     from baselines import ExpertOnly, HippoOnly, NoMemory, Rag, SleepArm, SleepConfig, TextNotes
     budget = cfg["context_tokens"]
     common = dict(llm=backend, context_tokens=budget, seed=0)
@@ -295,6 +316,12 @@ def make_arm(name, backend, cfg, Oracle):
         return ExpertOnly(backend, sleep_cfg, llm=backend)
     if name == "rag_starved":
         return Rag(**{**common, "context_tokens": cfg["starved_tokens"]})
+    if name == "gold_context":
+        from baselines.gold_context import GoldContext
+        if stream is None:
+            stream = import_world({**cfg, "cycles": cfg.get("cycles", 3),
+                                   "world_seed": cfg.get("world_seed", 44 if cfg.get("world") == "step5" else 41)})[0]
+        return GoldContext(**common, stream=stream)
     if name == "text_notes":
         return TextNotes(**{**common, "llm": BackendLLM(backend)})
     return {"no_memory": NoMemory, "rag": Rag, "hippo_only": HippoOnly, "oracle": Oracle}[name](**common)
@@ -422,7 +449,7 @@ def worker(name, cfg, run_dir, smoke):
                 write_json(history_path, history)
         backend.train_expert = logged_train
         stream, canary, Oracle, measure, prompt_for = import_world(cfg)
-        arm = make_arm(name, backend, cfg, Oracle)
+        arm = make_arm(name, backend, cfg, Oracle, stream)
         if smoke:
             result.update(smoke_arm(name, arm, backend, cfg, stream, canary, measure, prompt_for, out))
         else:
@@ -442,7 +469,7 @@ def worker(name, cfg, run_dir, smoke):
                     row = dict(arm=name, task_id=task.id, day=task.day, family=task.family,
                                skill=task.skill, expert=trace.get("expert"),
                                retrieved=trace.get("retrieved", []), prompt=trace.get("prompt"),
-                               answer=response)
+                               answer=response, context_tokens=context_block_tokens(backend, trace.get("prompt")))
                     try:
                         serialized = json.dumps(row) + "\n"
                         with (out / "answers.jsonl").open("a", encoding="utf-8") as log:
@@ -752,6 +779,12 @@ def report(run_dir, cfg, arms, results, smoke, wall, hardware=None):
     write_json(run_dir / "results.json", payload)
     write_json(run_dir / "timings.json", {"wall_seconds": wall, "arms_seconds": {
         a: r["elapsed_seconds"] for a, r in results.items()}, "setup_excluded": True, "setup": setup})
+    if not smoke and cfg.get("world") == "step5":
+        from step4.analyze import load_v1_run, v1_verdict, v1_markdown
+        seed, seed_results = load_v1_run(run_dir)
+        verdict = v1_verdict({seed: seed_results})
+        (run_dir / "v1-verdict.md").write_text(v1_markdown(verdict), encoding="utf-8")
+        write_json(run_dir / "v1-verdict.json", verdict)
     return payload
 
 

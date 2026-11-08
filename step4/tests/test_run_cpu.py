@@ -112,7 +112,7 @@ def test_answer_log_failure_does_not_abort_scoring(cpu_dir, monkeypatch, error):
 
 def test_salient_is_opt_in_and_runs(cpu_dir, monkeypatch):
     assert run.ARMS == ("ours", "expert_only", "hippo_only", "rag", "text_notes",
-                        "no_memory", "rag_starved", "oracle")
+                        "no_memory", "rag_starved", "gold_context")
     monkeypatch.delenv("S4_ARMS", raising=False)
     assert run.settings(ROOT)[1] == list(run.ARMS)
     proc, payload, out = invoke(cpu_dir, arms="ours_salient")
@@ -187,7 +187,7 @@ def test_interrupted_cycle_restores_snapshot(cpu_dir):
 
 def test_upload_script_is_standalone(cpu_dir):
     from step4.prepare import prepare
-    target = prepare()
+    target = prepare(target=cpu_dir / "prepared")
     # Execute only the uploaded script from a fresh directory. All original
     # imports must come from its frozen archive, not an accidental repository cwd.
     script = cpu_dir / "run.py"
