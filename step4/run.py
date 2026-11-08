@@ -24,6 +24,7 @@ import zipfile
 # prepare.py replaces only these two literals in its NEW upload artifact.
 SOURCE_B64 = ""
 DEFAULT_SMOKE = "1"
+DEFAULT_ARMS = ""   # "" keeps the default ARMS; prepare.py --arms a,b bakes a list in
 DEFAULT_WORLD_SEED = ""   # "" keeps the harness default (41); prepare.py --world-seed N bakes one in
 # `ours` first, then the other long-running weight arm; the inference-only baselines follow.
 # Nothing waits for anything else: `ours` is the long pole and must start immediately.
@@ -72,7 +73,7 @@ def source_digest(root):
 
 def settings(root):
     backend = os.environ.get("S4_BACKEND", "hf")
-    arms = os.environ.get("S4_ARMS", ",".join(ARMS)).split(",")
+    arms = os.environ.get("S4_ARMS", DEFAULT_ARMS or ",".join(ARMS)).split(",")
     arms = [a.strip() for a in arms if a.strip()]
     cycles = int(os.environ.get("S4_CYCLES", "3"))
     steps = int(os.environ.get("S4_STEPS", "64"))
