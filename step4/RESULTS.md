@@ -102,48 +102,88 @@ Supersedes the version in baa8e3b, which tested rule A (letter reversal). That r
 - **Cost estimate:** one smoke plus three 8-arm full runs, about 1.5 worker-hours; re-estimate from the smoke timing before asking to spend.
 - **Process:** Codex gpt-6.1-sol review of this section, the world and the verdict code first; then smoke; then v1 only after explicit approval.
 
-## v2 (seeds 48, 49, 50; replacements 51/52 only if a seed is void) — SKELETON, fill after all valid seeds finish
+## v2 (seeds 48, 49, 50; replacements 51/52 only if a seed is void) — COMPLETE: overall verdict FAIL (3 valid seeds, none excluded)
 
-Frozen 2026-11-09: prereg `docs/V2_PREREG_DRAFT.md` sha256 `4420f006...8fa90`, source digest `98eb1f1f...5d42` (see `docs/V2_FREEZE.txt`). Backup: `D:\Aadit\claudez\backups\software4-v2-frozen-2026-11-09.zip` (+ `.sha256`). Analyzer: `step4/v2_analyze.py`. Do not edit this section's numbers by hand; paste analyzer output.
+Frozen 2026-11-09: prereg `docs/V2_PREREG_DRAFT.md` sha256 `4420f006...8fa90`, source digest `98eb1f1f...5d42` (see `docs/V2_FREEZE.txt`; the digest is recorded in `results.json` and `run.json` of all three runs and matches). Addendum 1 (`docs/V2_ADDENDUM_1.md`) written before any seed finished. Backup: `D:\Aadit\claudezackups\software4-v2-frozen-2026-11-09.zip` (+ `.sha256`). Analyzer: `step4/v2_analyze.py`, run once on all three seeds. Full analyzer output (every per-seed table, intervals, fact classes): `step4/V2_VERDICT_s48-50.md`. Branch `v2-frozen` at `2c2aaf6`.
 
 ### Run ledger (UTC from `kaggle kernels list --mine`; IST = UTC+5:30)
 
-| Run | Kernel | Started (UTC) | Finished (UTC) | Driver wall (s) | Worker-hours | Status | Weekly GPU-hours (running) |
-|---|---|---|---|---:|---:|---|---:|
-| smoke (seed 48 config) | `adidevv/software4-step4-lean` | | 2026-11-09 08:37:50 | 200.5 | 0.102 | COMPLETE, full-run eligible | |
-| full s48 | `adidevv/software4-step4-v2-s48` | 2026-11-09 09:47 | TBD | TBD | TBD | TBD | TBD |
-| full s49 | `adidevv/software4-step4-v2-s49` | 2026-11-09 09:47 | TBD | TBD | TBD | TBD | TBD |
-| full s50 | `adidevv/software4-step4-v2-s50` | TBD (waits for a free slot; Kaggle cap = 2 GPU sessions) | TBD | TBD | TBD | TBD | TBD |
-| replacement (only if void) | s51 / s52 | | | | | | |
+| Run | Kernel | Started (UTC / IST) | Finished (UTC / IST, as seen by poll) | Driver wall (s, setup excluded) | Status |
+|---|---|---|---|---:|---|
+| smoke (seed 48 config) | `adidevv/software4-step4-lean` | | 2026-11-09 08:37:50 | 200.5 | COMPLETE, full-run eligible |
+| full s48 | `adidevv/software4-step4-v2-s48` | 09:47 / 15:17 | about 10:48 / 16:18 | 3530.2 | COMPLETE, receipt `full-cef1aadf08f66c86` |
+| full s49 | `adidevv/software4-step4-v2-s49` | 09:47 / 15:17 | about 10:49 / 16:19 | 3582.8 | COMPLETE, receipt `full-1eb49de417235644` |
+| full s50 | `adidevv/software4-step4-v2-s50` | 12:23 / 17:53 (queued behind the 2-session cap) | about 13:23 / 18:53 | 3489.8 | COMPLETE, receipt `full-c3017792600b907f` |
+| replacement | s51 / s52 | not needed (no void seed) | | | |
 
-### Validity gate (gold_context >= 85%, no_memory <= 10% per rule)
+Session time used: about 1.0 h per seed (about 3.0 h for the three; s48 and s49 ran concurrently on separate accounts' slots). The weekly Kaggle total was not read from Kaggle after the runs.
+
+### Validity gate (gold_context >= 85%, no_memory <= 10% per rule): all 9 checks pass, no void seeds
 
 | Seed | Rule | gold_context | no_memory | Valid? |
 |---|---|---:|---:|---|
-| 48 | A / B / C | TBD | TBD | TBD |
-| 49 | A / B / C | TBD | TBD | TBD |
-| 50 | A / B / C | TBD | TBD | TBD |
+| 48 | A / B / C | 97.50 / 95.00 / 91.67 | 0 / 0 / 0 | valid |
+| 49 | A / B / C | 96.67 / 92.50 / 91.67 | 0 / 0 / 0 | valid |
+| 50 | A / B / C | 94.17 / 94.17 / 91.67 | 0 / 0 / 0 | valid |
 
-### Per-seed tables (final cycle 2, case-folded; exact-case alongside)
+### Duplicate / missing answer rows outside cycle 2 (Addendum rule 4)
 
-One table per seed: arm x {A, B, C, pooled} accuracy, then ours minus {rag_semantic, rag_hashing, hippo_only} with 95% CI. TBD.
+Checked by hand on `answers.jsonl` for every seed and arm (30 files): 770 rows each (cycle 0: 120 rule + 8 canary + 6 fact; cycle 1: 240 + 8 + 6; cycle 2: 360 + 8 + 6; canary day -1: 8). **Duplicate rows: 0. Missing rows (vs the union of tasks across arms): 0**, in all 30 seed-arm files.
 
-### Pooled claims (>= 2 valid seeds; 10,000 paired bootstrap draws, default_rng(0))
+### Pooled final-cycle-2 accuracy (case-folded; n = 1080 pooled, 360 per rule)
+
+| Arm | Pooled | A | B | C |
+|---|---:|---:|---:|---:|
+| ours (identical to expert_only to the digit) | 90.19 | 96.67 | 93.89 | 80.00 |
+| rag_semantic | 92.78 | 94.72 | 91.39 | 92.22 |
+| rag_hashing (identical to hippo_only) | 86.48 | 71.94 | 95.00 | 92.50 |
+| text_notes | 61.67 | 0.28 | 92.22 | 92.50 |
+| gold_context | 93.89 | 96.11 | 93.89 | 91.67 |
+| no_memory, ours_generic_forced, generic_forced_noret | 0.00 | 0 | 0 | 0 |
+
+Per-seed tables and exact-case numbers are in `step4/V2_VERDICT_s48-50.md`.
+
+### Pooled claims (3 valid seeds, none excluded; 10,000 paired bootstrap draws, default_rng(0))
 
 | Claim | Bar | Result | Verdict |
 |---|---|---|---|
-| 1 Non-inferiority vs rag_semantic, rag_hashing, hippo_only (A, B, C, pooled) | diff >= -5 and CI low >= -10 | TBD | TBD |
-| 2 Rule learning (ours - no_memory) | >= 50 pts, CI low > 0 | TBD | TBD |
-| 3 Task-specific transfer (expert_only - generic_forced_noret) | >= 30 pts, CI low > 0, 3/3 sleeps accepted, training counts/steps match | TBD | TBD |
-| 4 Context cost | ours <= 25% of hashing RAG | TBD | TBD |
-| 5 Facts/safety | correct Birch, revised Alder, rule-A retention within 5 pts, no absorption, no rollback | TBD | TBD |
+| 1 Non-inferiority vs rag_semantic, rag_hashing, hippo_only (A, B, C, pooled) | diff >= -5 and CI low >= -10 | vs rag_semantic: A +1.94, B +2.50, C **-12.22 [-16.67, -7.50]**, pooled **-2.59 [-4.72, -0.46]**. vs rag_hashing and hippo_only (identical): A +24.72, B -1.11, C **-12.50 [-16.94, -8.06]**, pooled +3.70 [1.11, 6.39] | **FAIL** (rule C fails the bar against every comparator) |
+| 2 Rule learning (ours - no_memory) | >= 50 pts, CI low > 0 | +90.19 [88.33, 91.94] | PASS |
+| 3 Task-specific transfer (expert_only - generic_forced_noret) | >= 30 pts, CI low > 0, 3/3 sleeps accepted, training counts/steps match | +90.19 [88.33, 91.94]; all 3 sleeps accepted and counts/steps match on every seed | PASS (see caveat) |
+| 4 Context cost | ours <= 25% of hashing RAG | mean context tokens: ours 17.8, rag_semantic 195.5, rag_hashing 197.4 (9%) | PASS |
+| 5 Facts/safety | correct Birch, revised Alder, rule-A retention within 5 pts, no absorption, no rollback | seeds 49, 50 pass per-seed checks; seed 48 fails (Birch not correct: 10 correct, 6 format-corrupted, 2 unusable of 18); `trusted_rollback` is False on all three seeds (False is the required good value: no trusted sleep was rolled back); absorbed = False everywhere | **FAIL** (seed 48 Birch only; see erratum below) |
 
-Fact answer classes per arm (correct / stale / format_corrupted / absorbed / unusable) and format-leak rate: TBD.
+**Overall verdict: FAIL, on 3 valid seeds, none excluded** (Addendum rule 5 statement).
 
-### Deviations (anything not as registered; empty if none)
+Fact answer classes (correct / stale / format-corrupted / absorbed / unusable of 54, pooled): ours 40 / 0 / 12 / 0 / 2; rag_semantic 34 / 4 / 16 / 0 / 0; hippo_only 45 / 0 / 6 / 0 / 3; gold_context 54 / 0 / 0 / 0 / 0; ours_generic_forced 20 / 0 / 30 / 0 / 4; rag_hashing, text_notes, no_memory, expert_only, generic_forced_noret 0 correct (all unusable). Format-leak rate (rule wrappers in fact answers): ours 24.1%, rag_semantic 29.6%, rag_hashing 72.2%, hippo_only 14.8%, text_notes 61.1%, ours_generic_forced 61.1%.
 
-- TBD. Record here: any analyzer or code change after freeze (declared, with new hash), void seeds and replacements, failed pushes, re-runs, Kaggle slot-cap delays (seed 50 pushed late because of the 2-session cap, not a code change).
+### Caveats (facts read from the output, not extra claims)
+
+- **Claim 3's margin equals expert_only's whole score** because the forced generic control scored 0.00% on every rule and seed, including `ours_generic_forced`. The 30-point bar is cleared trivially. Why the control scores 0 (for example, the generic experts destroying the answer format) is a hypothesis, not checked; Claim 3 shows task-specific experts beat this particular generic control, not why.
+- `ours` equals `expert_only` exactly on every rule item: in `ours`, no rule answer used retrieval (0 of 2,160), so retrieval adds nothing to its rule answers; memory contributes only the fact items. `rag_hashing` and `hippo_only` have no expert, so their rule scores come entirely from retrieval (per the strategy session they match on 2,159 of 2,160 rule items but differ on facts; not re-checked here). *Erratum 2026-11-09: an earlier version of this line said retrieval adds nothing in all four arms.*
+- The Claim 1 failure is entirely rule C (ours 80.0% against about 92% for every baseline); A and B pass. C is directly trained, so this is not zero-shot composition.
+- The Claim 5 failure is seed 48 (Birch format-corrupted) only; no poison absorption was recorded. *Erratum 2026-11-09: an earlier version also blamed `trusted_rollback` False on all seeds, but `v2_analyze._safety` requires `rollback is False`, so that value is the passing one. The verdict is unchanged.*
+- Intervals are conditional on the trained stacks; 3 seeds give weak evidence on new-stack variability.
+
+### Deviations (anything not as registered)
+
+- None to the registered analysis. No code or analyzer change after freeze; no void seed, replacement, rerun or failed push. Seed 50 was pushed after s48/s49 finished because of the 2-session Kaggle cap (a scheduling delay, not a change).
+- Process note: the verdict was run once, after all three seeds finished (Addendum rule 1). Outputs were pulled with CR-normalised copying into `software4-v2`; the v2 tree has no `.git`, and the committed code is on `v2-frozen`.
 
 ### Exploratory (labelled; not part of the registered verdict)
 
-- TBD.
+*Exploratory notes from the strategy session (analysis of existing logs, no new runs; relayed 2026-11-09 and not re-checked by me; verdict unchanged).*
+- **generic_forced 0%:** the control adapter was trained on phrase completion (64 steps, final loss about 7.6e-6) and collapses into a "Final answer: Final answer: ..." loop (83-88 of 120 rule C answers per seed). It is a broken adapter, not a working non-rule adapter, so Claim 3's pass is uninformative about task-specific learning (0% is the same floor as no_memory).
+- **ours never retrieves on rules:** 0 of 2,160 rule answers used retrieval, and facts always did (54/54). So on rules Claim 1 is trained expert against RAG, with no memory fallback.
+- **Birch / Claim 5 (seed 48):** the correct fact was retrieved. Top-k=5 pads the other slots with rule demos (no relevance cutoff or type filter). When all demos were rule B, the frozen core copied the format (`B-NORA`): 12 of 12 format-corrupted in all-B contexts (s48, s50); mixed A+B contexts answered correctly; s49 had no all-B contexts and went 18/18. This is retrieval padding contaminating the format, not memory loss, staleness or absorption. s48 day-0 wrong answers ("Alder-7", "CEO") look like retrieval misses but are unverified.
+- **Rule C (hypothesis, not a finding):** ours day-2 hidden C was 114/111/106 of 120 in v1 vs 98/97/93 in v2 (pooled 91.9% to 80.0%). Ruled out: replay mix (identical 24C+6A+2B; an earlier note saying 8 B was wrong), steps, training seeds, train/hidden code overlap (0), code length, routing (all C items went to expert-2), underfitting (s50 fits 1.0 yet has the worst C). Seed difficulty explains little (gold_context C 115/115/110 in v1 vs 110/110/110 in v2). Day-2 C error types over 360 answers per version: wrong/dropped/extra/reordered letters 23 (v1) vs 38 (v2); dropped -7 0 vs 17; other garbled format 4 vs 16; dropped B- 2 vs 1; total wrong 29 vs 72. Best reading: expert-2 is fragile and the v2 worlds exposed it; three seeds per version cannot prove that.
+- **Suggested for a V3 pre-registration (not started):** a relevance cutoff or type filter on retrieval, a memory fallback for the expert on composite rule C or more C training, a format-matched control, and fresh seeds, since 48-50 are now dev data. No Kaggle or GPU run without the user's explicit approval.
+
+## v3 smoke (2026-11-09; kernel `adidevv/software4-step4-lean`, version 23; world seed 53)
+
+*Approved by Aadit ("Run smoke"). The full V3 run (seeds 53/54/55) is NOT yet approved.*
+- **Timing (UTC from `kaggle kernels list --mine`; IST = UTC+5:30):** pushed 16:52 UTC (22:22 IST), COMPLETE seen 22:28 IST, finished 16:56:45 UTC (22:26:45 IST). Driver wall 171.8 s; setup 47.1 s (excluded); kernel about 4-5 min.
+- **Result:** all 10 arms complete (ours, expert_only, hippo_only, rag_semantic, rag_hashing, wrong_rule, ours_generic_forced, text_notes, no_memory, gold_context). Worker s: ours 54.4, expert_only 54.4, wrong_rule 32.1, ours_generic_forced 32.0, others 22-26.
+- **Receipt:** `smoke-d844372d5ac34f14`; `kaggle_full_run_eligible: True`; 2 distinct Tesla T4s (`dual_t4`). Config: protocol v3, all three V3 flags on, source_sha256 `d2bc3554...` (matches `docs/V3_FREEZE.txt`).
+- **GPU-hours:** this run 0.088 worker-hours. Weekly total not read from Kaggle (earlier smoke/v2 runs not re-summed here).
+- **Packaging note:** V3 flags are baked into the generated script by `prepare.py --env` (new option; `prepare.py` is outside the source digest). First push attempt failed locally (old Kaggle CLI 1.7.4.5 on PATH, no GPU time used); second push used CLI 2.2.5.
