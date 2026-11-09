@@ -8,7 +8,7 @@ from .worlds import SUFFIX, TaskSource
 WORLD_SEED = 44
 NAMES = {"A": "Cobalt beacon", "B": "Amber orchard", "C": "Cobalt-Amber chain"}
 RULES = {"A": "Cobalt beacon rule: uppercase the code and add '-7' at the end.",
-         "B": "Amber orchard rule: uppercase the code and wrap it in square brackets.",
+         "B": "Amber orchard rule: uppercase the code and put 'B-' in front of it.",
          "C": "Cobalt-Amber chain rule: apply the Cobalt beacon rule to the code, then apply the Amber orchard rule to its result."}
 
 class Step5Source(TaskSource):
@@ -35,7 +35,7 @@ class Step5Source(TaskSource):
                             used.add(code)
                             break
                     upper = code.upper()
-                    answer = upper + '-7' if rule == 'A' else '[' + upper + ( '-7]' if rule == 'C' else ']')
+                    answer = {'A': upper + '-7', 'B': 'B-' + upper, 'C': 'B-' + upper + '-7'}[rule]
                     items.append(dict(type='item', skill='rule:' + rule, kind='probe', key=rule + '|' + code,
                                       input_key=code, split=split, prompt=f'Apply the {NAMES[rule]} rule to code {code}.' + SUFFIX,
                                       expected=answer, required_tokens=[code], source='trusted', lesson=RULES[rule]))

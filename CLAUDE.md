@@ -31,7 +31,14 @@ Research project: a brain-inspired LLM system that keeps learning after deployme
   - `MODEL` / `EFFORT` env vars override the default terra/medium.
 - **Usage %:** `python scripts/codex-usage.py` asks ChatGPT's usage page for each home, one short line per account (5h left, week left, 5h reset in IST). It uses no model tokens and no Claude limits. `scripts/codex_usage.sh` is the old log-based version and can be stale.
 - **Live usage terminal:** whenever Codex jobs are running or queued, keep `python D:\Aadit\claudez\software4\scripts\codex-usage.py` open in a Terminal-panel tab titled "Codex usage" (open one if none exists, reuse it if it does). Close it when no Codex work is left.
-- **One by one:** run one Codex job at a time, and use one account until it hits its limit, then move to the next (7859, then w, then amit). Use `scripts/run_rotate.sh <queue> 1` for this. A Plus account lasts only about 15–30 minutes under 3–4 parallel high-effort runs, so don't run jobs in parallel.
+- **Parallel, one job per account:** run up to 3 Codex jobs at once, one on each account. Don't use `run_rotate.sh <queue> 3`: it tries accounts in the same order, so every job lands on the first free account, and a Plus account lasts only about 15–30 minutes under 3–4 parallel high-effort runs. Instead start one queue per account, each with parallel 1 and a different account first, so a job moves on only when its account hits the limit:
+  ```bash
+  A7859=7859:C:/Users/aadit/.codex-7859; AW=w:C:/Users/aadit/.codex-w; AAMIT=amit:C:/Users/aadit/.codex-amit
+  HOMES_OVERRIDE="$A7859 $AW $AAMIT" scripts/run_rotate.sh <queue_1> 1
+  HOMES_OVERRIDE="$AW $AAMIT $A7859" scripts/run_rotate.sh <queue_2> 1
+  HOMES_OVERRIDE="$AAMIT $A7859 $AW" scripts/run_rotate.sh <queue_3> 1
+  ```
+  Launch each through Bash `run_in_background`. The script always runs in the main checkout, so jobs that write code must either add only their own named new files, or work in a separate `git worktree` named in the brief. Never switch branches in the main checkout during a job, and never let two jobs write the same file.
 - **Switching or re-signing an account** (if it shows logged out):
   1. Run `CODEX_HOME=<home> codex login` in the background.
   2. Open the printed URL in the browser, pick the account, and click Continue.
@@ -66,7 +73,7 @@ Budget is about 30 GPU-hours a week per Kaggle account; the user may use more th
 | Experiment design review, deep paper reads, hard bugs | Codex `gpt-6.1-sol` |
 | Reviewing Kaggle scripts, writing routine test code as a patch, summarising logs | Codex `gpt-6.1-terra` |
 
-- **Use Codex first** for any of the Codex work above, one job at a time (see "One by one"). Use Claude subagents only when all 3 accounts are at their limit.
+- **Use Codex first** for any of the Codex work above, up to one job per account at once (see "Parallel, one job per account"). Use Claude subagents only when all 3 accounts are at their limit.
 - Codex runs read-only and returns patches or reports. Claude checks them, applies them and runs them.
 - Check a Codex claim before relying on it.
 - Quick checks stay in the main chat.

@@ -203,3 +203,15 @@ def test_world_specific_smoke_digest(monkeypatch):
     assert settings(root)[3] == smoke
     monkeypatch.setenv('S4_WORLD', 'step4')
     assert settings(root)[3] != smoke
+
+
+def test_echoing_the_code_never_passes_grading():
+    """Seed 44 showed bare code echo passing rule B because the grader strips edge brackets."""
+    from harness.grading import match
+    _, items = Step5Source(44).raw()
+    rules = [i for i in items if i['skill'].startswith('rule:')]
+    assert rules
+    for item in rules:
+        code = item['input_key']
+        for guess in (code, code.upper(), '[' + code.upper() + ']'):
+            assert not match(item['expected'], guess), (item['skill'], guess)

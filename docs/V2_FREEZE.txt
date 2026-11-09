@@ -1,0 +1,5 @@
+V2 freeze (user approved GPU run 2026-11-09)
+prereg docs/V2_PREREG_DRAFT.md sha256 4420f00642a5452e3dc96eff752a245e9c54fa1c864d7c61828d44f347f8fa90
+source_digest 98eb1f1f945dc19beb4e53c954f6c76228a131d11cb30023405efb0155c65d42
+arms ours,expert_only,hippo_only,rag_semantic,rag_hashing,generic_forced_noret,ours_generic_forced,text_notes,no_memory,gold_context
+seeds 48,49,50 (replacements 51,52)

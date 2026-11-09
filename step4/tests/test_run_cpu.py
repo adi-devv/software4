@@ -18,8 +18,13 @@ from step4 import run
 def cpu_dir():
     # Force every newly written artifact to live under step4/ (including tests).
     import tempfile
-    with tempfile.TemporaryDirectory(dir=Path(__file__).parent, prefix=".run-") as folder:
-        yield Path(folder)
+    # run.worker() sets the global tempfile.tempdir; restore it so later tests are not polluted.
+    saved = tempfile.tempdir
+    try:
+        with tempfile.TemporaryDirectory(dir=Path(__file__).parent, prefix=".run-") as folder:
+            yield Path(folder)
+    finally:
+        tempfile.tempdir = saved
 
 
 def invoke(folder, *, smoke="0", arms=",".join(run.ARMS), backend="fake", script=None, extra=None):

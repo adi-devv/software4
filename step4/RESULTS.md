@@ -78,8 +78,8 @@ Supersedes the version in baa8e3b, which tested rule A (letter reversal). That r
 **World (new file, seeds 44, 45, 46; the old world stays for reproducibility).** All rules are template-copy rules the 2B follows from context (local Q4 calibration: 90-100% with 3 demos, 0% with none):
 
 - A, Cobalt beacon (cycle 0): uppercase the code and add `-7` at the end.
-- B, Amber orchard (cycle 1): uppercase the code and wrap it in square brackets.
-- C, Cobalt-Amber chain (cycle 2): apply rule A, then rule B to its result. It is a multi-step composition with its own train episodes, so the answer for `abcd` is `[ABCD-7]`.
+- B, Amber orchard (cycle 1): uppercase the code and put 'B-' in front of it (changed 2026-11-08: the old bracket format let a bare echoed code pass the grader).
+- C, Cobalt-Amber chain (cycle 2): apply rule A, then rule B to its result. It is a multi-step composition with its own train episodes, so the answer for `abcd` is `B-ABCD-7`.
 - Six facts as before. 24 train, 120 hidden and 4 gate items per remaining cycle for each rule. No code appears in the old smoke or step-4 worlds.
 
 **Baseline changes.** `gold_context` (renamed from `oracle`) gets the rule lesson plus 3 verified demos in "Question / Verified answer" form, because a lesson alone makes the 2B write a long reply that the 16-token budget truncates. `text_notes` is repaired: distillation lines that are bare "Final answer:" copies are dropped, a verified question-answer example replaces them when nothing usable is left, and retrieval depends on the query. The old 0/246 came from every prompt carrying the same four copied lines.
@@ -101,3 +101,49 @@ Supersedes the version in baa8e3b, which tested rule A (letter reversal). That r
 - **Not in v1:** `ours_online`, `dream`, `oracle_trained`, `merge`, `ours_generic_data`, `ours_salient`, the critic (stages V1 to V3).
 - **Cost estimate:** one smoke plus three 8-arm full runs, about 1.5 worker-hours; re-estimate from the smoke timing before asking to spend.
 - **Process:** Codex gpt-6.1-sol review of this section, the world and the verdict code first; then smoke; then v1 only after explicit approval.
+
+## v2 (seeds 48, 49, 50; replacements 51/52 only if a seed is void) — SKELETON, fill after all valid seeds finish
+
+Frozen 2026-11-09: prereg `docs/V2_PREREG_DRAFT.md` sha256 `4420f006...8fa90`, source digest `98eb1f1f...5d42` (see `docs/V2_FREEZE.txt`). Backup: `D:\Aadit\claudez\backups\software4-v2-frozen-2026-11-09.zip` (+ `.sha256`). Analyzer: `step4/v2_analyze.py`. Do not edit this section's numbers by hand; paste analyzer output.
+
+### Run ledger (UTC from `kaggle kernels list --mine`; IST = UTC+5:30)
+
+| Run | Kernel | Started (UTC) | Finished (UTC) | Driver wall (s) | Worker-hours | Status | Weekly GPU-hours (running) |
+|---|---|---|---|---:|---:|---|---:|
+| smoke (seed 48 config) | `adidevv/software4-step4-lean` | | 2026-11-09 08:37:50 | 200.5 | 0.102 | COMPLETE, full-run eligible | |
+| full s48 | `adidevv/software4-step4-v2-s48` | 2026-11-09 09:47 | TBD | TBD | TBD | TBD | TBD |
+| full s49 | `adidevv/software4-step4-v2-s49` | 2026-11-09 09:47 | TBD | TBD | TBD | TBD | TBD |
+| full s50 | `adidevv/software4-step4-v2-s50` | TBD (waits for a free slot; Kaggle cap = 2 GPU sessions) | TBD | TBD | TBD | TBD | TBD |
+| replacement (only if void) | s51 / s52 | | | | | | |
+
+### Validity gate (gold_context >= 85%, no_memory <= 10% per rule)
+
+| Seed | Rule | gold_context | no_memory | Valid? |
+|---|---|---:|---:|---|
+| 48 | A / B / C | TBD | TBD | TBD |
+| 49 | A / B / C | TBD | TBD | TBD |
+| 50 | A / B / C | TBD | TBD | TBD |
+
+### Per-seed tables (final cycle 2, case-folded; exact-case alongside)
+
+One table per seed: arm x {A, B, C, pooled} accuracy, then ours minus {rag_semantic, rag_hashing, hippo_only} with 95% CI. TBD.
+
+### Pooled claims (>= 2 valid seeds; 10,000 paired bootstrap draws, default_rng(0))
+
+| Claim | Bar | Result | Verdict |
+|---|---|---|---|
+| 1 Non-inferiority vs rag_semantic, rag_hashing, hippo_only (A, B, C, pooled) | diff >= -5 and CI low >= -10 | TBD | TBD |
+| 2 Rule learning (ours - no_memory) | >= 50 pts, CI low > 0 | TBD | TBD |
+| 3 Task-specific transfer (expert_only - generic_forced_noret) | >= 30 pts, CI low > 0, 3/3 sleeps accepted, training counts/steps match | TBD | TBD |
+| 4 Context cost | ours <= 25% of hashing RAG | TBD | TBD |
+| 5 Facts/safety | correct Birch, revised Alder, rule-A retention within 5 pts, no absorption, no rollback | TBD | TBD |
+
+Fact answer classes per arm (correct / stale / format_corrupted / absorbed / unusable) and format-leak rate: TBD.
+
+### Deviations (anything not as registered; empty if none)
+
+- TBD. Record here: any analyzer or code change after freeze (declared, with new hash), void seeds and replacements, failed pushes, re-runs, Kaggle slot-cap delays (seed 50 pushed late because of the 2-session cap, not a code change).
+
+### Exploratory (labelled; not part of the registered verdict)
+
+- TBD.

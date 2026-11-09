@@ -1,0 +1,6 @@
+Read-only code review. Do not edit files.
+Worktree: D:/Aadit/claudez/software4-salient (branch salient, uncommitted changes; run `git diff` and read the new files baselines/salient.py, baselines/tests/test_salient.py).
+Spec: PLAN.md row E11 and the task described below.
+Task given to the builder: add opt-in arm `ours_salient`, a SleepArm subclass overriding only `_training_set`: corrected failures weight 2, successes 1, cap 3 copies per episode and 50% of examples per rule/skill, total <= cfg.max_examples, trusted and verified episodes only, no surprise scoring. Register it in step4/run.py only when selected via S4_ARMS; the default ARMS list, the other arms, the stop rule and the config/source digest behaviour for default runs must stay unchanged.
+Check for: correctness bugs; any change to default behaviour or to existing arms' identity/hash; untrusted or unverified or hidden/gate data leaking into training; caps violated (per-episode, per-skill, total); determinism (stable ordering, no randomness without seed); the "only one skill in a batch gives an empty training set" edge case (is returning nothing right, or should it fall back?); weak or missing tests.
+Report at most 8 findings, most severe first, each with file:line, the failure scenario, and a one-line fix. Say clearly if nothing blocks merging.

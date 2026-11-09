@@ -1,0 +1,2 @@
+fixgeneric|D:/Aadit/claudez/software4/scripts/jobs/fix_generic.md|D:/Aadit/claudez/software4/scripts/jobs/fix_generic.out
+oraclewhy|D:/Aadit/claudez/software4/scripts/jobs/oracle_why.md|D:/Aadit/claudez/software4/scripts/jobs/oracle_why.out

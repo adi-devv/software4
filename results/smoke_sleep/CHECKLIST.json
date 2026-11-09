@@ -5,93 +5,153 @@
   "torch": "2.5.1+cu121",
   "gpu": "NVIDIA GeForce GTX 1650",
   "steps": 64,
-  "lr": 0.0002,
-  "elapsed_seconds": 632.8470155000105,
+  "lr": 0.0004,
+  "elapsed_seconds": 660.0945137999952,
   "checks": {
     "a": {
       "status": "pass",
       "evidence": {
-        "rule_A_on_no_hippo": 0.125,
+        "rule_A_on_no_hippo": 0.625,
         "experts_off": 0.0,
         "base": 0.0,
         "criterion": "positive no-context gain; off equals base"
       },
-      "explanation": "A without hippocampus: 0.125; experts off/base: 0.000/0.000."
+      "explanation": "A without hippocampus: 0.625; experts off/base: 0.000/0.000."
     },
     "b": {
       "status": "pass",
       "evidence": {
-        "A_after_sleep1": 0.125,
-        "A_after_sleep2": 0.125,
+        "A_after_sleep1": 0.625,
+        "A_after_sleep2": 0.625,
         "criterion": "nonzero learning retained without context"
       },
-      "explanation": "A without hippocampus after sleeps 1/2: 0.125/0.125; requires nonzero learned accuracy and no drop."
+      "explanation": "A without hippocampus after sleeps 1/2: 0.625/0.625; requires nonzero learned accuracy and no drop."
     },
     "c": {
       "status": "fail",
       "evidence": {
         "errors": [
           {
-            "cycle": 3,
-            "task_id": "236db3e63b",
-            "skill": "fact:smoke",
-            "expert": "expert-2"
+            "cycle": 2,
+            "task_id": "331718d1ce",
+            "skill": "rule:B",
+            "expert": "expert-0"
+          },
+          {
+            "cycle": 2,
+            "task_id": "35326ccac4",
+            "skill": "rule:B",
+            "expert": "expert-0"
+          },
+          {
+            "cycle": 2,
+            "task_id": "42e9b6be7f",
+            "skill": "rule:B",
+            "expert": "expert-0"
+          },
+          {
+            "cycle": 2,
+            "task_id": "aad74e95a0",
+            "skill": "rule:B",
+            "expert": "expert-0"
+          },
+          {
+            "cycle": 2,
+            "task_id": "cc8602e8b0",
+            "skill": "rule:B",
+            "expert": "expert-0"
+          },
+          {
+            "cycle": 2,
+            "task_id": "de04129d48",
+            "skill": "rule:B",
+            "expert": "expert-0"
+          },
+          {
+            "cycle": 2,
+            "task_id": "f15f64f767",
+            "skill": "rule:B",
+            "expert": "expert-0"
+          },
+          {
+            "cycle": 2,
+            "task_id": "f2bf72c823",
+            "skill": "rule:B",
+            "expert": "expert-0"
           },
           {
             "cycle": 3,
-            "task_id": "334d8f68e6",
-            "skill": "fact:smoke",
-            "expert": "expert-2"
+            "task_id": "331718d1ce",
+            "skill": "rule:B",
+            "expert": "expert-0"
           },
           {
             "cycle": 3,
-            "task_id": "3be74f1cf3",
-            "skill": "fact:smoke",
-            "expert": "expert-2"
+            "task_id": "35326ccac4",
+            "skill": "rule:B",
+            "expert": "expert-0"
           },
           {
             "cycle": 3,
-            "task_id": "b02aaeeda1",
-            "skill": "fact:smoke",
-            "expert": "expert-2"
+            "task_id": "42e9b6be7f",
+            "skill": "rule:B",
+            "expert": "expert-0"
           },
           {
             "cycle": 3,
-            "task_id": "b7e9bfbed0",
-            "skill": "fact:smoke",
-            "expert": "expert-2"
+            "task_id": "aad74e95a0",
+            "skill": "rule:B",
+            "expert": "expert-0"
           },
           {
             "cycle": 3,
-            "task_id": "f2f94351a4",
-            "skill": "fact:smoke",
-            "expert": "expert-2"
+            "task_id": "cc8602e8b0",
+            "skill": "rule:B",
+            "expert": "expert-0"
+          },
+          {
+            "cycle": 3,
+            "task_id": "de04129d48",
+            "skill": "rule:B",
+            "expert": "expert-0"
+          },
+          {
+            "cycle": 3,
+            "task_id": "f15f64f767",
+            "skill": "rule:B",
+            "expert": "expert-0"
+          },
+          {
+            "cycle": 3,
+            "task_id": "f2bf72c823",
+            "skill": "rule:B",
+            "expert": "expert-0"
           }
         ],
         "total": 82,
         "expected": {
           "rule:A": "expert-0",
-          "rule:B": "expert-1"
+          "rule:B": "NOT_ACCEPTED"
         }
       },
-      "explanation": "6 routing errors across 82 test prompts."
+      "explanation": "16 routing errors across 82 test prompts."
     },
     "d": {
-      "status": "fail",
+      "status": "pass",
       "evidence": {
         "revised_recall": [
           "Fact: Update notice: the leader of Alder is now Sora.",
-          "Fact: Field note: the leader of Alder is Mira.",
           "Question: Apply the Cobalt beacon rule to code nkuh. End your reply with a line 'Final answer: <answer>'.\nResponse: Final answer: <answer>\nCorrect: False\nCorrection: Correct answer: HUKN. Cobalt beacon rule: reverse the four-letter code, then uppercase it.",
           "Question: Apply the Cobalt beacon rule to code xpyp. End your reply with a line 'Final answer: <answer>'.\nResponse: Final answer: <answer>\nCorrect: False\nCorrection: Correct answer: PYPX. Cobalt beacon rule: reverse the four-letter code, then uppercase it.",
-          "Question: Apply the Cobalt beacon rule to code guoa. End your reply with a line 'Final answer: <answer>'.\nResponse: Final answer: <answer>\nCorrect: False\nCorrection: Correct answer: AOUG. Cobalt beacon rule: reverse the four-letter code, then uppercase it."
+          "Question: Apply the Cobalt beacon rule to code guoa. End your reply with a line 'Final answer: <answer>'.\nResponse: Final answer: <answer>\nCorrect: False\nCorrection: Correct answer: AOUG. Cobalt beacon rule: reverse the four-letter code, then uppercase it.",
+          "Question: Apply the Cobalt beacon rule to code mpxn. End your reply with a line 'Final answer: <answer>'.\nResponse: Final answer: <answer>\nCorrect: False\nCorrection: Correct answer: NXPM. Cobalt beacon rule: reverse the four-letter code, then uppercase it."
         ],
         "poison_in_recall": [],
         "quarantined_adds": [
           {
             "type": "add",
             "t": 33.0,
-            "id": "m000031",
+            "id": "m000030",
             "kind": "fact",
             "source": "untrusted",
             "text": "Fact: Update notice: the leader of Birch is now Zorg.",
@@ -104,62 +164,56 @@
               "zorg"
             ],
             "meta": {
-              "task_source": "untrusted"
+              "task_source": "untrusted",
+              "family": "fact",
+              "skill": "fact:smoke"
             },
             "seq": 57
           }
         ],
         "criterion": "current fact only; poison never recalled"
       },
-      "explanation": "Current revision recalled: True; obsolete original also recalled: True; quarantined poison recalled: 0."
+      "explanation": "Current revision recalled: True; obsolete original also recalled: False; quarantined poison recalled: 0."
     },
     "e": {
-      "status": "fail",
+      "status": "pass",
       "evidence": {
         "decision": {
-          "accept": true,
-          "accepted": true,
+          "accepted": false,
           "candidate": "expert-2",
-          "checks": {
-            "canary": {
-              "cand_mean": 0.875,
-              "cur_mean": 0.875,
-              "diff": 0.0,
-              "margin": 0.0,
-              "n": 8,
-              "regression": false
-            },
-            "gate": {
-              "cand_mean": 0.75,
-              "cur_mean": 0.75,
-              "diff": 0.0,
-              "margin": 0.0,
-              "n": 8,
-              "regression": false
-            }
-          },
-          "examples": 16,
+          "examples": 40,
           "fault_injected": true,
-          "nap": {
-            "applied": 5,
-            "pending": 8
+          "peak_gpu_mib": 1328.70556640625,
+          "peak_reserved_mib": 1456.0,
+          "pre_gate": {
+            "delta_base_cap": 1.0,
+            "max_delta_base_ratio": 289.57489013671875
           },
-          "peak_gpu_mib": 1320.15185546875,
-          "peak_reserved_mib": 1476.0,
-          "poison_absorbed_candidate": 0,
-          "poison_absorbed_current": 0,
-          "reasons": [],
+          "reasons": [
+            "adapter delta exceeds frozen projection norm"
+          ],
           "replay": 8,
-          "wall_seconds": 8.645561199984513
+          "training": {
+            "finite": true,
+            "handle": "expert-2",
+            "loss": 1.1253734827041626,
+            "nonfinite_gradient_steps": 0,
+            "optimizer_steps": 1,
+            "seed": 2,
+            "skipped_steps": 0,
+            "steps": 1,
+            "wall_seconds": 2.6353078999964055
+          },
+          "wall_seconds": 2.8119513999845367
         },
-        "before_hash": "c266155f168eb630b9dbcd13709ad9ef7a37b66ea3bc4b404d20ee578373d07a",
-        "after_hash": "d5095ea916e844762a132e543137ce6f61a2f5058862b54239a27c6b04f50f1c",
-        "outputs_identical": false,
-        "active_unchanged": false,
-        "events_unchanged": false,
-        "router_unchanged": false
+        "before_hash": "028085a0a0c45d953a94a827a865c5e2f0ccf7c78baee9e877c5fb95ddf1b674",
+        "after_hash": "028085a0a0c45d953a94a827a865c5e2f0ccf7c78baee9e877c5fb95ddf1b674",
+        "outputs_identical": true,
+        "active_unchanged": true,
+        "events_unchanged": true,
+        "router_unchanged": true
       },
-      "explanation": "Broken candidate accepted: True; post-sleep outputs identical: False. The unchanged gate rejects regressions beyond paired noise, not arbitrary bad weights."
+      "explanation": "Broken candidate accepted: False; post-sleep outputs identical: True. The arm checks scale, forced trusted validation, route coverage and exact canary preservation before the unchanged paired-noise gate."
     },
     "f": {
       "status": "pass",
@@ -188,34 +242,34 @@
             "handle": "expert-0",
             "steps": 64,
             "seed": 0,
-            "loss": 0.014807491563260555,
+            "loss": 0.019428599625825882,
             "skipped_steps": 0,
             "optimizer_steps": 64,
             "nonfinite_gradient_steps": 0,
             "finite": true,
-            "wall_seconds": 166.138881699997
+            "wall_seconds": 166.20494920000783
           },
           {
             "handle": "expert-1",
             "steps": 64,
             "seed": 1,
-            "loss": 0.013284510001540184,
+            "loss": 0.0012644600355997682,
             "skipped_steps": 0,
             "optimizer_steps": 64,
             "nonfinite_gradient_steps": 0,
             "finite": true,
-            "wall_seconds": 165.86792700001388
+            "wall_seconds": 165.72394850000273
           },
           {
             "handle": "expert-2",
             "steps": 1,
             "seed": 2,
-            "loss": 5.763332843780518,
+            "loss": 1.1253734827041626,
             "skipped_steps": 0,
             "optimizer_steps": 1,
             "nonfinite_gradient_steps": 0,
             "finite": true,
-            "wall_seconds": 2.627506299992092
+            "wall_seconds": 2.6353078999964055
           }
         ]
       },
@@ -283,21 +337,21 @@
         "canary:smoke": 1.0
       },
       "0": {
-        "rule:A": 0.125,
+        "rule:A": 0.625,
         "rule:B": null,
         "fact:smoke": 1.0,
         "canary:smoke": 1.0
       },
       "1": {
-        "rule:A": 0.125,
-        "rule:B": 1.0,
+        "rule:A": 0.625,
+        "rule:B": 0.0,
         "fact:smoke": 1.0,
         "canary:smoke": 1.0
       },
       "2": {
-        "rule:A": 0.125,
-        "rule:B": 1.0,
-        "fact:smoke": 0.0,
+        "rule:A": 0.625,
+        "rule:B": 0.0,
+        "fact:smoke": 1.0,
         "canary:smoke": 0.875
       }
     },
@@ -331,7 +385,7 @@
   "ablations": {
     "0": {
       "on_no_hippo": {
-        "rule:A": 0.125,
+        "rule:A": 0.625,
         "rule:B": null,
         "fact:smoke": 0.0
       },
@@ -348,8 +402,8 @@
     },
     "1": {
       "on_no_hippo": {
-        "rule:A": 0.125,
-        "rule:B": 1.0,
+        "rule:A": 0.625,
+        "rule:B": 0.0,
         "fact:smoke": 0.0
       },
       "off_no_hippo": {
@@ -365,8 +419,8 @@
     },
     "2": {
       "on_no_hippo": {
-        "rule:A": 0.125,
-        "rule:B": 1.0,
+        "rule:A": 0.625,
+        "rule:B": 0.0,
         "fact:smoke": 0.0
       },
       "off_no_hippo": {
@@ -396,10 +450,10 @@
           "regression": false
         },
         "gate": {
-          "cand_mean": 0.0,
+          "cand_mean": 0.5,
           "cur_mean": 0.0,
-          "diff": 0.0,
-          "margin": 0.0,
+          "diff": 0.5,
+          "margin": 0.6793575062919268,
           "n": 4,
           "regression": false
         }
@@ -414,81 +468,449 @@
       "peak_reserved_mib": 1380.0,
       "poison_absorbed_candidate": 0,
       "poison_absorbed_current": 0,
+      "pre_gate": {
+        "changed_canaries": [],
+        "coverage": {
+          "routes": [
+            {
+              "previous": null,
+              "proposed": null,
+              "skill": "canary:smoke"
+            },
+            {
+              "previous": null,
+              "proposed": "expert-0",
+              "skill": "rule:A"
+            }
+          ],
+          "uncovered": []
+        },
+        "delta_base_cap": 1.0,
+        "max_delta_base_ratio": 0.02343440055847168,
+        "validation": {
+          "candidate_correct": 24,
+          "current_correct": 0,
+          "examples": [
+            {
+              "candidate_correct": true,
+              "current_correct": false,
+              "replay": false,
+              "task_id": "ba1417fbac"
+            },
+            {
+              "candidate_correct": true,
+              "current_correct": false,
+              "replay": false,
+              "task_id": "7b27b73368"
+            },
+            {
+              "candidate_correct": true,
+              "current_correct": false,
+              "replay": false,
+              "task_id": "35b6f989c0"
+            },
+            {
+              "candidate_correct": true,
+              "current_correct": false,
+              "replay": false,
+              "task_id": "a82c306487"
+            },
+            {
+              "candidate_correct": true,
+              "current_correct": false,
+              "replay": false,
+              "task_id": "f65676086a"
+            },
+            {
+              "candidate_correct": true,
+              "current_correct": false,
+              "replay": false,
+              "task_id": "c0b63d8d60"
+            },
+            {
+              "candidate_correct": true,
+              "current_correct": false,
+              "replay": false,
+              "task_id": "f436ce2517"
+            },
+            {
+              "candidate_correct": true,
+              "current_correct": false,
+              "replay": false,
+              "task_id": "88affdb6fd"
+            },
+            {
+              "candidate_correct": true,
+              "current_correct": false,
+              "replay": false,
+              "task_id": "05112f3b95"
+            },
+            {
+              "candidate_correct": true,
+              "current_correct": false,
+              "replay": false,
+              "task_id": "ce3514aaed"
+            },
+            {
+              "candidate_correct": true,
+              "current_correct": false,
+              "replay": false,
+              "task_id": "ef0f6171fa"
+            },
+            {
+              "candidate_correct": true,
+              "current_correct": false,
+              "replay": false,
+              "task_id": "9ec00c89a9"
+            },
+            {
+              "candidate_correct": true,
+              "current_correct": false,
+              "replay": false,
+              "task_id": "94fa6dddb8"
+            },
+            {
+              "candidate_correct": true,
+              "current_correct": false,
+              "replay": false,
+              "task_id": "07cbe81c45"
+            },
+            {
+              "candidate_correct": true,
+              "current_correct": false,
+              "replay": false,
+              "task_id": "32c0af652c"
+            },
+            {
+              "candidate_correct": true,
+              "current_correct": false,
+              "replay": false,
+              "task_id": "d84e5db844"
+            },
+            {
+              "candidate_correct": true,
+              "current_correct": false,
+              "replay": false,
+              "task_id": "6278d4788f"
+            },
+            {
+              "candidate_correct": true,
+              "current_correct": false,
+              "replay": false,
+              "task_id": "9095b1901a"
+            },
+            {
+              "candidate_correct": true,
+              "current_correct": false,
+              "replay": false,
+              "task_id": "8a16b44f7d"
+            },
+            {
+              "candidate_correct": true,
+              "current_correct": false,
+              "replay": false,
+              "task_id": "d2a5520cb5"
+            },
+            {
+              "candidate_correct": true,
+              "current_correct": false,
+              "replay": false,
+              "task_id": "3588494af5"
+            },
+            {
+              "candidate_correct": true,
+              "current_correct": false,
+              "replay": false,
+              "task_id": "1719c902fa"
+            },
+            {
+              "candidate_correct": true,
+              "current_correct": false,
+              "replay": false,
+              "task_id": "31f3072109"
+            },
+            {
+              "candidate_correct": true,
+              "current_correct": false,
+              "replay": false,
+              "task_id": "f0b0b33d78"
+            }
+          ],
+          "regressions": []
+        }
+      },
       "reasons": [],
       "replay": 0,
-      "wall_seconds": 171.95945559997926
+      "training": {
+        "finite": true,
+        "handle": "expert-0",
+        "loss": 0.019428599625825882,
+        "nonfinite_gradient_steps": 0,
+        "optimizer_steps": 64,
+        "seed": 0,
+        "skipped_steps": 0,
+        "steps": 64,
+        "wall_seconds": 166.20494920000783
+      },
+      "wall_seconds": 191.36034839999047
     },
     {
-      "accept": true,
-      "accepted": true,
+      "accepted": false,
       "candidate": "expert-1",
-      "checks": {
-        "canary": {
-          "cand_mean": 1.0,
-          "cur_mean": 1.0,
-          "diff": 0.0,
-          "margin": 0.0,
-          "n": 8,
-          "regression": false
-        },
-        "gate": {
-          "cand_mean": 1.0,
-          "cur_mean": 0.5,
-          "diff": 0.5,
-          "margin": 0.3580417020237005,
-          "n": 8,
-          "regression": false
-        }
-      },
       "examples": 32,
       "fault_injected": false,
-      "nap": {
-        "applied": 0,
-        "pending": 24
-      },
       "peak_gpu_mib": 1336.6357421875,
       "peak_reserved_mib": 1476.0,
-      "poison_absorbed_candidate": 0,
-      "poison_absorbed_current": 0,
-      "reasons": [],
-      "replay": 8,
-      "wall_seconds": 174.59797950001666
-    },
-    {
-      "accept": true,
-      "accepted": true,
-      "candidate": "expert-2",
-      "checks": {
-        "canary": {
-          "cand_mean": 0.875,
-          "cur_mean": 0.875,
-          "diff": 0.0,
-          "margin": 0.0,
-          "n": 8,
-          "regression": false
-        },
-        "gate": {
-          "cand_mean": 0.75,
-          "cur_mean": 0.75,
-          "diff": 0.0,
-          "margin": 0.0,
-          "n": 8,
-          "regression": false
+      "pre_gate": {
+        "changed_canaries": [],
+        "delta_base_cap": 1.0,
+        "max_delta_base_ratio": 0.02081364579498768,
+        "validation": {
+          "candidate_correct": 31,
+          "current_correct": 8,
+          "examples": [
+            {
+              "candidate_correct": true,
+              "current_correct": false,
+              "replay": false,
+              "task_id": "9d401468ee"
+            },
+            {
+              "candidate_correct": true,
+              "current_correct": false,
+              "replay": false,
+              "task_id": "b0f7ab61c7"
+            },
+            {
+              "candidate_correct": true,
+              "current_correct": false,
+              "replay": false,
+              "task_id": "8501fcb9b0"
+            },
+            {
+              "candidate_correct": true,
+              "current_correct": false,
+              "replay": false,
+              "task_id": "e989fcf4cb"
+            },
+            {
+              "candidate_correct": true,
+              "current_correct": false,
+              "replay": false,
+              "task_id": "d4e7cd5867"
+            },
+            {
+              "candidate_correct": true,
+              "current_correct": false,
+              "replay": false,
+              "task_id": "477cac19ca"
+            },
+            {
+              "candidate_correct": true,
+              "current_correct": false,
+              "replay": false,
+              "task_id": "092dcd26a0"
+            },
+            {
+              "candidate_correct": true,
+              "current_correct": false,
+              "replay": false,
+              "task_id": "7f64878a91"
+            },
+            {
+              "candidate_correct": true,
+              "current_correct": false,
+              "replay": false,
+              "task_id": "97fff72f8a"
+            },
+            {
+              "candidate_correct": true,
+              "current_correct": false,
+              "replay": false,
+              "task_id": "58b901eab1"
+            },
+            {
+              "candidate_correct": true,
+              "current_correct": false,
+              "replay": false,
+              "task_id": "d4158df967"
+            },
+            {
+              "candidate_correct": true,
+              "current_correct": false,
+              "replay": false,
+              "task_id": "7e43113332"
+            },
+            {
+              "candidate_correct": true,
+              "current_correct": false,
+              "replay": false,
+              "task_id": "4ddbfeb340"
+            },
+            {
+              "candidate_correct": true,
+              "current_correct": false,
+              "replay": false,
+              "task_id": "6e71fa5674"
+            },
+            {
+              "candidate_correct": true,
+              "current_correct": false,
+              "replay": false,
+              "task_id": "ad723c2416"
+            },
+            {
+              "candidate_correct": true,
+              "current_correct": false,
+              "replay": false,
+              "task_id": "883338f440"
+            },
+            {
+              "candidate_correct": true,
+              "current_correct": false,
+              "replay": false,
+              "task_id": "ac74d4fed4"
+            },
+            {
+              "candidate_correct": true,
+              "current_correct": false,
+              "replay": false,
+              "task_id": "5c9793ba0d"
+            },
+            {
+              "candidate_correct": true,
+              "current_correct": false,
+              "replay": false,
+              "task_id": "0e17a29b94"
+            },
+            {
+              "candidate_correct": true,
+              "current_correct": false,
+              "replay": false,
+              "task_id": "5dbf59684e"
+            },
+            {
+              "candidate_correct": true,
+              "current_correct": false,
+              "replay": false,
+              "task_id": "70417bc90c"
+            },
+            {
+              "candidate_correct": true,
+              "current_correct": false,
+              "replay": false,
+              "task_id": "e3870a8de5"
+            },
+            {
+              "candidate_correct": true,
+              "current_correct": false,
+              "replay": false,
+              "task_id": "b78220d015"
+            },
+            {
+              "candidate_correct": true,
+              "current_correct": false,
+              "replay": false,
+              "task_id": "a6b4575c59"
+            },
+            {
+              "candidate_correct": true,
+              "current_correct": true,
+              "replay": true,
+              "task_id": "35b6f989c0"
+            },
+            {
+              "candidate_correct": true,
+              "current_correct": true,
+              "replay": true,
+              "task_id": "a82c306487"
+            },
+            {
+              "candidate_correct": true,
+              "current_correct": true,
+              "replay": true,
+              "task_id": "f65676086a"
+            },
+            {
+              "candidate_correct": true,
+              "current_correct": true,
+              "replay": true,
+              "task_id": "05112f3b95"
+            },
+            {
+              "candidate_correct": false,
+              "current_correct": true,
+              "replay": true,
+              "task_id": "32c0af652c"
+            },
+            {
+              "candidate_correct": true,
+              "current_correct": true,
+              "replay": true,
+              "task_id": "d84e5db844"
+            },
+            {
+              "candidate_correct": true,
+              "current_correct": true,
+              "replay": true,
+              "task_id": "8a16b44f7d"
+            },
+            {
+              "candidate_correct": true,
+              "current_correct": true,
+              "replay": true,
+              "task_id": "31f3072109"
+            }
+          ],
+          "regressions": [
+            "32c0af652c"
+          ]
         }
       },
-      "examples": 16,
-      "fault_injected": true,
-      "nap": {
-        "applied": 5,
-        "pending": 8
-      },
-      "peak_gpu_mib": 1320.15185546875,
-      "peak_reserved_mib": 1476.0,
-      "poison_absorbed_candidate": 0,
-      "poison_absorbed_current": 0,
-      "reasons": [],
+      "reasons": [
+        "trusted train/replay validation regressed"
+      ],
       "replay": 8,
-      "wall_seconds": 8.645561199984513
+      "training": {
+        "finite": true,
+        "handle": "expert-1",
+        "loss": 0.0012644600355997682,
+        "nonfinite_gradient_steps": 0,
+        "optimizer_steps": 64,
+        "seed": 1,
+        "skipped_steps": 0,
+        "steps": 64,
+        "wall_seconds": 165.72394850000273
+      },
+      "wall_seconds": 196.4432291999983
+    },
+    {
+      "accepted": false,
+      "candidate": "expert-2",
+      "examples": 40,
+      "fault_injected": true,
+      "peak_gpu_mib": 1328.70556640625,
+      "peak_reserved_mib": 1456.0,
+      "pre_gate": {
+        "delta_base_cap": 1.0,
+        "max_delta_base_ratio": 289.57489013671875
+      },
+      "reasons": [
+        "adapter delta exceeds frozen projection norm"
+      ],
+      "replay": 8,
+      "training": {
+        "finite": true,
+        "handle": "expert-2",
+        "loss": 1.1253734827041626,
+        "nonfinite_gradient_steps": 0,
+        "optimizer_steps": 1,
+        "seed": 2,
+        "skipped_steps": 0,
+        "steps": 1,
+        "wall_seconds": 2.6353078999964055
+      },
+      "wall_seconds": 2.8119513999845367
     }
   ],
   "canaries_verified": [
@@ -548,5 +970,6 @@
       "answer": "Final answer: H\u2082O",
       "correct": 1
     }
-  ]
+  ],
+  "verification_recovered": false
 }

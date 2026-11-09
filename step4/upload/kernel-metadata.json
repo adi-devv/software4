@@ -1,6 +1,6 @@
 {
-  "id": "adidevv/software4-step4-lean",
-  "title": "software4-step4-lean",
+  "id": "adidevv/software4-step4-full",
+  "title": "software4-step4-full",
   "code_file": "run.py",
   "language": "python",
   "kernel_type": "script",
@@ -9,5 +9,7 @@
   "enable_internet": true,
   "dataset_sources": [],
   "competition_sources": [],
-  "kernel_sources": []
+  "kernel_sources": [
+    "adidevv/software4-step4-lean"
+  ]
 }
