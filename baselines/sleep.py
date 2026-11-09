@@ -188,7 +188,8 @@ class SleepArm(HippoOnly):
         """
         new, replay = self._training_set(cycle)
         if not new:
-            return {'accepted': False, 'reasons': ['no new verified examples']}
+            return {'accepted': False, 'reasons': ['no new verified examples'],
+                    'examples': 0, 'steps': 0}
         if self.services is None:
             raise RuntimeError('bind harness Services before sleep')
         selected = new + replay
@@ -198,7 +199,7 @@ class SleepArm(HippoOnly):
         self._check_core()
         self._backend_snapshot = None  # preserve attempt bookkeeping on checkpoint/resume
         handle = self.backend.train_expert(examples, steps=self.cfg.steps, seed=self.seed + cycle)
-        info = {'candidate': handle, 'examples': len(examples), 'replay': len(replay),
+        info = {'candidate': handle, 'examples': len(examples), 'steps': self.cfg.steps, 'replay': len(replay),
                 'accepted': False, 'reasons': []}
         try:
             self._check_core()
@@ -359,3 +360,150 @@ class ExpertOnly(SleepArm):
         if remember and task.mode == 'day':
             self._pending[task.id] = []
         return build_prompt(self.llm, task, [], self.context_tokens)[0]
+
+
+class ForcedSleepArm(SleepArm):
+    """Opt-in v2 control: measure all sleep checks, then install regardless.
+
+    Selection, training, task-derived routing evidence, replay accounting and nap
+    follow SleepArm. Unlike its fail-fast gate, every behavioral check is scored
+    once and recorded even after a failure. Frozen-core invariance and operational
+    errors still raise. The v1 sleep implementation is deliberately untouched.
+    """
+
+    def _training_fit(self, examples, handle):
+        """Score the exact empty-context examples passed to train_expert."""
+        correct = exact = 0
+        for prompt, target in examples:
+            expected, _ = _extract(target)
+            answer, _ = _extract(self.backend.generate(prompt, expert=handle))
+            correct += int(expected is not None and answer is not None and match(expected, answer))
+            exact += int(expected is not None and answer is not None
+                         and expected.strip() == answer.strip())
+        count = len(examples)
+        return dict(examples=count, correct=correct, exact_correct=exact,
+                    accuracy=correct / count if count else None,
+                    exact_accuracy=exact / count if count else None)
+
+    def sleep(self, cycle):
+        new, replay = self._training_set(cycle)
+        if not new:
+            return {'accepted': False, 'reasons': ['no new verified examples'],
+                    'examples': 0, 'steps': 0, 'gate_bypassed': []}
+        if self.services is None:
+            raise RuntimeError('bind harness Services before sleep')
+        selected = new + replay
+        examples = [('Context:\n\n\nTask:\n' + q, a)
+                    for q, a in self._expert_examples(selected, cycle)]
+        self._check_core()
+        self._backend_snapshot = None
+        handle = self.backend.train_expert(examples, steps=self.cfg.steps, seed=self.seed + cycle)
+        info = {'candidate': handle, 'examples': len(examples), 'steps': self.cfg.steps, 'replay': len(replay),
+                'accepted': False, 'reasons': [], 'gate_bypassed': []}
+
+        def bypass(check, failed, detail):
+            info['gate_bypassed'].append(dict(check=check, would_have_failed=bool(failed),
+                                            detail=detail))
+
+        try:
+            self._check_core()
+            finite = self.backend.is_finite(handle)
+            bypass('finite_candidate', not finite, {'finite': bool(finite)})
+            ratio = self.backend.adapter_delta_ratio(handle)
+            info['pre_gate'] = {'max_delta_base_ratio': ratio if np.isfinite(ratio) else None,
+                                'delta_base_cap': 1.0}
+            bypass('adapter_delta_norm', not np.isfinite(ratio) or ratio > 1.0,
+                   dict(info['pre_gate']))
+            info['train_fit'] = self._training_fit(examples, handle)
+            session = self.services.gate_session(cycle)
+            proposed = dict(self.centroids)
+            proposed[handle] = self._centroid([q for _, (q, _) in selected])
+            none = self._centroid([t.prompt for t in session.tasks if t.family == 'canary']
+                                  + [q for _, (q, _) in replay])
+            current, candidate = {}, {}
+            coverage = set()
+            for task in session.tasks:
+                old = self.route(task.prompt)
+                current[task.id] = self.backend.generate(self._prompt(task, expert=old), expert=old)
+                routed = self.route(task.prompt, centroids=proposed, none_centroid=none)
+                coverage.add((task.skill, old, routed))
+                candidate[task.id] = self.backend.generate(self._prompt(task, expert=routed), expert=routed)
+            changed = [t.id for t in session.tasks if t.family == 'canary'
+                       and candidate[t.id] != current[t.id]]
+            info['pre_gate']['changed_canaries'] = changed
+            bypass('absolute_canary_output', bool(changed), {'changed_canaries': changed})
+            validation = []
+            for item, (question, target) in selected:
+                prompt = 'Context:\n\n\nTask:\n' + question
+                old = self.route(question)
+                baseline = self.backend.generate(self._prompt(SimpleNamespace(prompt=question), expert=old), expert=old)
+                forced = self.backend.generate(prompt, expert=handle)
+                expected, _ = _extract(target)
+
+                def correct(answer):
+                    extracted, _ = _extract(answer)
+                    return extracted is not None and match(expected, extracted)
+
+                validation.append(dict(task_id=item.task_id, replay=not item.new,
+                    current_correct=correct(baseline), candidate_correct=correct(forced)))
+            flipped = [v for v in validation
+                       if v['current_correct'] and not v['candidate_correct']]
+            tolerance = int(len(replay) * self.cfg.replay_flip_fraction + 1e-9)
+            tolerated = [v['task_id'] for v in flipped if v['replay']][:tolerance]
+            regressions = [v['task_id'] for v in flipped if v['task_id'] not in tolerated]
+            info['pre_gate']['validation'] = dict(
+                examples=validation, current_correct=sum(v['current_correct'] for v in validation),
+                candidate_correct=sum(v['candidate_correct'] for v in validation),
+                regressions=regressions, tolerated=tolerated, replay_flip_tolerance=tolerance)
+            bypass('trusted_train_replay', bool(regressions), info['pre_gate']['validation'])
+            missing = []
+            for expert in proposed:
+                if not any(new_route == expert for _, _, new_route in coverage):
+                    missing.append(dict(expert=expert, reason='no routed gate/canary tasks'))
+            for memory in self.hippo._mems.values():
+                if not memory.eligible or memory.trust < self.cfg.min_trust:
+                    continue
+                record = self.hippo.get(memory.id)
+                skill = record['meta'].get('skill')
+                if skill is None:
+                    continue
+                example = re.match(r'Question: (.*?)\nResponse: ', record['text'], re.S)
+                key = self.hippo._fact_key(record['text']) if record['kind'] == 'fact' else None
+                probes = [example.group(1)] if example else []
+                if key:
+                    relation, subject = key
+                    probes.append(f'Who is the {relation} of {subject}?')
+                    if relation == 'leader':
+                        probes.append(f'Who leads {subject}?')
+                for question in probes:
+                    old = self.route(question)
+                    routed = self.route(question, centroids=proposed, none_centroid=none)
+                    if old != routed and (skill, old, routed) not in coverage:
+                        entry = dict(skill=skill, previous=old, proposed=routed)
+                        if entry not in missing:
+                            missing.append(entry)
+            info['pre_gate']['coverage'] = dict(
+                routes=[dict(skill=s, previous=o, proposed=n)
+                        for s, o, n in sorted(coverage, key=str)], uncovered=missing)
+            bypass('route_coverage', bool(missing), info['pre_gate']['coverage'])
+            decision = session.decide(candidate, current)
+            info['gate_decision'] = asdict(decision)
+            info['gate_would_accept'] = decision.accept
+            info['checks'] = info['gate_decision']['checks']
+            for check, detail in decision.checks.items():
+                bypass('statistical_' + check, detail['regression'], detail)
+            bypass('statistical_gate_decision', not decision.accept, info['gate_decision'])
+            self._check_core()
+            self.backend.commit_expert(handle)
+            self._check_core()
+            self.active_experts.append(handle)
+            self.centroids, self.none_centroid = proposed, none
+            self._accepted_ids.update(item.episode_id for item, _ in selected)
+            self.tick += 1
+            self.hippo.mark_sleep(t=self.tick)
+            info['nap'] = self.hippo.nap(now=self.tick)
+            info['accepted'] = True
+            return info
+        finally:
+            if handle not in self.active_experts:
+                self.backend.discard_expert(handle)

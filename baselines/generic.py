@@ -40,3 +40,30 @@ class GenericOnlySleepArm(SleepArm):
         random.Random(self.seed + cycle).shuffle(rows)
         return [(rows[i % len(rows)]['prompt'], 'Final answer: ' + rows[i % len(rows)]['answer'])
                 for i in range(len(selected))]
+
+
+# Separate v2 classes keep both the v1 generic control and SleepArm unchanged.
+from .sleep import ExpertOnly, ForcedSleepArm
+
+
+class GenericForcedSleepArm(GenericOnlySleepArm, ForcedSleepArm):
+    """GenericOnly's pool/count/shuffle with diagnostic-only sleep gates."""
+    name = 'ours_generic_forced'
+
+    def sleep(self, cycle):
+        info = super().sleep(cycle)
+        if 'train_fit' in info:
+            fit = info['train_fit']
+            info.update(generic_train_accuracy=fit['accuracy'],
+                        generic_train_examples=fit['examples'],
+                        generic_train_correct=fit['correct'],
+                        generic_train_exact_accuracy=fit['exact_accuracy'],
+                        generic_train_exact_correct=fit['exact_correct'])
+        return info
+
+
+class GenericForcedNoRetArm(GenericForcedSleepArm):
+    """Forced generic experts with ExpertOnly's empty context, including at gates."""
+    name = 'generic_forced_noret'
+
+    _prompt = ExpertOnly._prompt

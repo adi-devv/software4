@@ -30,7 +30,11 @@ DEFAULT_WORLD_SEED = ""   # "" keeps the harness default (41); prepare.py --worl
 # `ours` first, then the other long-running weight arm; the inference-only baselines follow.
 # Nothing waits for anything else: `ours` is the long pole and must start immediately.
 ARMS = ("ours", "expert_only", "hippo_only", "rag", "text_notes", "no_memory", "rag_starved", "gold_context")
-AVAILABLE_ARMS = ARMS + ("oracle", "ours_salient", "ours_dream", "ours_generic_data", "ours_generic_only", "ours_oracle_trained")
+V2_ARMS = ("ours", "expert_only", "hippo_only", "rag_semantic", "rag_hashing",
+           "generic_forced_noret", "ours_generic_forced", "text_notes", "no_memory",
+           "gold_context")
+AVAILABLE_ARMS = ARMS + ("oracle", "ours_salient", "ours_dream", "ours_generic_data", "ours_generic_only", "ours_oracle_trained",
+                         "rag_hashing", "rag_semantic", "ours_generic_forced", "generic_forced_noret")
 FAIR_CONTEXT_TOKENS = 512    # every context-using arm; `rag_starved` alone keeps the old 64
 STARVED_CONTEXT_TOKENS = 64
 FIT_THRESHOLD = 0.9          # forced-expert train accuracy below this = optimisation failure
@@ -65,7 +69,8 @@ def source_digest(root):
     h = hashlib.sha256()
     paths = [p for folder in ("baselines", "harness", "hippocampus")
              for p in (root / folder).glob("*.py")]
-    paths += [root / "scripts/smoke_sleep.py", root / "step4/hf.py", root / "step4/run.py", root / "step4/analyze.py"]
+    paths += [root / "scripts/smoke_sleep.py", root / "step4/hf.py", root / "step4/run.py",
+              root / "step4/analyze.py", root / "step4/v2_analyze.py"]
     paths += sorted((root / "data/generic").glob("*.jsonl"))
     for path in sorted(paths):
         h.update(path.relative_to(root).as_posix().encode())
@@ -82,6 +87,45 @@ def context_block_tokens(backend, prompt):
     if not prompt or sep not in prompt:
         return 0
     return backend.count_tokens(prompt.split(sep, 1)[0])
+
+
+def is_v2_run(cfg):
+    """Fresh registered step5 seeds select v2; v1 keeps its own loader validation."""
+    return cfg.get("world") == "step5" and cfg.get("world_seed") in (48, 49, 50, 51, 52)
+
+
+def semantic_model_config():
+    """Pinned local retriever identity, also included in v2 reuse/smoke keys."""
+    from baselines.semantic import MODEL_NAME, MODEL_REVISION, WEIGHTS_SHA256
+    return dict(embedder="SemanticEmbedder", model_name=MODEL_NAME,
+                model_revision=MODEL_REVISION, weights_sha256=WEIGHTS_SHA256,
+                device="cpu")
+
+
+def retriever_config(arm):
+    """Record the actual retrieval embedder separately from expert routing."""
+    from baselines import Rag
+    if isinstance(arm, Rag):
+        embedder = arm.embedder
+    elif hasattr(arm, "hippo"):
+        embedder = arm.hippo.embedder
+    else:
+        return None
+    info = dict(embedder=type(embedder).__name__, dim=embedder.dim,
+                k=arm.k, context_tokens=arm.context_tokens,
+                enabled=arm.name not in ("expert_only", "generic_forced_noret"),
+                model_name=getattr(embedder, "model_name", None),
+                model_revision=getattr(embedder, "revision", None),
+                weights_sha256=getattr(embedder, "weights_sha256", None))
+    if info["embedder"] == "SemanticEmbedder":
+        info.update(device="cpu", batch_size=embedder.batch_size,
+                    max_length=embedder.max_length,
+                    test_encoder=embedder._encoder is not None,
+                    pin_verified=embedder._encoder is None and embedder.model_path is not None)
+    else:
+        info.update(ngram=getattr(embedder, "ngram", None),
+                    ngram_weight=getattr(embedder, "ngram_weight", None))
+    return info
 
 
 def settings(root):
@@ -109,6 +153,12 @@ def settings(root):
                source_sha256=source_digest(root), schema=3,
                hardware_mode=("single_device_dev" if os.environ.get("S4_SINGLE_DEVICE_DEV") == "1"
                               else "dual_t4") if backend == "hf" else "cpu")
+    if is_v2_run(cfg):
+        if cycles != 3:
+            raise ValueError("v2 requires exactly 3 cycles")
+        cfg["protocol"] = "v2"
+    if is_v2_run(cfg) or "rag_semantic" in arms:
+        cfg["semantic_retriever"] = semantic_model_config()
     # Arms and mode are deliberately excluded: independent arm outputs can be reused.
     key = hashlib.sha256(json.dumps(cfg, sort_keys=True).encode()).hexdigest()[:16]
     smoke_cfg = {k: v for k, v in cfg.items() if k != "world_seed"}
@@ -239,6 +289,13 @@ def setup_runtime(base, cfg, run_dir):
     from huggingface_hub import snapshot_download
     snapshot_download(cfg["model"], revision=cfg["revision"],
                       allow_patterns=["*.json", "*.jinja", "*.txt", "*.model", "*.safetensors"])
+    if is_v2_run(cfg):
+        # v2 only: fetch the pinned MiniLM snapshot now, while the hub is still reachable
+        # (workers run with HF_HUB_OFFLINE=1). SemanticEmbedder re-verifies the weights SHA.
+        from baselines.semantic import MODEL_FILES, MODEL_NAME, MODEL_PATH_ENV, MODEL_REVISION, SemanticEmbedder
+        path = snapshot_download(MODEL_NAME, revision=MODEL_REVISION, allow_patterns=list(MODEL_FILES))
+        SemanticEmbedder(model_path=path)  # fail before any GPU work if the SHA does not match
+        os.environ[MODEL_PATH_ENV] = str(path)
     return environment
 
 
@@ -309,6 +366,10 @@ def make_arm(name, backend, cfg, Oracle, stream=None):
     if name == "ours_generic_only":
         from baselines.generic import GenericOnlySleepArm
         return GenericOnlySleepArm(backend, sleep_cfg, llm=backend)
+    if name in ("ours_generic_forced", "generic_forced_noret"):
+        from baselines.generic import GenericForcedSleepArm, GenericForcedNoRetArm
+        cls = GenericForcedSleepArm if name == "ours_generic_forced" else GenericForcedNoRetArm
+        return cls(backend, sleep_cfg, llm=backend)
     if name == "ours_oracle_trained":
         from baselines.oracle_trained import OracleTrainedSleepArm
         return OracleTrainedSleepArm(backend, sleep_cfg, llm=backend)
@@ -316,6 +377,16 @@ def make_arm(name, backend, cfg, Oracle, stream=None):
         return ExpertOnly(backend, sleep_cfg, llm=backend)
     if name == "rag_starved":
         return Rag(**{**common, "context_tokens": cfg["starved_tokens"]})
+    if name in ("rag_hashing", "rag_semantic"):
+        if name == "rag_semantic":
+            from baselines.semantic import SemanticEmbedder
+            embedder = SemanticEmbedder()  # local env path and verified pins; no test override
+        else:
+            from hippocampus import HashingEmbedder
+            embedder = HashingEmbedder()
+        arm = Rag(**common, embedder=embedder)
+        arm.name = name
+        return arm
     if name == "gold_context":
         from baselines.gold_context import GoldContext
         if stream is None:
@@ -359,7 +430,8 @@ def smoke_arm(name, arm, backend, cfg, stream, canary, measure, prompt_for, out)
                            + json.dumps(wrong, ensure_ascii=True))
     longest = None
     expert = None
-    if name in ("ours", "ours_salient", "ours_dream", "ours_generic_data", "ours_oracle_trained", "expert_only"):
+    if name in ("ours", "ours_salient", "ours_dream", "ours_generic_data", "ours_oracle_trained", "expert_only",
+                "ours_generic_forced", "generic_forced_noret"):
         n, prompt, target, tid = longest_example(stream, backend, prompt_for)
         # HFBackend accumulates FOUR microbatches per optimizer step. Repeating
         # the single longest actual example prevents random shorter selections.
@@ -417,6 +489,21 @@ def forced_train_accuracy(info):
     return validation["candidate_correct"] / len(validation["examples"])
 
 
+def discard_unfinished_v2_answers(out):
+    """Match the harness's completed-cycle policy without deduplicating evidence."""
+    from harness.results import load_records
+    from harness.runner import read_lines
+    path = out / "answers.jsonl"
+    if not path.exists():
+        return
+    completed = {r["cycle"] for r in load_records(out / "records.jsonl")
+                 if r["type"] == "cycle_done"}
+    rows = [r for r in read_lines(path) if r.get("day") in completed]
+    tmp = path.with_suffix(".jsonl.tmp")
+    tmp.write_text("".join(json.dumps(r) + "\n" for r in rows), encoding="utf-8")
+    tmp.replace(path)
+
+
 def worker(name, cfg, run_dir, smoke):
     out = run_dir / name
     out.mkdir(parents=True, exist_ok=True)
@@ -450,12 +537,15 @@ def worker(name, cfg, run_dir, smoke):
         backend.train_expert = logged_train
         stream, canary, Oracle, measure, prompt_for = import_world(cfg)
         arm = make_arm(name, backend, cfg, Oracle, stream)
+        result["retriever"] = retriever_config(arm)
         if smoke:
             result.update(smoke_arm(name, arm, backend, cfg, stream, canary, measure, prompt_for, out))
         else:
             from harness.runner import run_arm
             from harness.results import load_records
             from harness.grading import _FINAL
+            if is_v2_run(cfg):
+                discard_unfinished_v2_answers(out)
             sleeps = []
             parse_path = out / "parse.json"
             parse = ({int(k): v for k, v in json.loads(parse_path.read_text(encoding="utf-8")).items()}
@@ -747,6 +837,15 @@ def report(run_dir, cfg, arms, results, smoke, wall, hardware=None):
                          f"train accuracy={'-' if fit is None else format(fit, '.3f')}, "
                          f"reasons={night.get('reasons')}, "
                          f"routing (skill -> handle: n)={json.dumps(night.get('routing'), sort_keys=True)}")
+    for name in [a for a in ("ours_generic_forced", "generic_forced_noret") if a in results]:
+        for night in results[name].get("sleeps", []):
+            fit = night.get("generic_train_accuracy")
+            exact = night.get("generic_train_exact_accuracy")
+            table.append(f"- {name} cycle {night['cycle']}: accepted={night.get('accepted')}, "
+                         f"generic-target train accuracy={'-' if fit is None else format(fit, '.3f')}, "
+                         f"exact-case={'-' if exact is None else format(exact, '.3f')}, "
+                         f"examples={night.get('generic_train_examples')}, "
+                         f"bypassed checks={json.dumps(night.get('gate_bypassed'), sort_keys=True)}")
     required = ("ours", "rag", "hippo_only")
     valid = not smoke and eligible and all(
         a in final and results[a]["status"] == "complete" for a in required)
@@ -780,11 +879,18 @@ def report(run_dir, cfg, arms, results, smoke, wall, hardware=None):
     write_json(run_dir / "timings.json", {"wall_seconds": wall, "arms_seconds": {
         a: r["elapsed_seconds"] for a, r in results.items()}, "setup_excluded": True, "setup": setup})
     if not smoke and cfg.get("world") == "step5":
-        from step4.analyze import load_v1_run, v1_verdict, v1_markdown
-        seed, seed_results = load_v1_run(run_dir)
-        verdict = v1_verdict({seed: seed_results})
-        (run_dir / "v1-verdict.md").write_text(v1_markdown(verdict), encoding="utf-8")
-        write_json(run_dir / "v1-verdict.json", verdict)
+        if is_v2_run(cfg):
+            from step4.v2_analyze import load_v2_run, v2_verdict, v2_markdown
+            seed, seed_results = load_v2_run(run_dir)
+            verdict = v2_verdict({seed: seed_results})
+            (run_dir / "v2-verdict.md").write_text(v2_markdown(verdict), encoding="utf-8")
+            write_json(run_dir / "v2-verdict.json", verdict)
+        else:
+            from step4.analyze import load_v1_run, v1_verdict, v1_markdown
+            seed, seed_results = load_v1_run(run_dir)
+            verdict = v1_verdict({seed: seed_results})
+            (run_dir / "v1-verdict.md").write_text(v1_markdown(verdict), encoding="utf-8")
+            write_json(run_dir / "v1-verdict.json", verdict)
     return payload
 
 

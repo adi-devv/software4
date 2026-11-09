@@ -1,0 +1,16 @@
+COMMON RULES (all v2 code jobs)
+- Work ONLY inside D:/Aadit/claudez/software4-v2 (a source-only copy of software4). Do not touch D:/Aadit/claudez/software4 or any other folder. No git commands that write, no Kaggle, no GPU, no network model downloads. Local CPU / fake-backend tests only.
+- Read docs/V2_PREREG_DRAFT.md first: it is the spec (locked: M=30; non-inferiority >= -5 points and 95% CI low >= -10 for A, B, C and pooled vs semantic RAG, hashing RAG and hippo_only, all required; scope = pooled across valid seeds, at least 2 valid seeds, per-seed results always reported next to it; seeds 48/49/50; case-folded primary, exact-case reported).
+- Own ONLY the files named in your job. Do not edit any other file; no two jobs write the same file. If you need a change elsewhere, say so in your final report instead.
+- Keep v1 behaviour intact: do not change existing v1 classes/functions/names (ours_generic_only, rag, v1_verdict, load_v1_run...). Add new code beside them.
+- New v2 arm names (the run.py owner will register them later, do not edit run.py): rag_hashing (existing Rag with HashingEmbedder), rag_semantic (Rag with the semantic embedder), ours_generic_forced (ours-style, forced generic experts), generic_forced_noret (forced generic experts, no hippocampus retrieval, compare with expert_only).
+- Python: C:/Users/aadit/AppData/Local/Programs/Python/Python312/python.exe -I . Tests with pytest in your own new test file(s). Existing tests must still pass for files you touch.
+- Final report (max 25 lines): files changed, public names/signatures others must call, tests run and results, open issues.
+
+JOB A: forced generic control. You own: baselines/generic.py, baselines/sleep.py, and a NEW test file baselines/tests/test_v2_forced_generic.py. (Read step4/run.py, baselines/arms.py, step4/run.py forced_train_accuracy for how arms are built; do not edit them.)
+Spec (docs/V2_PREREG_DRAFT.md changes 1, 2, 7):
+1. Add GenericForcedSleepArm (name 'ours_generic_forced'): like GenericOnlySleepArm (same pool, same seed+cycle shuffle, same selected-episode count) but installs the trained generic experts REGARDLESS of the sleep gate; routing evidence is task-derived exactly as in ours; every bypassed gate check is recorded in the sleep info/log (e.g. info['gate_bypassed']=[{check, would_have_failed, detail}]). GenericOnlySleepArm and SleepArm default behaviour must stay byte-for-byte the same for v1 use.
+2. Add GenericForcedNoRetArm (name 'generic_forced_noret'): forced generic experts, NO hippocampus retrieval (mirror how the expert_only arm is built in step4/run.py/baselines).
+3. Fit logging: measure fit on the ACTUAL generic training targets (the examples returned by _expert_examples), e.g. info['generic_train_accuracy'] and counts; do not reuse the trusted world/replay examples.
+4. Matching: training example count, steps, replay schedule and routing evidence must match those ours gets for the same cycle (make this checkable in a test with the fake backend baselines/sleep_fake.py).
+5. Tests: forced arm installs experts when the normal gate would reject; v1 GenericOnlySleepArm still rejects in the same situation; bypass logging present; noret arm never calls retrieval.

@@ -1,0 +1,16 @@
+COMMON RULES (all v2 code jobs)
+- Work ONLY inside D:/Aadit/claudez/software4-v2 (a source-only copy of software4). Do not touch D:/Aadit/claudez/software4 or any other folder. No git commands that write, no Kaggle, no GPU, no network model downloads. Local CPU / fake-backend tests only.
+- Read docs/V2_PREREG_DRAFT.md first: it is the spec (locked: M=30; non-inferiority >= -5 points and 95% CI low >= -10 for A, B, C and pooled vs semantic RAG, hashing RAG and hippo_only, all required; scope = pooled across valid seeds, at least 2 valid seeds, per-seed results always reported next to it; seeds 48/49/50; case-folded primary, exact-case reported).
+- Own ONLY the files named in your job. Do not edit any other file; no two jobs write the same file. If you need a change elsewhere, say so in your final report instead.
+- Keep v1 behaviour intact: do not change existing v1 classes/functions/names (ours_generic_only, rag, v1_verdict, load_v1_run...). Add new code beside them.
+- New v2 arm names (the run.py owner will register them later, do not edit run.py): rag_hashing (existing Rag with HashingEmbedder), rag_semantic (Rag with the semantic embedder), ours_generic_forced (ours-style, forced generic experts), generic_forced_noret (forced generic experts, no hippocampus retrieval, compare with expert_only).
+- Python: C:/Users/aadit/AppData/Local/Programs/Python/Python312/python.exe -I . Tests with pytest in your own new test file(s). Existing tests must still pass for files you touch.
+- Final report (max 25 lines): files changed, public names/signatures others must call, tests run and results, open issues.
+
+JOB B: semantic retriever. You own: NEW file baselines/semantic.py and NEW test file baselines/tests/test_v2_semantic.py. Read hippocampus/ (HashingEmbedder interface) and baselines/arms.py (Rag takes embedder=...) but do not edit them.
+Spec (change 3): a sentence-embedding embedder class SemanticEmbedder with the SAME interface as HashingEmbedder so Rag(k=..., embedder=SemanticEmbedder(...)) works with the same top-k, budget and store policy. Requirements:
+- Model identity pinned: module-level constants for model name, exact revision/commit and expected weights sha256 (use placeholders clearly marked TODO_PIN only where the real hash cannot be known offline; the loader must refuse to run when the pin is a placeholder unless allow_unpinned=True is passed, and must verify the sha256 of the local weights file when pinned). Load from a local path (env var / arg), never download inside the module.
+- No gold skill metadata: embed only the stored text/query text exactly as Rag passes it; document this.
+- Deterministic, CPU-capable, lazy import of the heavy library (sentence_transformers or transformers; pick transformers+torch if sentence_transformers is not already a dependency of the repo; check step4/kernel-metadata.json and step4/hf.py for what is installed on Kaggle).
+- Provide a tiny StubEncoder/test double so tests run without the real model. Tests: interface parity with HashingEmbedder, unpinned refusal, hash mismatch refusal, determinism, Rag works end to end with the stub.
+- In the final report list the exact pip/model download steps the user must do on Kaggle (dataset name placeholder) and the dependency list.
