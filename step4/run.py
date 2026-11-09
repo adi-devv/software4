@@ -35,6 +35,16 @@ V2_ARMS = ("ours", "expert_only", "hippo_only", "rag_semantic", "rag_hashing",
            "gold_context")
 AVAILABLE_ARMS = ARMS + ("oracle", "ours_salient", "ours_dream", "ours_generic_data", "ours_generic_only", "ours_oracle_trained",
                          "rag_hashing", "rag_semantic", "ours_generic_forced", "generic_forced_noret")
+_V2_AVAILABLE_ARMS = AVAILABLE_ARMS
+
+
+def available_arms(cfg=None):
+    enabled = (cfg.get("v3_wrong_rule", False) if cfg is not None
+               else os.environ.get("S4_V3_WRONG_RULE") == "1")
+    return _V2_AVAILABLE_ARMS + (("wrong_rule",) if enabled else ())
+
+
+AVAILABLE_ARMS = available_arms()
 FAIR_CONTEXT_TOKENS = 512    # every context-using arm; `rag_starved` alone keeps the old 64
 STARVED_CONTEXT_TOKENS = 64
 FIT_THRESHOLD = 0.9          # forced-expert train accuracy below this = optimisation failure
@@ -70,7 +80,8 @@ def source_digest(root):
     paths = [p for folder in ("baselines", "harness", "hippocampus")
              for p in (root / folder).glob("*.py")]
     paths += [root / "scripts/smoke_sleep.py", root / "step4/hf.py", root / "step4/run.py",
-              root / "step4/analyze.py", root / "step4/v2_analyze.py"]
+              root / "step4/analyze.py", root / "step4/v2_analyze.py",
+              root / "step4/v3_control_validity.py", root / "step4/v3_report.py"]
     paths += sorted((root / "data/generic").glob("*.jsonl"))
     for path in sorted(paths):
         h.update(path.relative_to(root).as_posix().encode())
@@ -94,6 +105,12 @@ def is_v2_run(cfg):
     return cfg.get("world") == "step5" and cfg.get("world_seed") in (48, 49, 50, 51, 52)
 
 
+def is_v3_run(cfg):
+    return cfg.get("world") == "step5" and (
+        cfg.get("world_seed") in (53, 54, 55, 56, 57) or
+        any(cfg.get(flag) for flag in ("v3_fact_filter", "v3_fallback", "v3_wrong_rule")))
+
+
 def semantic_model_config():
     """Pinned local retriever identity, also included in v2 reuse/smoke keys."""
     from baselines.semantic import MODEL_NAME, MODEL_REVISION, WEIGHTS_SHA256
@@ -113,7 +130,7 @@ def retriever_config(arm):
         return None
     info = dict(embedder=type(embedder).__name__, dim=embedder.dim,
                 k=arm.k, context_tokens=arm.context_tokens,
-                enabled=arm.name not in ("expert_only", "generic_forced_noret"),
+                enabled=arm.name not in ("expert_only", "generic_forced_noret", "wrong_rule"),
                 model_name=getattr(embedder, "model_name", None),
                 model_revision=getattr(embedder, "revision", None),
                 weights_sha256=getattr(embedder, "weights_sha256", None))
@@ -136,8 +153,9 @@ def settings(root):
     steps = int(os.environ.get("S4_STEPS", "64"))
     if backend not in ("fake", "tiny", "hf") or not arms or len(set(arms)) != len(arms):
         raise ValueError("invalid backend or empty/duplicate S4_ARMS")
-    if set(arms) - set(AVAILABLE_ARMS) or cycles < 3 or steps < 1:
-        raise ValueError("S4_ARMS must use " + ",".join(AVAILABLE_ARMS) + "; cycles >= 3; steps >= 1")
+    allowed = available_arms()
+    if set(arms) - set(allowed) or cycles < 3 or steps < 1:
+        raise ValueError("S4_ARMS must use " + ",".join(allowed) + "; cycles >= 3; steps >= 1")
     model = os.environ.get("S4_MODEL", "Qwen/Qwen3.5-2B")
     revision = os.environ.get("S4_REVISION", QWEN35_REVISION if model == "Qwen/Qwen3.5-2B" else "main")
     world = os.environ.get("S4_WORLD", DEFAULT_WORLD)
@@ -153,11 +171,18 @@ def settings(root):
                source_sha256=source_digest(root), schema=3,
                hardware_mode=("single_device_dev" if os.environ.get("S4_SINGLE_DEVICE_DEV") == "1"
                               else "dual_t4") if backend == "hf" else "cpu")
-    if is_v2_run(cfg):
+    for flag in ("v3_fact_filter", "v3_fallback", "v3_wrong_rule"):
+        if os.environ.get("S4_" + flag.upper()) == "1":
+            cfg[flag] = True
+    if is_v3_run(cfg):
+        if cycles != 3:
+            raise ValueError("v3 requires exactly 3 cycles")
+        cfg["protocol"] = "v3"
+    elif is_v2_run(cfg):
         if cycles != 3:
             raise ValueError("v2 requires exactly 3 cycles")
         cfg["protocol"] = "v2"
-    if is_v2_run(cfg) or "rag_semantic" in arms:
+    if is_v2_run(cfg) or is_v3_run(cfg) or "rag_semantic" in arms:
         cfg["semantic_retriever"] = semantic_model_config()
     # Arms and mode are deliberately excluded: independent arm outputs can be reused.
     key = hashlib.sha256(json.dumps(cfg, sort_keys=True).encode()).hexdigest()[:16]
@@ -289,8 +314,8 @@ def setup_runtime(base, cfg, run_dir):
     from huggingface_hub import snapshot_download
     snapshot_download(cfg["model"], revision=cfg["revision"],
                       allow_patterns=["*.json", "*.jinja", "*.txt", "*.model", "*.safetensors"])
-    if is_v2_run(cfg):
-        # v2 only: fetch the pinned MiniLM snapshot now, while the hub is still reachable
+    if is_v2_run(cfg) or is_v3_run(cfg):
+        # v2/v3: fetch the pinned MiniLM snapshot now, while the hub is still reachable
         # (workers run with HF_HUB_OFFLINE=1). SemanticEmbedder re-verifies the weights SHA.
         from baselines.semantic import MODEL_FILES, MODEL_NAME, MODEL_PATH_ENV, MODEL_REVISION, SemanticEmbedder
         path = snapshot_download(MODEL_NAME, revision=MODEL_REVISION, allow_patterns=list(MODEL_FILES))
@@ -351,7 +376,13 @@ def make_arm(name, backend, cfg, Oracle, stream=None):
     from baselines import ExpertOnly, HippoOnly, NoMemory, Rag, SleepArm, SleepConfig, TextNotes
     budget = cfg["context_tokens"]
     common = dict(llm=backend, context_tokens=budget, seed=0)
-    sleep_cfg = SleepConfig(steps=cfg["steps"], seed=0, context_tokens=budget)
+    sleep_cfg = SleepConfig(steps=cfg["steps"], seed=0, context_tokens=budget,
+                            v3_fact_filter=bool(cfg.get("v3_fact_filter")) and name in ("ours", "expert_only"),
+                            v3_fallback=bool(cfg.get("v3_fallback")) and name == "ours",
+                            v3_wrong_rule=bool(cfg.get("v3_wrong_rule")))
+    if name == "wrong_rule":
+        from baselines.wrong_rule import WrongRuleSleepArm
+        return WrongRuleSleepArm(backend, sleep_cfg, llm=backend)
     if name == "ours":
         return SleepArm(backend, sleep_cfg, llm=backend)
     if name == "ours_salient":
@@ -431,7 +462,7 @@ def smoke_arm(name, arm, backend, cfg, stream, canary, measure, prompt_for, out)
     longest = None
     expert = None
     if name in ("ours", "ours_salient", "ours_dream", "ours_generic_data", "ours_oracle_trained", "expert_only",
-                "ours_generic_forced", "generic_forced_noret"):
+                "ours_generic_forced", "generic_forced_noret", "wrong_rule"):
         n, prompt, target, tid = longest_example(stream, backend, prompt_for)
         # HFBackend accumulates FOUR microbatches per optimizer step. Repeating
         # the single longest actual example prevents random shorter selections.
@@ -544,7 +575,7 @@ def worker(name, cfg, run_dir, smoke):
             from harness.runner import run_arm
             from harness.results import load_records
             from harness.grading import _FINAL
-            if is_v2_run(cfg):
+            if is_v2_run(cfg) or is_v3_run(cfg):
                 discard_unfinished_v2_answers(out)
             sleeps = []
             parse_path = out / "parse.json"
@@ -559,7 +590,10 @@ def worker(name, cfg, run_dir, smoke):
                     row = dict(arm=name, task_id=task.id, day=task.day, family=task.family,
                                skill=task.skill, expert=trace.get("expert"),
                                retrieved=trace.get("retrieved", []), prompt=trace.get("prompt"),
-                               answer=response, context_tokens=context_block_tokens(backend, trace.get("prompt")))
+                               answer=response, context_tokens=sum(context_block_tokens(backend, p)
+                                   for p in trace.get("prompts", [trace.get("prompt")])))
+                    if trace.get("fallback"):
+                        row.update(fallback=True, prompts=trace["prompts"])
                     try:
                         serialized = json.dumps(row) + "\n"
                         with (out / "answers.jsonl").open("a", encoding="utf-8") as log:
@@ -600,6 +634,8 @@ def worker(name, cfg, run_dir, smoke):
         if backend.frozen_fingerprint() != fingerprint:
             raise RuntimeError("frozen core fingerprint changed")
         result.update(status="complete", training=history, frozen_fingerprint=fingerprint)
+        if hasattr(arm, "logged_stats") and arm.logged_stats():
+            result["stats"] = arm.logged_stats()
         if cfg["backend"] != "fake":
             import torch
             result.update(torch=torch.__version__, device=str(backend.device),
@@ -879,7 +915,15 @@ def report(run_dir, cfg, arms, results, smoke, wall, hardware=None):
     write_json(run_dir / "timings.json", {"wall_seconds": wall, "arms_seconds": {
         a: r["elapsed_seconds"] for a, r in results.items()}, "setup_excluded": True, "setup": setup})
     if not smoke and cfg.get("world") == "step5":
-        if is_v2_run(cfg):
+        if is_v3_run(cfg):
+            from step4.v3_report import load_v3_run, v3_verdict, v3_markdown
+            verdict = v3_verdict([load_v3_run(run_dir)])
+            v3_text = v3_markdown(verdict)
+            (run_dir / "v3-verdict.md").write_text(v3_text, encoding="utf-8")
+            with (run_dir / "RESULTS.md").open("a", encoding="utf-8") as log:
+                log.write("\n" + v3_text)
+            write_json(run_dir / "v3-verdict.json", verdict)
+        elif is_v2_run(cfg):
             from step4.v2_analyze import load_v2_run, v2_verdict, v2_markdown
             seed, seed_results = load_v2_run(run_dir)
             verdict = v2_verdict({seed: seed_results})
@@ -896,7 +940,8 @@ def report(run_dir, cfg, arms, results, smoke, wall, hardware=None):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--worker", choices=AVAILABLE_ARMS, help=argparse.SUPPRESS)
+    worker_cfg = json.loads(os.environ["S4_WORKER_CONFIG"]) if "S4_WORKER_CONFIG" in os.environ else None
+    parser.add_argument("--worker", choices=available_arms(worker_cfg), help=argparse.SUPPRESS)
     args = parser.parse_args()
     root = source_root()
     sys.path.insert(0, str(root))

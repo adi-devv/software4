@@ -16,6 +16,7 @@ import numpy as np
 from hippocampus import HashingEmbedder
 from harness.grading import _extract, match
 from .arms import HippoOnly, build_prompt, parse_answer
+from .v3 import FALLBACK_TRIGGER_K, demo_answer, shape_signature
 
 
 class Backend(Protocol):
@@ -46,6 +47,9 @@ class SleepConfig:
     # that is one example. New (non-replay) examples keep zero tolerance, as do the exact
     # canary rule and the delta-norm cap.
     replay_flip_fraction: float = 1 / 8
+    v3_fact_filter: bool = False
+    v3_fallback: bool = False
+    v3_wrong_rule: bool = False
 
     def __post_init__(self):
         if self.max_examples < 1 or not 0 <= self.replay_size < self.max_examples:
@@ -91,6 +95,7 @@ class SleepArm(HippoOnly):
         self.none_centroid = None
         self._accepted_ids = set()
         self._backend_snapshot = self._initial
+        self.fallback_fired = 0
 
     def bind(self, services):
         self.services = services
@@ -98,6 +103,14 @@ class SleepArm(HippoOnly):
     def _check_core(self):
         if self.backend.frozen_fingerprint() != self._fingerprint:
             raise RuntimeError('backend changed frozen core weights')
+
+    def context(self, task):
+        if not self.cfg.v3_fact_filter:
+            return super().context(task)
+        hits = self.hippo.recall(task.prompt, self.k, now=self.tick)
+        if hits and hits[0].kind == 'fact':
+            hits = [h for h in hits if h.kind == 'fact']
+        return [(h.id, h.text) for h in hits[:self.k]]
 
     def _prompt(self, task, *, remember=False, expert=None):
         entries = self.context(task) if expert is None else []
@@ -126,7 +139,30 @@ class SleepArm(HippoOnly):
         expert = self.route(task.prompt)
         prompt = self._prompt(task, remember=True, expert=expert)
         self.answer_trace = {'expert': expert, 'retrieved': self._prompt_retrieved, 'prompt': prompt}
-        return self.backend.generate(prompt, expert=expert)
+        answer = self.backend.generate(prompt, expert=expert)
+        if self.name != 'ours' or not self.cfg.v3_fallback or expert is None:
+            return answer
+        # Deliberately use v2 recall, independent of context()'s fact padding filter.
+        hits = self.hippo.recall(task.prompt, FALLBACK_TRIGGER_K, now=self.tick)
+        demos = [(h, demo_answer(h.text)) for h in hits[:FALLBACK_TRIGGER_K]]
+        demos = [(h, target) for h, target in demos if target]
+        extracted, _ = _extract(answer)
+        if not demos or (extracted is not None and any(
+                shape_signature(extracted.strip()) == shape_signature(target) for _, target in demos)):
+            return answer
+        entries = HippoOnly.context(self, task)
+        fallback, selected = build_prompt(self.llm, task, [text for _, text in entries],
+                                          self.context_tokens, order=[mid for mid, _ in entries])
+        self._prompt_retrieved = [entries[i][0] for i in selected]
+        if task.mode == 'day':
+            self._pending[task.id] = self._prompt_retrieved
+        self.fallback_fired += 1
+        self.answer_trace.update(prompt=fallback, retrieved=self._prompt_retrieved,
+                                 prompts=[prompt, fallback], fallback=True)
+        return self.backend.generate(fallback, expert=None)
+
+    def logged_stats(self):
+        return {'fallback_fired': self.fallback_fired} if self.cfg.v3_fallback else {}
 
     def _centroid(self, prompts):
         if not prompts:
@@ -314,7 +350,10 @@ class SleepArm(HippoOnly):
             snapshot = str(self._backend_root / uuid4().hex)
             self.backend.save(snapshot)
             self._backend_snapshot = snapshot
-        return copy.deepcopy({**super().save_state(), 'config': asdict(self.cfg),
+        # Keep flags-off checkpoints in the v2 shape, including their config keys.
+        config = {k: v for k, v in asdict(self.cfg).items() if not k.startswith('v3_') or v}
+        stats = {'v3_stats': self.logged_stats()} if self.cfg.v3_fallback else {}
+        return copy.deepcopy({**super().save_state(), **stats, 'config': config,
                               'active_experts': self.active_experts,
                               'centroids': {h: v.tolist() for h, v in self.centroids.items()},
                               'none_centroid': (None if self.none_centroid is None
@@ -343,6 +382,7 @@ class SleepArm(HippoOnly):
         self.none_centroid = None if none is None else np.asarray(none, dtype=float)
         self._accepted_ids = set(state['accepted_ids'])
         self._backend_snapshot = str(snapshot)
+        self.fallback_fired = state.get('v3_stats', {}).get('fallback_fired', 0)
 
 
 class ExpertOnly(SleepArm):

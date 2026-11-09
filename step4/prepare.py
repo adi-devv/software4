@@ -14,7 +14,8 @@ def prepare(full=False, world_seed=None, arms=None, world="step4", target=None):
     files = [p for folder in ("baselines", "harness", "hippocampus")
              for p in (root / folder).glob("*.py")]
     files += [root / "scripts/smoke_sleep.py", root / "step4/hf.py", root / "step4/run.py",
-              root / "step4/analyze.py", root / "step4/v2_analyze.py"]
+              root / "step4/analyze.py", root / "step4/v2_analyze.py",
+              root / "step4/v3_control_validity.py", root / "step4/v3_report.py"]
     files += sorted((root / "data/generic").glob("*.jsonl"))
     archive = io.BytesIO()
     with zipfile.ZipFile(archive, "w", compression=zipfile.ZIP_DEFLATED) as z:
