@@ -7,7 +7,7 @@ from pathlib import Path
 import zipfile
 
 
-def prepare(full=False, world_seed=None, arms=None, world="step4", target=None):
+def prepare(full=False, world_seed=None, arms=None, world="step4", target=None, env=None):
     root = Path(__file__).resolve().parents[1]
     target = Path(target) if target is not None else root / "step4/upload"
     target.mkdir(parents=True, exist_ok=True)
@@ -34,6 +34,13 @@ def prepare(full=False, world_seed=None, arms=None, world="step4", target=None):
         script = script.replace('DEFAULT_ARMS = ""', f'DEFAULT_ARMS = "{arms}"', 1)
     if full:
         script = script.replace('DEFAULT_SMOKE = "1"', 'DEFAULT_SMOKE = "0"', 1)
+    if env:
+        # Kaggle kernels cannot take env vars, so bake them into the generated artifact only
+        # (before module-level code reads them). Frozen source files and the source digest are untouched.
+        lines = "".join(f"os.environ.setdefault({k!r}, {str(v)!r})\n" for k, v in sorted(env.items()))
+        if "import zipfile\n" not in script:
+            raise ValueError("cannot place env lines")
+        script = script.replace("import zipfile\n", "import zipfile\n\n# baked by prepare.py --env\n" + lines, 1)
     (target / "run.py").write_text(script, encoding="utf-8")
     metadata = json.loads((root / "step4/kernel-metadata.json").read_text(encoding="utf-8"))
     if full:
@@ -53,5 +60,9 @@ if __name__ == "__main__":
     parser.add_argument("--world-seed", type=int, default=None, help="bake a world seed (default: harness 41)")
     parser.add_argument("--arms", default=None, help="bake an arm list, e.g. ours_salient (default: all ARMS)")
     parser.add_argument("--world", choices=("step4", "step5"), default="step4")
+    parser.add_argument("--target", default=None, help="output folder (default: step4/upload)")
+    parser.add_argument("--env", action="append", default=[], metavar="KEY=VALUE",
+                        help="bake an env default into the generated script (repeatable)")
     args = parser.parse_args()
-    prepare(args.full, args.world_seed, args.arms, args.world)
+    env = dict(item.split("=", 1) for item in args.env)
+    prepare(args.full, args.world_seed, args.arms, args.world, args.target, env)
