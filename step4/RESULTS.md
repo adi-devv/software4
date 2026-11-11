@@ -187,3 +187,16 @@ Fact answer classes (correct / stale / format-corrupted / absorbed / unusable of
 - **Receipt:** `smoke-d844372d5ac34f14`; `kaggle_full_run_eligible: True`; 2 distinct Tesla T4s (`dual_t4`). Config: protocol v3, all three V3 flags on, source_sha256 `d2bc3554...` (matches `docs/V3_FREEZE.txt`).
 - **GPU-hours:** this run 0.088 worker-hours. Weekly total not read from Kaggle (earlier smoke/v2 runs not re-summed here).
 - **Packaging note:** V3 flags are baked into the generated script by `prepare.py --env` (new option; `prepare.py` is outside the source digest). First push attempt failed locally (old Kaggle CLI 1.7.4.5 on PATH, no GPU time used); second push used CLI 2.2.5.
+
+## v3 full run (2026-11-09 to 2026-11-10; seeds 53/54/55; kernels `adidevv/software4-step4-v3-s53|s54|s55`)
+
+*Approved by Aadit ("put all runs in queue on kaggle"). Verdict run once over all three seeds, as registered (`v3_report.py`, no subset verdicts). Outputs and verdict files are in `C:\Users\aadit\v3_out` (D: was full).*
+- **Timing (finished, from `results.json`; IST = UTC+5:30):** s53 18:00:05 UTC (23:30 IST); s54 17:59:43 UTC (23:29 IST); s55 19:00:49 UTC (00:30 IST, 2026-11-10). Driver wall: s53 3285 s, s54 3174 s, s55 3324 s. All three `kaggle_full_run_eligible: True`.
+- **GPU-hours (summed worker-hours):** s53 1.770, s54 1.753, s55 1.797 = 5.32 for the full run (plus 0.088 smoke). Weekly total not read from Kaggle.
+- **Verdict: UNINFORMATIVE.** Claim 3 is UNINFORMATIVE because the `wrong_rule` control failed its validity gate on seed 54 (well-formed 67.5% of 360 rule items, gate is at least 90%; s53 99.7%, s55 97.8%). Per the freeze, a failed gate leaves Claim 3 uninformative, not failed. No seed was void or invalid, so the report triggered no replacement (56/57).
+- **Claims:** 1 PASS, 2 PASS, 3 UNINFORMATIVE, 4 PASS, 5 PASS (safety passes on all seeds: revised, poison fact correct, no absorption, retention).
+- **Accuracy (final cycle, case-folded, pooled over 1080 items):** ours 94.17%; expert_only 90.83%; rag_semantic 92.41%; rag_hashing 90.93%; hippo_only 90.93%. Rule C pooled: ours 93.06% (v2: 80.0%). Gold-context validity 90.8-96.7% on every rule and seed; no_memory 0%.
+- **ours minus baselines (pooled, 95% CI):** rag_semantic +1.76% [0.00, 3.61]; rag_hashing +3.24% [1.48, 5.00]; hippo_only +3.24% [1.48, 5.00]; no_memory +94.17% [92.78, 95.56].
+- **Fallback:** the format-checked frozen-core fallback fired on `ours` 68 / 91 / 84 times (s53/54/55) and never on other arms.
+- **Caveats:** `text_notes` scores 0.00% on rule A on every seed (not investigated here). rag_hashing and hippo_only drop to 75.8% on rule A in seed 55 only. Intervals are conditional on trained stacks; 3 seeds give weak evidence on new-stack variability.
+- **Not yet checked:** why `wrong_rule` was malformed on s54 (hypothesis only: the same format collapse seen with the v2 generic control). Whether to re-run Claim 3 with a repaired control is Aadit's decision; it would be a new pre-registration, not a replacement seed.

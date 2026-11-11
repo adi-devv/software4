@@ -19,7 +19,7 @@ Research project: a brain-inspired LLM system that keeps learning after deployme
   - `~/.codex` is the app's own default (currently w), so don't use it for rotation.
 - **Run one job:**
   ```bash
-  CODEX_HOME=C:/Users/aadit/.codex-7859 codex --search exec -m gpt-6.1-sol -c model_reasoning_effort='"high"' -s read-only --skip-git-repo-check -C D:/Aadit/claudez/software4 -o out.md - < prompt.md
+  CODEX_HOME=C:/Users/aadit/.codex-7859 codex --search exec -m gpt-6.1-sol -c model_reasoning_effort='"high"' -s danger-full-access --skip-git-repo-check -C D:/Aadit/claudez/software4 -o out.md - < prompt.md
   ```
   - Always feed stdin (`- < prompt.md`, or `< /dev/null`). Otherwise it can hang on "Reading additional input from stdin".
   - Launch through Bash `run_in_background`, with a description like "Codex (gpt-6.1-sol): <job>", so the run shows up as a background task.
@@ -74,7 +74,7 @@ Budget is about 30 GPU-hours a week per Kaggle account; the user may use more th
 | Reviewing Kaggle scripts, writing routine test code as a patch, summarising logs | Codex `gpt-6.1-terra` |
 
 - **Use Codex first** for any of the Codex work above, up to one job per account at once (see "Parallel, one job per account"). Use Claude subagents only when all 3 accounts are at their limit.
-- Codex runs read-only and returns patches or reports. Claude checks them, applies them and runs them.
+- **Codex runs with full access** (user's standing instruction, 2026-11-11): `-s danger-full-access` (or `SANDBOX=danger-full-access` for `run_rotate.sh`). It writes code and runs CPU tests itself, so nobody is asked for permission. Each coding job works only in its own `git worktree` or its own named new files. Never on the main checkout's tracked files, never git push or branch switches in the main checkout, never Kaggle pushes or deletes. Claude reviews the diff, verifies, commits, and does every Kaggle push.
 - Check a Codex claim before relying on it.
 - Quick checks stay in the main chat.
 
